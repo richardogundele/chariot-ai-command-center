@@ -1,158 +1,183 @@
 
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, DollarSign, Calendar, Download, TrendingUp, TrendingDown, HelpCircle } from "lucide-react";
 import { WeeklyProfitChart } from "@/components/reports/WeeklyProfitChart";
 import { InsightCard } from "@/components/reports/InsightCard";
-import { Progress } from "@/components/ui/progress";
+import { 
+  TrendingUp, FileText, Target, Activity, Zap, 
+  BarChart, DollarSign, Users
+} from "lucide-react";
 
 const Reports = () => {
   return (
-    <DashboardLayout>
-      <div className="flex items-center justify-between mb-8">
+    <DashboardLayout className="space-y-8">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Weekly Profit Report</h1>
-          <p className="text-muted-foreground">April 1st - April 7th, 2025</p>
+          <h1 className="text-3xl font-bold">Reports & Insights</h1>
+          <p className="text-muted-foreground">Performance analytics and AI-driven recommendations</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" className="gap-2">
-            <Calendar className="h-4 w-4" />
-            Change Period
-          </Button>
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-        <Card className="col-span-1 lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Performance Overview</CardTitle>
-            <CardDescription>Weekly revenue, costs, and profit</CardDescription>
-          </CardHeader>
-          <CardContent className="h-80">
-            <WeeklyProfitChart />
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Summary</CardTitle>
-            <CardDescription>Key performance metrics</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Total Spend</span>
-                <span className="text-sm font-medium">$5,400</span>
-              </div>
-              <Progress value={54} className="h-2" />
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Total Revenue</span>
-                <span className="text-sm font-medium">$16,200</span>
-              </div>
-              <Progress value={75} className="h-2" />
-            </div>
-            
-            <div className="py-3 px-4 bg-primary/5 rounded-md border border-primary/10">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">ROAS</span>
-                <span className="font-bold text-xl">3.0x</span>
-              </div>
-              <p className="text-xs text-muted-foreground">Return on Ad Spend is above target (2.5x)</p>
-            </div>
-            
-            <div className="py-3 px-4 bg-primary/5 rounded-md border border-primary/10">
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">Net Profit</span>
-                <span className="font-bold text-xl text-green-600">$10,800</span>
-              </div>
-              <p className="text-xs text-muted-foreground">+18% compared to previous week</p>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button className="w-full gap-2">
-              Reinvest Profits <ArrowRight className="h-4 w-4" />
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
-      
-      <h2 className="text-2xl font-bold mb-6">Key Insights</h2>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <InsightCard 
-          icon={TrendingUp}
-          title="Google Ads Performance"
-          description="Scaling up Google Ads led to 34% higher conversions this week while maintaining acquisition costs."
-          action="Explore Performance"
-        />
-        
-        <InsightCard 
-          icon={TrendingDown}
-          title="Facebook Ad Efficiency"
-          description="Cost per conversion decreased by 12% after adjusting audience targeting based on last week's data."
-          action="View Details"
-        />
-        
-        <InsightCard 
-          icon={DollarSign}
-          title="Opportunity: TikTok Ads"
-          description="Based on audience demographics, expanding to TikTok could yield a 22% higher ROAS than current platforms."
-          action="Create Test Campaign"
-        />
+        <Button>
+          <FileText className="mr-2 h-4 w-4" />
+          Export Report
+        </Button>
       </div>
       
       <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between">
-            <div>
-              <CardTitle>AI Recommendations</CardTitle>
-              <CardDescription>Strategic suggestions based on this week's performance</CardDescription>
-            </div>
-            <Button variant="ghost" size="icon">
-              <HelpCircle className="h-4 w-4" />
-            </Button>
-          </div>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xl">Weekly Performance Summary</CardTitle>
+          <CardDescription>April 1 - April 7, 2025</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="p-4 bg-accent/10 rounded-md border border-accent/20">
-            <h3 className="font-medium mb-2 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-accent" />
-              Recommendation: Increase budget allocation
-            </h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              Current ROAS of 3.0x suggests there's room to scale. Increasing daily budget by 20% could capture additional conversions while maintaining profitability.
-            </p>
-            <div className="flex gap-2">
-              <Button size="sm">Approve</Button>
-              <Button size="sm" variant="outline">Decline</Button>
-              <Button size="sm" variant="ghost">Modify</Button>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-6 mb-8">
+            <div className="flex-1 space-y-2">
+              <h3 className="text-lg font-medium">This Week:</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <div className="text-muted-foreground text-sm">Total Spend</div>
+                  <div className="text-2xl font-bold">$5,400</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-muted-foreground text-sm">Revenue</div>
+                  <div className="text-2xl font-bold">$16,200</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-muted-foreground text-sm">ROAS</div>
+                  <div className="text-2xl font-bold">3.0x</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-muted-foreground text-sm">Conversions</div>
+                  <div className="text-2xl font-bold">217</div>
+                </div>
+              </div>
+              
+              <div className="pt-4">
+                <div className="flex items-center gap-2 text-green-600 font-medium">
+                  <TrendingUp className="h-4 w-4" />
+                  <span>+18% improvement vs last week</span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Your campaign optimizations are paying off with steady performance gains
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex-1">
+              <WeeklyProfitChart />
             </div>
           </div>
           
-          <div className="p-4 bg-accent/10 rounded-md border border-accent/20">
-            <h3 className="font-medium mb-2 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-accent" />
-              Recommendation: Optimize ad creative
-            </h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              Testing has shown that testimonial-based creatives are outperforming feature-focused ads by 28%. Shifting budget toward testimonial ads could improve overall campaign performance.
-            </p>
-            <div className="flex gap-2">
-              <Button size="sm">Approve</Button>
-              <Button size="sm" variant="outline">Decline</Button>
-              <Button size="sm" variant="ghost">Modify</Button>
-            </div>
+          <div className="flex justify-end">
+            <Button variant="outline" className="mr-2">
+              View Previous Reports
+            </Button>
+            <Button>
+              Reinvest Profits
+            </Button>
           </div>
         </CardContent>
       </Card>
+      
+      <Tabs defaultValue="insights" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="insights">AI Insights</TabsTrigger>
+          <TabsTrigger value="channels">Channel Performance</TabsTrigger>
+          <TabsTrigger value="audience">Audience Analytics</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="insights" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <InsightCard
+              icon={Zap}
+              title="Platform Performance"
+              description="Google Ads outperformed Facebook by 34% in conversion rate. Consider reallocating 15% of your Facebook budget to Google."
+              action="Adjust Budget"
+            />
+            
+            <InsightCard
+              icon={Target}
+              title="Audience Discovery"
+              description="A new demographic segment (Women, 25-34) is showing 2.3x higher engagement than other groups."
+              action="Target Segment"
+            />
+            
+            <InsightCard
+              icon={Activity}
+              title="Creative Optimization"
+              description="Ad variations with product demonstrations achieved 28% higher CTR than static images."
+              action="Update Creatives"
+            />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="channels">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Marketing Channel Performance</CardTitle>
+              <CardDescription>Breakdown by platform over the last 30 days</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-2 border-b">
+                  <div className="font-medium">Platform</div>
+                  <div className="flex space-x-8">
+                    <div className="w-24 text-right">Spend</div>
+                    <div className="w-24 text-right">ROAS</div>
+                    <div className="w-24 text-right">Conversions</div>
+                  </div>
+                </div>
+                
+                {/* Platform rows */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <BarChart className="h-5 w-5 mr-2 text-blue-500" />
+                    <span>Google Ads</span>
+                  </div>
+                  <div className="flex space-x-8">
+                    <div className="w-24 text-right">$2,450</div>
+                    <div className="w-24 text-right text-green-600">3.8x</div>
+                    <div className="w-24 text-right">127</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Users className="h-5 w-5 mr-2 text-purple-500" />
+                    <span>Facebook</span>
+                  </div>
+                  <div className="flex space-x-8">
+                    <div className="w-24 text-right">$1,850</div>
+                    <div className="w-24 text-right text-green-600">2.4x</div>
+                    <div className="w-24 text-right">73</div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Users className="h-5 w-5 mr-2 text-pink-500" />
+                    <span>Instagram</span>
+                  </div>
+                  <div className="flex space-x-8">
+                    <div className="w-24 text-right">$1,100</div>
+                    <div className="w-24 text-right text-green-600">2.9x</div>
+                    <div className="w-24 text-right">42</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="audience">
+          <div className="flex items-center justify-center h-64 bg-muted/30 rounded-md border border-border">
+            <div className="text-muted-foreground flex flex-col items-center">
+              <DollarSign className="h-10 w-10 mb-2 opacity-20" />
+              <p>Audience analytics will be displayed here</p>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </DashboardLayout>
   );
 };

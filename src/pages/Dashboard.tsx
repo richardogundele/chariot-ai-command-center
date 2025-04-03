@@ -1,17 +1,44 @@
 
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ArrowUp, ArrowDown, HelpCircle, DollarSign, BarChart3, Users, TrendingUp, Info, AlertTriangle } from "lucide-react";
+import { 
+  ArrowUp, ArrowDown, HelpCircle, DollarSign, BarChart3, Users, 
+  TrendingUp, Info, AlertTriangle, Zap, Plus, RefreshCcw, Clock
+} from "lucide-react";
 import { CampaignStatus } from "@/components/dashboard/CampaignStatus";
 import { MetricCard } from "@/components/dashboard/MetricCard";
 import { BudgetTracker } from "@/components/dashboard/BudgetTracker";
 import { AlertCard } from "@/components/dashboard/AlertCard";
+import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { useToast } from "@/hooks/use-toast";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleAddProduct = () => {
+    navigate("/add-product");
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    // Simulate data refresh
+    setTimeout(() => {
+      setRefreshing(false);
+      toast({
+        title: "Dashboard updated",
+        description: "Latest campaign data loaded successfully",
+      });
+    }, 1500);
+  };
+
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between mb-8">
@@ -19,7 +46,111 @@ const Dashboard = () => {
           <h1 className="text-3xl font-bold">Campaign Dashboard</h1>
           <p className="text-muted-foreground">Real-time insights and campaign performance</p>
         </div>
-        <Button>Create New Campaign</Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={handleRefresh} disabled={refreshing}>
+            {refreshing ? (
+              <>
+                <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
+                Updating...
+              </>
+            ) : (
+              <>
+                <RefreshCcw className="h-4 w-4 mr-2" />
+                Refresh
+              </>
+            )}
+          </Button>
+          <Button onClick={handleAddProduct}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Product
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <p className="text-sm font-medium text-primary">Revenue</p>
+                <h2 className="text-3xl font-bold">$24,689</h2>
+              </div>
+              <div className="p-2 bg-primary/10 rounded-full">
+                <DollarSign className="h-5 w-5 text-primary" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center text-green-600 text-sm font-medium">
+                <ArrowUp className="h-3 w-3 mr-1" />
+                12.5%
+              </div>
+              <span className="text-xs text-muted-foreground">vs. last month</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">ROAS</p>
+                <h2 className="text-3xl font-bold">3.2x</h2>
+              </div>
+              <div className="p-2 bg-green-500/10 rounded-full">
+                <TrendingUp className="h-5 w-5 text-green-500" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center text-green-600 text-sm font-medium">
+                <ArrowUp className="h-3 w-3 mr-1" />
+                0.4x
+              </div>
+              <span className="text-xs text-muted-foreground">vs. last month</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Conversions</p>
+                <h2 className="text-3xl font-bold">342</h2>
+              </div>
+              <div className="p-2 bg-blue-500/10 rounded-full">
+                <Users className="h-5 w-5 text-blue-500" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center text-green-600 text-sm font-medium">
+                <ArrowUp className="h-3 w-3 mr-1" />
+                18.2%
+              </div>
+              <span className="text-xs text-muted-foreground">vs. last month</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">CTR</p>
+                <h2 className="text-3xl font-bold">2.8%</h2>
+              </div>
+              <div className="p-2 bg-yellow-500/10 rounded-full">
+                <BarChart3 className="h-5 w-5 text-yellow-500" />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center text-red-600 text-sm font-medium">
+                <ArrowDown className="h-3 w-3 mr-1" />
+                0.5%
+              </div>
+              <span className="text-xs text-muted-foreground">vs. last month</span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <Tabs defaultValue="overview" className="mb-8">
@@ -32,9 +163,63 @@ const Dashboard = () => {
         
         <TabsContent value="overview" className="space-y-6 mt-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <CampaignStatus />
+            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Monthly Goal</CardTitle>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <HelpCircle className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80">
+                        <div className="space-y-2">
+                          <h4 className="font-medium">About Monthly Goals</h4>
+                          <p className="text-sm text-muted-foreground">
+                            This shows your progress toward your monthly revenue target.
+                            The AI automatically adjusts campaigns to help reach this goal.
+                          </p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                  <CardDescription>Progress to $30,000 target</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-sm font-medium">$24,689 of $30,000</span>
+                      <span className="text-sm font-medium">82%</span>
+                    </div>
+                    <Progress value={82} className="h-2" />
+                    
+                    <div className="flex items-center justify-between pt-4 text-sm">
+                      <div className="flex items-center">
+                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
+                        <span className="text-muted-foreground">7 days remaining</span>
+                      </div>
+                      <div className="text-green-600 font-medium">On track</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <CampaignStatus />
+            </div>
             
-            <Card className="col-span-2">
+            <Card className="row-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Real-Time Activity</CardTitle>
+                <CardDescription>Latest AI actions and updates</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[350px] overflow-auto">
+                <ActivityFeed />
+              </CardContent>
+            </Card>
+            
+            <Card className="md:col-span-2">
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">Budget Utilization</CardTitle>
@@ -61,37 +246,6 @@ const Dashboard = () => {
                 <BudgetTracker />
               </CardContent>
             </Card>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <MetricCard 
-              title="Total Spend" 
-              value="$3,245.50" 
-              change={12.5} 
-              changeType="increase"
-              icon={DollarSign}
-            />
-            <MetricCard 
-              title="Conversions" 
-              value="342" 
-              change={8.2} 
-              changeType="increase"
-              icon={TrendingUp}
-            />
-            <MetricCard 
-              title="CTR" 
-              value="2.8%" 
-              change={-0.5} 
-              changeType="decrease"
-              icon={BarChart3}
-            />
-            <MetricCard 
-              title="Audience Reach" 
-              value="42.5K" 
-              change={15.3} 
-              changeType="increase"
-              icon={Users}
-            />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -123,6 +277,17 @@ const Dashboard = () => {
                     </div>
                   </div>
                 </div>
+                
+                <div className="flex items-start gap-4 p-3 rounded-md bg-primary/5 border border-primary/10">
+                  <Zap className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium">New audience segment discovered</p>
+                    <p className="text-xs text-muted-foreground mt-1">Women 25-34 in urban areas are responding well to your ads with a 4.1x ROAS.</p>
+                    <div className="mt-2">
+                      <Button size="sm" variant="outline" className="h-7 text-xs">Create Targeted Campaign</Button>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
             
@@ -144,6 +309,13 @@ const Dashboard = () => {
                   title="Budget Limit Approaching" 
                   description="Campaign will reach budget limit in approximately 2 days."
                   urgency="high"
+                />
+                
+                <AlertCard 
+                  icon={Users} 
+                  title="Audience Fatigue Detected" 
+                  description="Core audience showing signs of ad fatigue. New creatives recommended."
+                  urgency="low"
                 />
               </CardContent>
             </Card>
