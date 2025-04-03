@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -10,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Globe, Upload, Image, Loader2, RefreshCw, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Globe, Upload, Image, Loader2, RefreshCw, CheckCircle2, DollarSign } from "lucide-react";
 
 const AddProduct = () => {
   const navigate = useNavigate();
