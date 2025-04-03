@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -195,7 +194,7 @@ const Analytics = () => {
           </CardHeader>
           <CardContent className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={revenueData}>
+              <RechartsAreaChart data={revenueData}>
                 <defs>
                   <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#9b87f5" stopOpacity={0.8}/>
@@ -221,7 +220,7 @@ const Analytics = () => {
                   fillOpacity={1} 
                   fill="url(#colorRevenue)" 
                 />
-              </AreaChart>
+              </RechartsAreaChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
