@@ -27,9 +27,9 @@ export const WeeklyProfitChart = () => {
           contentStyle={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #ddd' }}
         />
         <Legend />
-        <Bar name="Revenue" dataKey="revenue" fill="#38BDF8" radius={[4, 4, 0, 0]} />
-        <Bar name="Costs" dataKey="cost" fill="#1E293B" radius={[4, 4, 0, 0]} />
-        <Bar name="Profit" dataKey="profit" fill="#06B6D4" radius={[4, 4, 0, 0]} />
+        <Bar name="Revenue" dataKey="revenue" fill="#9b87f5" radius={[4, 4, 0, 0]} />
+        <Bar name="Costs" dataKey="cost" fill="#7E69AB" radius={[4, 4, 0, 0]} />
+        <Bar name="Profit" dataKey="profit" fill="#38BDF8" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );

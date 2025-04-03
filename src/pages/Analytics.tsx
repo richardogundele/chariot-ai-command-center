@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,7 +63,7 @@ const platformData = [
   { name: "Other", value: 5 },
 ];
 
-const COLORS = ['#8884d8', '#9b87f5', '#7E69AB', '#D6BCFA'];
+const COLORS = ['#9b87f5', '#7E69AB', '#D6BCFA', '#38BDF8'];
 
 const Analytics = () => {
   const [dateRange, setDateRange] = useState("30d");
@@ -71,12 +72,12 @@ const Analytics = () => {
     <DashboardLayout>
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Analytics</h1>
+          <h1 className="text-3xl font-bold chariot-gradient-text">Analytics</h1>
           <p className="text-muted-foreground">Track your campaign performance and identify opportunities</p>
         </div>
         <div className="flex gap-3">
           <Select value={dateRange} onValueChange={setDateRange}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] border-chariot-purple/20">
               <SelectValue placeholder="Last 30 days" />
             </SelectTrigger>
             <SelectContent>
@@ -87,7 +88,7 @@ const Analytics = () => {
             </SelectContent>
           </Select>
           
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 border-chariot-purple/20 hover:bg-chariot-purple/10">
             <FileDown className="h-4 w-4" />
             Export
           </Button>
@@ -96,13 +97,13 @@ const Analytics = () => {
 
       {/* KPI Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardContent className="p-6">
             <div className="flex flex-col">
               <p className="text-sm font-medium text-muted-foreground mb-1">Total Revenue</p>
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-bold">$125,692.32</h3>
-                <DollarSign className="h-5 w-5 text-blue-500" />
+                <DollarSign className="h-5 w-5 text-chariot-purple" />
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <span className="text-green-600 flex items-center font-medium mr-1">
@@ -115,13 +116,13 @@ const Analytics = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardContent className="p-6">
             <div className="flex flex-col">
               <p className="text-sm font-medium text-muted-foreground mb-1">Conversions</p>
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-bold">1,856</h3>
-                <ShoppingCart className="h-5 w-5 text-purple-500" />
+                <ShoppingCart className="h-5 w-5 text-chariot-purple" />
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <span className="text-green-600 flex items-center font-medium mr-1">
@@ -134,13 +135,13 @@ const Analytics = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardContent className="p-6">
             <div className="flex flex-col">
               <p className="text-sm font-medium text-muted-foreground mb-1">Total Leads</p>
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-bold">5,243</h3>
-                <Users className="h-5 w-5 text-indigo-500" />
+                <Users className="h-5 w-5 text-chariot-purple" />
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <span className="text-green-600 flex items-center font-medium mr-1">
@@ -153,13 +154,13 @@ const Analytics = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardContent className="p-6">
             <div className="flex flex-col">
               <p className="text-sm font-medium text-muted-foreground mb-1">Average ROI</p>
               <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-bold">287%</h3>
-                <PercentSquare className="h-5 w-5 text-green-500" />
+                <PercentSquare className="h-5 w-5 text-chariot-purple" />
               </div>
               <div className="flex items-center mt-2 text-sm">
                 <span className="text-red-600 flex items-center font-medium mr-1">
@@ -175,14 +176,14 @@ const Analytics = () => {
       
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
               <CardTitle>Revenue Overview</CardTitle>
               <CardDescription>Monthly revenue performance</CardDescription>
             </div>
             <Select defaultValue="yearToDate">
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-[160px] border-chariot-purple/20">
                 <SelectValue placeholder="This Year" />
               </SelectTrigger>
               <SelectContent>
@@ -225,14 +226,14 @@ const Analytics = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <div>
               <CardTitle>Conversions</CardTitle>
               <CardDescription>Monthly conversion count</CardDescription>
             </div>
             <Select defaultValue="yearToDate">
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-[160px] border-chariot-purple/20">
                 <SelectValue placeholder="This Year" />
               </SelectTrigger>
               <SelectContent>
@@ -264,7 +265,7 @@ const Analytics = () => {
       
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardHeader>
             <CardTitle>Campaign Performance</CardTitle>
             <CardDescription>Performance metrics by campaign</CardDescription>
@@ -295,7 +296,7 @@ const Analytics = () => {
           </CardContent>
         </Card>
         
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardHeader>
             <CardTitle>Platforms Breakdown</CardTitle>
             <CardDescription>Revenue distribution by platform</CardDescription>

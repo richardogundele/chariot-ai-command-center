@@ -14,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 196 80% 42%;
+    --primary: 263 80% 75%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 210 40% 96.1%;
@@ -23,7 +23,7 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 199 89% 48%;
+    --accent: 263 80% 75%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -31,18 +31,18 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 196 80% 42%;
+    --ring: 263 80% 75%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 222 47% 11%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary: 263 80% 75%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 33% 17%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 199 89% 48%;
+    --sidebar-ring: 263 80% 75%;
   }
 
   .dark {
@@ -55,7 +55,7 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 199 89% 48%;
+    --primary: 263 80% 75%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 217.2 32.6% 17.5%;
@@ -64,7 +64,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 196 80% 42%;
+    --accent: 263 80% 75%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -72,7 +72,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 199 89% 48%;
+    --ring: 263 80% 75%;
   }
 }
 
@@ -93,7 +93,7 @@
 
 @layer components {
   .chariot-gradient-text {
-    @apply bg-gradient-to-r from-chariot-teal to-chariot-accent bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-chariot-purple to-chariot-accent bg-clip-text text-transparent;
   }
   
   .chariot-card {
@@ -106,5 +106,25 @@
 
   .chariot-fade-in {
     @apply animate-fade-in;
+  }
+  
+  .purple-gradient-bg {
+    @apply bg-gradient-to-br from-chariot-purple/90 to-chariot-accent/90;
+  }
+  
+  .purple-gradient-hover {
+    @apply hover:bg-gradient-to-br hover:from-chariot-purple hover:to-chariot-accent hover:text-white transition-all duration-300;
+  }
+  
+  .glass-card {
+    @apply bg-white/90 dark:bg-chariot-navy/90 backdrop-blur-sm border border-white/20 dark:border-white/10 rounded-lg shadow-lg;
+  }
+  
+  .subtle-border {
+    @apply border border-chariot-purple/20;
+  }
+  
+  .highlight-border {
+    @apply border-2 border-chariot-purple/50;
   }
 }

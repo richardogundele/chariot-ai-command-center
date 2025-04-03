@@ -30,7 +30,10 @@ export default {
 					teal: '#06B6D4',
 					navy: '#1E293B',
 					light: '#F1F5F9',
-					accent: '#38BDF8'
+					accent: '#38BDF8',
+					purple: '#9B87F5',
+					lavender: '#D6BCFA',
+					indigo: '#7E69AB'
 				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
