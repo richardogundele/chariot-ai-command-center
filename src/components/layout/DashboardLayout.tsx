@@ -1,9 +1,10 @@
 
 import { Sidebar } from "./Sidebar";
 import { cn } from "@/lib/utils";
-import { Bell } from "lucide-react";
+import { Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useState, useEffect } from "react";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -11,11 +12,23 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout = ({ children, className }: DashboardLayoutProps) => {
+  const [userName, setUserName] = useState("User");
+
+  useEffect(() => {
+    // In a real app, this would come from an auth service
+    // For now, we'll use a mock username stored in localStorage
+    const storedName = localStorage.getItem("userName");
+    if (storedName) {
+      setUserName(storedName);
+    }
+  }, []);
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1">
-        <header className="border-b p-4 flex justify-end">
+        <header className="border-b p-4 flex justify-between items-center">
+          <div className="text-lg font-medium">Hello, <span className="text-primary">{userName}</span></div>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" className="relative">

@@ -3,7 +3,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Play, Pause, Settings, HelpCircle, BarChart3, Image, Users, MessageCircle } from "lucide-react";
+import { Play, Pause, Settings, HelpCircle, BarChart3, Users, MessageCircle } from "lucide-react";
 
 const Campaign = () => {
   return (
@@ -82,10 +82,6 @@ const Campaign = () => {
           <TabsTrigger value="performance" className="gap-2">
             <BarChart3 className="h-4 w-4" />
             Performance
-          </TabsTrigger>
-          <TabsTrigger value="creatives" className="gap-2">
-            <Image className="h-4 w-4" />
-            Creatives
           </TabsTrigger>
           <TabsTrigger value="audience" className="gap-2">
             <Users className="h-4 w-4" />
@@ -192,12 +188,6 @@ const Campaign = () => {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-        
-        <TabsContent value="creatives">
-          <div className="flex items-center justify-center h-64 bg-muted/30 rounded-md border border-border">
-            <p className="text-muted-foreground">Creative assets would be displayed here</p>
-          </div>
         </TabsContent>
         
         <TabsContent value="audience">
