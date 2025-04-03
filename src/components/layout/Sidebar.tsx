@@ -1,21 +1,30 @@
 
-import { Home, PieChart, AlertOctagon, DollarSign, User, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Home, PieChart, AlertOctagon, DollarSign, User, LogOut, ChevronLeft, ChevronRight, Package, BarChart, Settings as SettingsIcon, Share } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
     { icon: PieChart, label: "Campaign", path: "/campaign" },
+    { icon: Package, label: "Products", path: "/products" },
     { icon: AlertOctagon, label: "Alerts", path: "/alerts" },
     { icon: DollarSign, label: "Reports", path: "/reports" },
-    { icon: User, label: "Profile", path: "/profile" },
+    { icon: BarChart, label: "Analytics", path: "/analytics" },
+    { icon: Share, label: "Platforms", path: "/platforms" },
+    { icon: SettingsIcon, label: "Settings", path: "/settings" },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("isAuthenticated");
+    navigate("/login");
+  };
 
   return (
     <div 
@@ -68,6 +77,7 @@ export const Sidebar = () => {
             "w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary-foreground",
             collapsed && "justify-center"
           )}
+          onClick={handleLogout}
         >
           <LogOut className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
           {!collapsed && <span>Logout</span>}

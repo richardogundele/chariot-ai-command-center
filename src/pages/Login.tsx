@@ -23,6 +23,9 @@ const Login = () => {
     // Simulate authentication
     setTimeout(() => {
       if (email && password) {
+        // Set authentication in localStorage
+        localStorage.setItem("isAuthenticated", "true");
+        
         toast({
           title: "Login successful",
           description: "Redirecting to dashboard...",
@@ -46,6 +49,9 @@ const Login = () => {
     // Simulate registration
     setTimeout(() => {
       if (email && password) {
+        // Set authentication in localStorage
+        localStorage.setItem("isAuthenticated", "true");
+        
         toast({
           title: "Account created",
           description: "Your account has been created successfully.",
