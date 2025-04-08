@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Edit, Clock, Eye, Copy } from "lucide-react";
+import { Plus, Loader2, Edit, Clock, Eye, Copy, Image } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 // Mock recent products data
@@ -43,6 +43,8 @@ const recentProducts = [
 const Products = () => {
   const [productUrl, setProductUrl] = useState("");
   const [productDetails, setProductDetails] = useState("");
+  const [productName, setProductName] = useState("");
+  const [targetAudience, setTargetAudience] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -50,7 +52,7 @@ const Products = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if ((activeTab === "url" && !productUrl) || (activeTab === "manual" && !productDetails)) {
+    if ((activeTab === "url" && !productUrl) || (activeTab === "manual" && (!productName || !productDetails))) {
       toast({
         title: "Missing Information",
         description: "Please fill out all required fields.",
@@ -76,10 +78,10 @@ const Products = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Products</h1>
-          <p className="text-muted-foreground">Manage your products and add new ones</p>
+          <h1 className="text-2xl font-bold">Products</h1>
+          <p className="text-muted-foreground">Add your products to create campaigns</p>
         </div>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
@@ -87,14 +89,14 @@ const Products = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <Card>
-          <CardHeader>
-            <CardTitle>Add a New Product</CardTitle>
-            <CardDescription>Add a product to start creating campaigns</CardDescription>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <Card className="shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-xl">Add New Product</CardTitle>
+            <CardDescription>Get started by adding your product</CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger value="url">Product URL</TabsTrigger>
@@ -110,12 +112,13 @@ const Products = () => {
                       value={productUrl}
                       onChange={(e) => setProductUrl(e.target.value)}
                     />
+                    <p className="text-xs text-muted-foreground">We'll automatically extract product information from this URL</p>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
+                        Adding Product...
                       </>
                     ) : "Add Product"}
                   </Button>
@@ -126,24 +129,49 @@ const Products = () => {
                     <Label htmlFor="product-name">Product Name</Label>
                     <Input 
                       id="product-name"
-                      placeholder="Product Name"
+                      placeholder="e.g., Wireless Headphones"
+                      value={productName}
+                      onChange={(e) => setProductName(e.target.value)}
                     />
                   </div>
+                  
                   <div className="space-y-2">
-                    <Label htmlFor="product-details">Product Details</Label>
+                    <Label htmlFor="product-details">Product Description</Label>
                     <Textarea 
                       id="product-details"
-                      placeholder="Enter your product description, key features, target audience, and pricing..."
+                      placeholder="Describe your product's features and benefits"
                       value={productDetails}
                       onChange={(e) => setProductDetails(e.target.value)}
-                      rows={5}
+                      rows={3}
                     />
                   </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="target-audience">Target Audience</Label>
+                    <Textarea 
+                      id="target-audience"
+                      placeholder="Who is this product for? Age, interests, location, etc."
+                      value={targetAudience}
+                      onChange={(e) => setTargetAudience(e.target.value)}
+                      rows={2}
+                    />
+                    <p className="text-xs text-muted-foreground">This helps our AI create better targeted ads</p>
+                  </div>
+                  
+                  <div className="border-2 border-dashed border-gray-200 rounded-md p-4 text-center space-y-2">
+                    <div className="flex justify-center">
+                      <Image className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <div className="text-sm font-medium">Product Image (Optional)</div>
+                    <p className="text-xs text-muted-foreground">Our AI will generate optimized ad images for you, or add your own</p>
+                    <Button type="button" variant="outline" size="sm">Upload Image</Button>
+                  </div>
+                  
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
+                        Adding Product...
                       </>
                     ) : "Add Product"}
                   </Button>
@@ -153,32 +181,31 @@ const Products = () => {
           </CardContent>
         </Card>
 
-        <Card className="hidden md:block">
-          <CardHeader>
-            <CardTitle>AI Ad Generation</CardTitle>
-            <CardDescription>Preview how our AI will create ads for your product</CardDescription>
+        <Card className="hidden md:block shadow-sm border border-purple-100 bg-gradient-to-br from-white to-purple-50/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-xl">AI Ad Creation</CardTitle>
+            <CardDescription>Here's what happens after you add a product</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="border rounded-lg p-4 space-y-3">
+            <div className="rounded-lg p-4 space-y-2 bg-white shadow-sm border border-purple-100/50">
               <div className="flex items-center justify-between">
-                <div className="font-medium">AI Image Generation</div>
-                <Badge variant="outline" className="bg-primary/10 text-primary">Automatic</Badge>
+                <div className="font-medium text-purple-800">1. AI analyzes your product</div>
               </div>
-              <p className="text-sm text-muted-foreground">Our AI will analyze your product and generate optimized lifestyle or product images for different platforms.</p>
-              <div className="bg-muted h-32 rounded flex items-center justify-center">
-                <Eye className="h-6 w-6 text-muted-foreground" />
-              </div>
+              <p className="text-sm text-muted-foreground">We identify key selling points and your ideal customer profile</p>
             </div>
             
-            <div className="border rounded-lg p-4 space-y-3">
+            <div className="rounded-lg p-4 space-y-2 bg-white shadow-sm border border-purple-100/50">
               <div className="flex items-center justify-between">
-                <div className="font-medium">AI Copy Generation</div>
-                <Badge variant="outline" className="bg-primary/10 text-primary">Automatic</Badge>
+                <div className="font-medium text-purple-800">2. Create engaging visuals</div>
               </div>
-              <p className="text-sm text-muted-foreground">The AI will craft compelling ad copy tailored to your target audience and platform.</p>
-              <div className="border rounded bg-muted/30 p-3 text-sm italic text-muted-foreground">
-                "Elevate your [product experience] with our premium [product]. Featuring [key benefit], it's designed for those who demand excellence."
+              <p className="text-sm text-muted-foreground">Our AI generates stunning product and lifestyle images tailored for each platform</p>
+            </div>
+            
+            <div className="rounded-lg p-4 space-y-2 bg-white shadow-sm border border-purple-100/50">
+              <div className="flex items-center justify-between">
+                <div className="font-medium text-purple-800">3. Write compelling ad copy</div>
               </div>
+              <p className="text-sm text-muted-foreground">Persuasive headlines and descriptions that drive conversions</p>
             </div>
           </CardContent>
         </Card>
@@ -194,7 +221,7 @@ const Products = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {recentProducts.map((product) => (
-            <Card key={product.id} className="overflow-hidden">
+            <Card key={product.id} className="overflow-hidden shadow-sm hover:shadow transition-all">
               <div className="relative">
                 <div className="aspect-video bg-muted overflow-hidden">
                   <img src={product.image} alt={product.name} className="w-full h-full object-cover" />

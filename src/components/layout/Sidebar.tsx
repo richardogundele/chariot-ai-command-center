@@ -1,6 +1,6 @@
 
-import { Home, PieChart, AlertOctagon, DollarSign, User, LogOut, ChevronLeft, ChevronRight, Package, BarChart, Settings as SettingsIcon, Share } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Home, PieChart, AlertOctagon, DollarSign, LogOut, ChevronLeft, ChevronRight, Package, BarChart, Settings as SettingsIcon, Share } from "lucide-react";
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -15,8 +15,7 @@ export const Sidebar = () => {
     { icon: PieChart, label: "Campaign", path: "/campaign" },
     { icon: Package, label: "Products", path: "/products" },
     { icon: AlertOctagon, label: "Alerts", path: "/alerts" },
-    { icon: DollarSign, label: "Reports", path: "/reports" },
-    { icon: BarChart, label: "Analytics", path: "/analytics" },
+    { icon: BarChart, label: "Reports & Analytics", path: "/reports" },
     { icon: Share, label: "Platforms", path: "/platforms" },
     { icon: SettingsIcon, label: "Settings", path: "/settings" },
   ];

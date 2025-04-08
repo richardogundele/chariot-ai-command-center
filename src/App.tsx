@@ -18,7 +18,6 @@ import NotFound from "./pages/NotFound";
 import Products from "./pages/Products";
 import CampaignCreation from "./pages/CampaignCreation";
 import SavedProducts from "./pages/SavedProducts";
-import Analytics from "./pages/Analytics";
 import PlatformConnections from "./pages/PlatformConnections";
 import Settings from "./pages/Settings";
 
@@ -67,9 +66,11 @@ const App = () => {
             <Route path="/add-product" element={<ProtectedRoute><AddProduct /></ProtectedRoute>} />
             <Route path="/products" element={<ProtectedRoute><Products /></ProtectedRoute>} />
             <Route path="/saved-products" element={<ProtectedRoute><SavedProducts /></ProtectedRoute>} />
-            <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
             <Route path="/platforms" element={<ProtectedRoute><PlatformConnections /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            
+            {/* Redirect analytics to reports since they're merged */}
+            <Route path="/analytics" element={<Navigate to="/reports" />} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

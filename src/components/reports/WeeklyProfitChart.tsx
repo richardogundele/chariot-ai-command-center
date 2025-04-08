@@ -13,23 +13,51 @@ const data = [
 
 export const WeeklyProfitChart = () => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height={300}>
       <BarChart
         data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-        <XAxis dataKey="day" />
-        <YAxis />
+        <XAxis 
+          dataKey="day" 
+          tick={{ fontSize: 12 }}
+          tickLine={false}
+        />
+        <YAxis 
+          tick={{ fontSize: 12 }}
+          tickFormatter={(value) => `$${value}`}
+          tickLine={false}
+          axisLine={false}
+        />
         <Tooltip 
           formatter={(value) => [`$${value}`, '']}
-          labelStyle={{ color: 'black' }}
-          contentStyle={{ backgroundColor: 'white', borderRadius: '6px', border: '1px solid #ddd' }}
+          labelStyle={{ fontSize: 14, fontWeight: 500, color: '#111' }}
+          contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #eee', padding: '8px 12px' }}
         />
-        <Legend />
-        <Bar name="Revenue" dataKey="revenue" fill="#9b87f5" radius={[4, 4, 0, 0]} />
-        <Bar name="Costs" dataKey="cost" fill="#7E69AB" radius={[4, 4, 0, 0]} />
-        <Bar name="Profit" dataKey="profit" fill="#38BDF8" radius={[4, 4, 0, 0]} />
+        <Legend 
+          verticalAlign="bottom" 
+          height={36} 
+          wrapperStyle={{ paddingTop: '10px', fontSize: '12px' }}
+        />
+        <Bar 
+          name="Revenue" 
+          dataKey="revenue" 
+          fill="#9b87f5" 
+          radius={[4, 4, 0, 0]} 
+        />
+        <Bar 
+          name="Costs" 
+          dataKey="cost" 
+          fill="#b6a4f9" 
+          radius={[4, 4, 0, 0]} 
+        />
+        <Bar 
+          name="Profit" 
+          dataKey="profit" 
+          fill="#38BDF8" 
+          radius={[4, 4, 0, 0]} 
+        />
       </BarChart>
     </ResponsiveContainer>
   );
