@@ -17,11 +17,16 @@ import { BudgetTracker } from "@/components/dashboard/BudgetTracker";
 import { AlertCard } from "@/components/dashboard/AlertCard";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useToast } from "@/hooks/use-toast";
+import { WeeklyProfitChart } from "@/components/reports/WeeklyProfitChart";
+import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
+import { ConversionFunnel } from "@/components/dashboard/ConversionFunnel";
+import { PlatformBreakdown } from "@/components/dashboard/PlatformBreakdown";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const handleAddProduct = () => {
     navigate("/add-product");
@@ -41,9 +46,9 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Campaign Dashboard</h1>
+          <h1 className="text-3xl font-bold chariot-gradient-text">Campaign Dashboard</h1>
           <p className="text-muted-foreground">Real-time insights and campaign performance</p>
         </div>
         <div className="flex gap-3">
@@ -67,8 +72,9 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* KPI Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+        <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20 shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="flex justify-between items-start mb-2">
               <div>
@@ -89,7 +95,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardContent className="p-6">
             <div className="flex justify-between items-start mb-2">
               <div>
@@ -110,7 +116,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardContent className="p-6">
             <div className="flex justify-between items-start mb-2">
               <div>
@@ -131,7 +137,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
           <CardContent className="p-6">
             <div className="flex justify-between items-start mb-2">
               <div>
@@ -153,7 +159,7 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="overview" className="mb-8">
+      <Tabs defaultValue="overview" className="mb-6" onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
@@ -162,169 +168,109 @@ const Dashboard = () => {
         </TabsList>
         
         <TabsContent value="overview" className="space-y-6 mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">Monthly Goal</CardTitle>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <HelpCircle className="h-4 w-4" />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80">
-                        <div className="space-y-2">
-                          <h4 className="font-medium">About Monthly Goals</h4>
-                          <p className="text-sm text-muted-foreground">
-                            This shows your progress toward your monthly revenue target.
-                            The AI automatically adjusts campaigns to help reach this goal.
-                          </p>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                  <CardDescription>Progress to $30,000 target</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm font-medium">$24,689 of $30,000</span>
-                      <span className="text-sm font-medium">82%</span>
-                    </div>
-                    <Progress value={82} className="h-2" />
-                    
-                    <div className="flex items-center justify-between pt-4 text-sm">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                        <span className="text-muted-foreground">7 days remaining</span>
-                      </div>
-                      <div className="text-green-600 font-medium">On track</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <CampaignStatus />
-            </div>
-            
-            <Card className="row-span-2">
+          {/* Revenue & Conversion Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Real-Time Activity</CardTitle>
-                <CardDescription>Latest AI actions and updates</CardDescription>
+                <CardTitle className="flex justify-between items-center">
+                  <span>Weekly Profit</span>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                </CardTitle>
+                <CardDescription>Revenue, costs and profit this week</CardDescription>
               </CardHeader>
-              <CardContent className="h-[350px] overflow-auto">
-                <ActivityFeed />
+              <CardContent className="pt-4">
+                <WeeklyProfitChart />
               </CardContent>
             </Card>
             
-            <Card className="md:col-span-2">
+            <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
               <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg">Budget Utilization</CardTitle>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <HelpCircle className="h-4 w-4" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80">
-                      <div className="space-y-2">
-                        <h4 className="font-medium">About Budget Utilization</h4>
-                        <p className="text-sm text-muted-foreground">
-                          This shows how effectively your budget is being used across different platforms.
-                          The AI optimizes spend based on performance.
-                        </p>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                </div>
+                <CardTitle className="flex justify-between items-center">
+                  <span>Conversion Funnel</span>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                </CardTitle>
+                <CardDescription>Visitor journey to conversion</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <ConversionFunnel />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Campaign Status & Platform Breakdown */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex justify-between items-center">
+                  <span>Campaign Performance</span>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                </CardTitle>
+                <CardDescription>Key metrics over time</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <PerformanceChart />
+              </CardContent>
+            </Card>
+            
+            <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex justify-between items-center">
+                  <span>Platform Breakdown</span>
+                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                </CardTitle>
+                <CardDescription>Performance across platforms</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <PlatformBreakdown />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Budget & Activity Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md lg:col-span-2">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg">Budget Utilization</CardTitle>
                 <CardDescription>7-day spend across platforms</CardDescription>
               </CardHeader>
               <CardContent>
                 <BudgetTracker />
               </CardContent>
             </Card>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
+
+            <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md row-span-1">
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">AI Insights</CardTitle>
-                <CardDescription>Latest observations and suggestions</CardDescription>
+                <CardTitle className="text-lg">Real-Time Activity</CardTitle>
+                <CardDescription>Latest AI actions and updates</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-start gap-4 p-3 rounded-md bg-primary/5 border border-primary/10">
-                  <Info className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium">Facebook ad outperformed Instagram by 22%</p>
-                    <p className="text-xs text-muted-foreground mt-1">The CTR on Facebook is significantly higher, suggesting your audience is more engaged there.</p>
-                    <div className="mt-2">
-                      <Button size="sm" variant="outline" className="h-7 text-xs">Rebalance Budget</Button>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-4 p-3 rounded-md bg-primary/5 border border-primary/10">
-                  <TrendingUp className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium">ROAS has increased to 3.2x</p>
-                    <p className="text-xs text-muted-foreground mt-1">Your return on ad spend is above target. Consider scaling budget to capture more conversions.</p>
-                    <div className="mt-2 flex gap-2">
-                      <Button size="sm" className="h-7 text-xs">Scale Budget</Button>
-                      <Button size="sm" variant="ghost" className="h-7 text-xs">Learn More</Button>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-4 p-3 rounded-md bg-primary/5 border border-primary/10">
-                  <Zap className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-medium">New audience segment discovered</p>
-                    <p className="text-xs text-muted-foreground mt-1">Women 25-34 in urban areas are responding well to your ads with a 4.1x ROAS.</p>
-                    <div className="mt-2">
-                      <Button size="sm" variant="outline" className="h-7 text-xs">Create Targeted Campaign</Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Human Intervention Required</CardTitle>
-                <CardDescription>Issues that need your attention</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <AlertCard 
-                  icon={AlertTriangle} 
-                  title="Compliance Check Needed" 
-                  description="New ad creative might not comply with Google's healthcare policies."
-                  urgency="medium"
-                />
-                
-                <AlertCard 
-                  icon={DollarSign} 
-                  title="Budget Limit Approaching" 
-                  description="Campaign will reach budget limit in approximately 2 days."
-                  urgency="high"
-                />
-                
-                <AlertCard 
-                  icon={Users} 
-                  title="Audience Fatigue Detected" 
-                  description="Core audience showing signs of ad fatigue. New creatives recommended."
-                  urgency="low"
-                />
+              <CardContent className="h-[250px] overflow-auto">
+                <ActivityFeed />
               </CardContent>
             </Card>
           </div>
         </TabsContent>
         
         <TabsContent value="performance">
-          <div className="flex items-center justify-center h-64 bg-muted/30 rounded-md border border-border">
-            <p className="text-muted-foreground">Performance metrics details would be displayed here</p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
+              <CardHeader>
+                <CardTitle>Advanced Performance Metrics</CardTitle>
+                <CardDescription>Detailed analytics of your campaigns</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[400px] flex items-center justify-center">
+                <p className="text-muted-foreground">Detailed performance metrics would be displayed here</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-chariot-purple/20 hover:border-chariot-purple/40 transition-colors shadow-sm hover:shadow-md">
+              <CardHeader>
+                <CardTitle>ROI Analysis</CardTitle>
+                <CardDescription>Return on investment by campaign</CardDescription>
+              </CardHeader>
+              <CardContent className="h-[400px] flex items-center justify-center">
+                <p className="text-muted-foreground">ROI analysis would be displayed here</p>
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
         
