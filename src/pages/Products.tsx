@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Edit, Clock, Eye, Copy } from "lucide-react";
+import { Plus, Loader2, Edit, Clock, Eye, Copy, Trash2, RefreshCw, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 // Mock recent products data
@@ -45,6 +45,7 @@ const Products = () => {
   const [productDetails, setProductDetails] = useState("");
   const [productName, setProductName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -62,14 +63,26 @@ const Products = () => {
     
     setLoading(true);
     
-    // Simulate API call
+    // Simulate API call and AI generation
     setTimeout(() => {
       setLoading(false);
+
+      // Show generating toast
+      setGenerating(true);
       toast({
-        title: "Product Added",
-        description: "Your product has been added successfully.",
+        title: "AI is working",
+        description: "Generating ad copy and images for your product...",
       });
-      navigate("/add-product");
+
+      // Simulate AI generation completion
+      setTimeout(() => {
+        setGenerating(false);
+        toast({
+          title: "Product Added",
+          description: "Your product and AI-generated ad content are ready.",
+        });
+        navigate("/saved-products");
+      }, 3000);
     }, 1500);
   };
 
@@ -113,11 +126,16 @@ const Products = () => {
                     />
                     <p className="text-xs text-muted-foreground">We'll automatically extract product information from this URL</p>
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading || generating}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Adding Product...
+                      </>
+                    ) : generating ? (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
+                        Generating Ad Content...
                       </>
                     ) : "Add Product"}
                   </Button>
@@ -146,11 +164,16 @@ const Products = () => {
                     <p className="text-xs text-muted-foreground">Our AI will analyze this to create targeted ads</p>
                   </div>
                   
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <Button type="submit" className="w-full" disabled={loading || generating}>
                     {loading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         Adding Product...
+                      </>
+                    ) : generating ? (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
+                        Generating Ad Content...
                       </>
                     ) : "Add Product"}
                   </Button>
@@ -229,10 +252,16 @@ const Products = () => {
                   <Clock className="h-3 w-3 mr-1" />
                   Added {product.dateAdded}
                 </div>
-                <Button variant="ghost" size="sm" className="h-8 px-2">
-                  <Copy className="h-3 w-3 mr-1" />
-                  Copy Ad
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" className="h-8 px-2">
+                    <Copy className="h-3 w-3 mr-1" />
+                    Copy
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-8 px-2">
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Regenerate
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           ))}
