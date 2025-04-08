@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Edit, Clock, Eye, Copy, Image } from "lucide-react";
+import { Plus, Loader2, Edit, Clock, Eye, Copy } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 // Mock recent products data
@@ -44,7 +44,6 @@ const Products = () => {
   const [productUrl, setProductUrl] = useState("");
   const [productDetails, setProductDetails] = useState("");
   const [productName, setProductName] = useState("");
-  const [targetAudience, setTargetAudience] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -70,7 +69,7 @@ const Products = () => {
         title: "Product Added",
         description: "Your product has been added successfully.",
       });
-      navigate("/saved-products");
+      navigate("/add-product");
     }, 1500);
   };
 
@@ -83,7 +82,7 @@ const Products = () => {
           <h1 className="text-2xl font-bold">Products</h1>
           <p className="text-muted-foreground">Add your products to create campaigns</p>
         </div>
-        <Button>
+        <Button onClick={() => navigate("/add-product")}>
           <Plus className="mr-2 h-4 w-4" />
           Add Product
         </Button>
@@ -144,27 +143,7 @@ const Products = () => {
                       onChange={(e) => setProductDetails(e.target.value)}
                       rows={3}
                     />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="target-audience">Target Audience</Label>
-                    <Textarea 
-                      id="target-audience"
-                      placeholder="Who is this product for? Age, interests, location, etc."
-                      value={targetAudience}
-                      onChange={(e) => setTargetAudience(e.target.value)}
-                      rows={2}
-                    />
-                    <p className="text-xs text-muted-foreground">This helps our AI create better targeted ads</p>
-                  </div>
-                  
-                  <div className="border-2 border-dashed border-gray-200 rounded-md p-4 text-center space-y-2">
-                    <div className="flex justify-center">
-                      <Image className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <div className="text-sm font-medium">Product Image (Optional)</div>
-                    <p className="text-xs text-muted-foreground">Our AI will generate optimized ad images for you, or add your own</p>
-                    <Button type="button" variant="outline" size="sm">Upload Image</Button>
+                    <p className="text-xs text-muted-foreground">Our AI will analyze this to create targeted ads</p>
                   </div>
                   
                   <Button type="submit" className="w-full" disabled={loading}>
@@ -191,21 +170,21 @@ const Products = () => {
               <div className="flex items-center justify-between">
                 <div className="font-medium text-purple-800">1. AI analyzes your product</div>
               </div>
-              <p className="text-sm text-muted-foreground">We identify key selling points and your ideal customer profile</p>
+              <p className="text-sm text-muted-foreground">We identify key selling points and create compelling messaging</p>
             </div>
             
             <div className="rounded-lg p-4 space-y-2 bg-white shadow-sm border border-purple-100/50">
               <div className="flex items-center justify-between">
                 <div className="font-medium text-purple-800">2. Create engaging visuals</div>
               </div>
-              <p className="text-sm text-muted-foreground">Our AI generates stunning product and lifestyle images tailored for each platform</p>
+              <p className="text-sm text-muted-foreground">Our AI generates stunning product images tailored for each platform</p>
             </div>
             
             <div className="rounded-lg p-4 space-y-2 bg-white shadow-sm border border-purple-100/50">
               <div className="flex items-center justify-between">
-                <div className="font-medium text-purple-800">3. Write compelling ad copy</div>
+                <div className="font-medium text-purple-800">3. Launch your campaign</div>
               </div>
-              <p className="text-sm text-muted-foreground">Persuasive headlines and descriptions that drive conversions</p>
+              <p className="text-sm text-muted-foreground">Choose platforms and budgets to start advertising your product</p>
             </div>
           </CardContent>
         </Card>
@@ -214,7 +193,7 @@ const Products = () => {
       <div>
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-bold">Recently Added Products</h2>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate("/saved-products")}>
             View All Products
           </Button>
         </div>

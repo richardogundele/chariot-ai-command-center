@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -7,9 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Globe, Upload, Image, Loader2, RefreshCw, CheckCircle2, DollarSign } from "lucide-react";
+import { ArrowLeft, Globe, Loader2, RefreshCw, CheckCircle2, DollarSign } from "lucide-react";
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -22,19 +22,8 @@ const AddProduct = () => {
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [price, setPrice] = useState("");
-  const [targetAudience, setTargetAudience] = useState("");
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [generatedAdCopy, setGeneratedAdCopy] = useState("");
   const [generatedAdImage, setGeneratedAdImage] = useState<string | null>(null);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setSelectedImage(file);
-      setPreviewImage(URL.createObjectURL(file));
-    }
-  };
 
   const handleUrlSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,8 +44,6 @@ const AddProduct = () => {
       setProductName("Premium Wireless Headphones");
       setProductDescription("Experience crystal-clear audio with our premium wireless headphones. Featuring 40 hours of battery life, active noise cancellation, and a comfortable over-ear design.");
       setPrice("149.99");
-      setTargetAudience("Music enthusiasts, professionals, commuters");
-      setPreviewImage("/placeholder.svg");
       
       setIsLoading(false);
       setStep(2);
@@ -129,7 +116,7 @@ const AddProduct = () => {
         description: "Your product has been saved and is ready for campaign launch.",
       });
       
-      navigate("/dashboard");
+      navigate("/saved-products");
     }, 1500);
   };
 
@@ -190,7 +177,7 @@ const AddProduct = () => {
                       />
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Enter the URL of your product page. We'll extract the name, description, images, and other details.
+                      Enter the URL of your product page. We'll extract the name, description, and price.
                     </p>
                   </div>
                 </CardContent>
@@ -237,74 +224,21 @@ const AddProduct = () => {
                       onChange={(e) => setProductDescription(e.target.value)}
                       required
                     />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="price">Price</Label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                          id="price" 
-                          placeholder="99.99" 
-                          className="pl-10" 
-                          value={price}
-                          onChange={(e) => setPrice(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="target-audience">Target Audience</Label>
-                      <Input 
-                        id="target-audience" 
-                        placeholder="Professionals, Students, etc." 
-                        value={targetAudience}
-                        onChange={(e) => setTargetAudience(e.target.value)}
-                      />
-                    </div>
+                    <p className="text-xs text-muted-foreground">Our AI will analyze this to create targeted ads</p>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="product-image">Product Image</Label>
-                    <div className="border-2 border-dashed rounded-md p-4 text-center">
-                      {previewImage ? (
-                        <div className="relative">
-                          <img 
-                            src={previewImage} 
-                            alt="Product preview" 
-                            className="max-h-48 mx-auto rounded-md"
-                          />
-                          <Button 
-                            type="button" 
-                            variant="outline" 
-                            size="sm" 
-                            className="mt-2"
-                            onClick={() => {
-                              setSelectedImage(null);
-                              setPreviewImage(null);
-                            }}
-                          >
-                            Remove
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="py-4">
-                          <Upload className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-                          <p className="text-sm text-muted-foreground mb-2">Drag and drop an image, or click to browse</p>
-                          <Input 
-                            id="product-image" 
-                            type="file" 
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleImageChange}
-                          />
-                          <Button type="button" variant="outline" onClick={() => document.getElementById('product-image')?.click()}>
-                            Select Image
-                          </Button>
-                        </div>
-                      )}
+                    <Label htmlFor="price">Price</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        id="price" 
+                        placeholder="99.99" 
+                        className="pl-10" 
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        required
+                      />
                     </div>
                   </div>
                 </CardContent>
@@ -337,51 +271,33 @@ const AddProduct = () => {
                     <p className="text-sm">{productDescription}</p>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-1">Price</h3>
-                      <p>${price}</p>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-1">Target Audience</h3>
-                      <p className="text-sm">{targetAudience}</p>
-                    </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Price</h3>
+                    <p>${price}</p>
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-center border rounded-md p-4">
-                  {previewImage ? (
-                    <img 
-                      src={previewImage} 
-                      alt="Product" 
-                      className="max-h-48 mx-auto rounded-md"
-                    />
-                  ) : (
-                    <div className="text-center">
-                      <Image className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                      <p className="text-sm text-muted-foreground">No product image available</p>
-                    </div>
-                  )}
+                <div className="flex flex-col justify-center items-center space-y-4 border rounded-md p-4">
+                  <p className="text-center text-sm text-muted-foreground">
+                    Our AI will generate optimized ad images for your product based on the description.
+                  </p>
+                  <Button onClick={handleGenerateAdContent} disabled={isGenerating} className="w-full">
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      "Generate Ad Content"
+                    )}
+                  </Button>
                 </div>
               </div>
             </CardContent>
             <CardFooter>
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={() => setStep(1)}>
-                  Edit Details
-                </Button>
-                <Button onClick={handleGenerateAdContent} disabled={isGenerating}>
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
-                    </>
-                  ) : (
-                    "Generate Ad Content"
-                  )}
-                </Button>
-              </div>
+              <Button variant="outline" onClick={() => setStep(1)}>
+                Edit Details
+              </Button>
             </CardFooter>
           </Card>
           
@@ -435,9 +351,9 @@ const AddProduct = () => {
                             className="max-h-48 mx-auto rounded-md"
                           />
                         ) : (
-                          <div className="text-center">
-                            <Image className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                            <p className="text-sm text-muted-foreground">No ad image generated yet</p>
+                          <div className="text-center p-8">
+                            <Loader2 className="h-8 w-8 text-primary mx-auto mb-2 animate-spin" />
+                            <p className="text-sm text-muted-foreground">Generating ad image...</p>
                           </div>
                         )}
                       </div>
