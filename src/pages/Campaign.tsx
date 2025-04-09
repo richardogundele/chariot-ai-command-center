@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,8 +24,8 @@ import {
   Area,
   AreaChart
 } from 'recharts';
+import CampaignDialog from "@/components/products/CampaignDialog";
 
-// Mock data for charts
 const performanceData = [
   { day: 'Mon', clicks: 45, impressions: 1200, conversions: 5 },
   { day: 'Tue', clicks: 52, impressions: 1350, conversions: 7 },
@@ -90,6 +90,8 @@ const mockCampaigns = [
 ];
 
 const Campaign = () => {
+  const [campaignDialogOpen, setCampaignDialogOpen] = useState(false);
+
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between mb-8">
@@ -103,7 +105,7 @@ const Campaign = () => {
             <CalendarDays className="h-4 w-4" />
             Last 7 days
           </Button>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setCampaignDialogOpen(true)}>
             <Play className="h-4 w-4" />
             Create Campaign
           </Button>
@@ -463,6 +465,11 @@ const Campaign = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      
+      <CampaignDialog 
+        open={campaignDialogOpen}
+        onOpenChange={setCampaignDialogOpen}
+      />
     </DashboardLayout>
   );
 };

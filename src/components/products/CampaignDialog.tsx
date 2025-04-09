@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, BarChart3, Target } from "lucide-react";
 
 interface CampaignDialogProps {
   open: boolean;
@@ -20,6 +20,7 @@ const CampaignDialog = ({ open, onOpenChange }: CampaignDialogProps) => {
   const [campaignName, setCampaignName] = useState("");
   const [campaignBudget, setCampaignBudget] = useState("50");
   const [campaignPlatform, setCampaignPlatform] = useState("facebook");
+  const [campaignObjective, setCampaignObjective] = useState("awareness");
   const [campaignLoading, setCampaignLoading] = useState(false);
 
   const handleQuickCampaignCreation = () => {
@@ -80,6 +81,21 @@ const CampaignDialog = ({ open, onOpenChange }: CampaignDialogProps) => {
                 <SelectItem value="facebook">Facebook</SelectItem>
                 <SelectItem value="instagram">Instagram</SelectItem>
                 <SelectItem value="both">Both</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="campaign-objective">Campaign Objective</Label>
+            <Select value={campaignObjective} onValueChange={setCampaignObjective}>
+              <SelectTrigger id="campaign-objective">
+                <SelectValue placeholder="Select objective" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="awareness">Brand Awareness</SelectItem>
+                <SelectItem value="traffic">Website Traffic</SelectItem>
+                <SelectItem value="conversions">Conversions</SelectItem>
+                <SelectItem value="sales">Product Sales</SelectItem>
               </SelectContent>
             </Select>
           </div>
