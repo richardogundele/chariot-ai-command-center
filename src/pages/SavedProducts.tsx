@@ -869,4 +869,129 @@ const ProductCard = ({
             >
               {product.status === "Draft" ? (
                 <>
-                  <Play className="h-4 w
+                  <Play className="h-4 w-4 mr-1" />
+                  Create Campaign
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4 mr-1" />
+                  View Campaign
+                </>
+              )}
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onSalesLetter(product)}
+              className="h-8"
+            >
+              <FileText className="h-4 w-4 mr-1" />
+              Ad Creatives
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onRecommendations(product)}
+              className="h-8"
+            >
+              <Lightbulb className="h-4 w-4 mr-1" />
+              Insights
+            </Button>
+          </div>
+        </div>
+      </CardFooter>
+      
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this product and all associated data. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              onDelete(product.id);
+              setConfirmDelete(false);
+            }}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <Dialog open={campaignDialog} onOpenChange={setCampaignDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Quick Campaign</DialogTitle>
+            <DialogDescription>
+              Set up a basic campaign to promote your product. You can customize it further later.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="campaign-name">Campaign Name</Label>
+              <Input 
+                id="campaign-name" 
+                placeholder="Summer Sale 2023" 
+                value={campaignName}
+                onChange={(e) => setCampaignName(e.target.value)}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="campaign-budget">Daily Budget ($)</Label>
+              <Input 
+                id="campaign-budget" 
+                type="number" 
+                placeholder="50" 
+                value={campaignBudget}
+                onChange={(e) => setCampaignBudget(e.target.value)}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="campaign-platform">Platform</Label>
+              <Select value={campaignPlatform} onValueChange={setCampaignPlatform}>
+                <SelectTrigger id="campaign-platform">
+                  <SelectValue placeholder="Select platform" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="facebook">Facebook</SelectItem>
+                  <SelectItem value="instagram">Instagram</SelectItem>
+                  <SelectItem value="both">Both</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCampaignDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => navigate("/campaign-creation")} variant="outline">
+              Advanced Setup
+            </Button>
+            <Button onClick={handleQuickCampaignCreation} disabled={campaignLoading || !campaignName}>
+              {campaignLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Play className="mr-2 h-4 w-4" />
+                  Launch
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+};
+
+export default SavedProducts;
