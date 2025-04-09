@@ -8,7 +8,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, BarChart, RefreshCw, Settings, Trash2, Play, Loader2, Sparkles, Mail, FileText, Lightbulb, Copy, Check, Info } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Plus, BarChart, RefreshCw, Settings, Trash2, Play, Loader2, Sparkles, Mail, FileText, Lightbulb, Copy, Check, Info, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -81,7 +84,12 @@ const SavedProducts = () => {
   const [recommendationsDialog, setRecommendationsDialog] = useState(false);
   const [recommendations, setRecommendations] = useState<string[]>([]);
   const [recommendationsLoading, setRecommendationsLoading] = useState(false);
-  
+  const [campaignDialog, setCampaignDialog] = useState(false);
+  const [campaignName, setCampaignName] = useState("");
+  const [campaignBudget, setCampaignBudget] = useState("50");
+  const [campaignPlatform, setCampaignPlatform] = useState("facebook");
+  const [campaignLoading, setCampaignLoading] = useState(false);
+
   const handleDeleteProduct = (id: number) => {
     setProducts(products.filter(product => product.id !== id));
     toast({
@@ -340,6 +348,22 @@ ChariotAI Sports Science Division`,
       setRecommendations(mockRecommendations);
       setRecommendationsLoading(false);
     }, 2500);
+  };
+
+  const handleQuickCampaignCreation = () => {
+    setCampaignLoading(true);
+    
+    setTimeout(() => {
+      setCampaignLoading(false);
+      setCampaignDialog(false);
+      
+      toast({
+        title: "Campaign Created",
+        description: "Your campaign has been created successfully. View details in Campaign page.",
+      });
+      
+      navigate("/campaign");
+    }, 2000);
   };
 
   return (
@@ -605,6 +629,76 @@ ChariotAI Sports Science Division`,
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      <Dialog open={campaignDialog} onOpenChange={setCampaignDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Quick Campaign</DialogTitle>
+            <DialogDescription>
+              Set up a basic campaign to promote your product. You can customize it further later.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="campaign-name">Campaign Name</Label>
+              <Input 
+                id="campaign-name" 
+                placeholder="Summer Sale 2023" 
+                value={campaignName}
+                onChange={(e) => setCampaignName(e.target.value)}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="campaign-budget">Daily Budget ($)</Label>
+              <Input 
+                id="campaign-budget" 
+                type="number" 
+                placeholder="50" 
+                value={campaignBudget}
+                onChange={(e) => setCampaignBudget(e.target.value)}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="campaign-platform">Platform</Label>
+              <Select value={campaignPlatform} onValueChange={setCampaignPlatform}>
+                <SelectTrigger id="campaign-platform">
+                  <SelectValue placeholder="Select platform" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="facebook">Facebook</SelectItem>
+                  <SelectItem value="instagram">Instagram</SelectItem>
+                  <SelectItem value="both">Both</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCampaignDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => navigate("/campaign-creation")} variant="outline">
+              Advanced Setup
+            </Button>
+            <Button onClick={handleQuickCampaignCreation} disabled={campaignLoading || !campaignName}>
+              {campaignLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Play className="mr-2 h-4 w-4" />
+                  Launch
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
@@ -645,6 +739,9 @@ const ProductCard = ({
   regeneratingId,
   regenerationType
 }: ProductCardProps) => {
+  const navigate = useNavigate();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative">
@@ -735,7 +832,7 @@ const ProductCard = ({
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               )}
-              <Button variant="ghost" size="icon" onClick={() => onDelete(product.id)}>
+              <Button variant="ghost" size="icon" onClick={() => setConfirmDelete(true)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>
@@ -745,11 +842,20 @@ const ProductCard = ({
             <Button 
               variant="default" 
               size="sm" 
-              onClick={() => product.status === "Draft" ? onCreateCampaign(product.id) : null}
+              onClick={() => product.status === "Draft" ? setCampaignDialog(true) : navigate('/campaign')}
               className="h-8"
             >
-              <Play className="h-4 w-4 mr-1" />
-              {product.status === "Draft" ? "Create Campaign" : "View Campaign"}
+              {product.status === "Draft" ? (
+                <>
+                  <Play className="h-4 w-4 mr-1" />
+                  Create Campaign
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4 mr-1" />
+                  View Campaign
+                </>
+              )}
             </Button>
             <Button 
               variant="outline" 
@@ -758,39 +864,40 @@ const ProductCard = ({
               className="h-8"
             >
               <FileText className="h-4 w-4 mr-1" />
-              Sales Letter
+              Ad Creatives
             </Button>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => onRecommendations(product)}
-                  className="h-8"
-                >
-                  <Lightbulb className="h-4 w-4 mr-1" />
-                  Insights
-                </Button>
-              </PopoverTrigger>
-              {product.insights && (
-                <PopoverContent className="w-80">
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm">AI Product Insights</h4>
-                    <div className="space-y-1">
-                      {product.insights.map((insight, i) => (
-                        <div key={i} className="text-xs flex">
-                          <span className="text-primary mr-2">•</span>
-                          <span>{insight}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </PopoverContent>
-              )}
-            </Popover>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => onRecommendations(product)}
+              className="h-8"
+            >
+              <Lightbulb className="h-4 w-4 mr-1" />
+              Insights
+            </Button>
           </div>
         </div>
       </CardFooter>
+      
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this product and all associated data. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              onDelete(product.id);
+              setConfirmDelete(false);
+            }}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 };

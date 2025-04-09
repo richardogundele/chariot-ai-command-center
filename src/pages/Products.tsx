@@ -87,6 +87,10 @@ const Products = () => {
   };
 
   const [activeTab, setActiveTab] = useState("url");
+  
+  const handleAddProduct = () => {
+    navigate("/saved-products");
+  };
 
   return (
     <DashboardLayout>
@@ -95,7 +99,7 @@ const Products = () => {
           <h1 className="text-2xl font-bold">Products</h1>
           <p className="text-muted-foreground">Add your products to create campaigns</p>
         </div>
-        <Button onClick={() => navigate("/add-product")}>
+        <Button onClick={handleAddProduct}>
           <Plus className="mr-2 h-4 w-4" />
           Add Product
         </Button>
