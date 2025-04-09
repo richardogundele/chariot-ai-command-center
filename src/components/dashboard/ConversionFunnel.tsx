@@ -79,11 +79,7 @@ export const ConversionFunnel = () => {
             dataKey="value" 
             background={{ fill: '#f5f5f5' }}
             radius={[0, 4, 4, 0]}
-          >
-            {data.map((entry, index) => (
-              <Bar key={`cell-${index}`} fill={entry.fill} />
-            ))}
-          </Bar>
+          />
         </BarChart>
       </ResponsiveContainer>
       
