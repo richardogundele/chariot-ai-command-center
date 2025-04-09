@@ -1,5 +1,5 @@
 
-import { Home, PieChart, AlertOctagon, DollarSign, LogOut, ChevronLeft, ChevronRight, BarChart, Settings as SettingsIcon } from "lucide-react";
+import { Home, PieChart, AlertOctagon, DollarSign, LogOut, ChevronLeft, ChevronRight, BarChart, Settings as SettingsIcon, Package } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ export const Sidebar = () => {
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: Package, label: "Products", path: "/saved-products" }, // Added Products link
     { icon: PieChart, label: "Campaign", path: "/campaign" },
     { icon: AlertOctagon, label: "Alerts", path: "/alerts" },
     { icon: BarChart, label: "Reports & Analytics", path: "/reports" },
