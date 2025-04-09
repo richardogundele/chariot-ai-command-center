@@ -741,6 +741,28 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const navigate = useNavigate();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [campaignDialog, setCampaignDialog] = useState(false);
+  const [campaignName, setCampaignName] = useState("");
+  const [campaignBudget, setCampaignBudget] = useState("50");
+  const [campaignPlatform, setCampaignPlatform] = useState("facebook");
+  const [campaignLoading, setCampaignLoading] = useState(false);
+  
+  const handleQuickCampaignCreation = () => {
+    setCampaignLoading(true);
+    
+    setTimeout(() => {
+      setCampaignLoading(false);
+      setCampaignDialog(false);
+      
+      const { toast } = useToast();
+      toast({
+        title: "Campaign Created",
+        description: "Your campaign has been created successfully. View details in Campaign page.",
+      });
+      
+      navigate("/campaign");
+    }, 2000);
+  };
   
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
@@ -847,59 +869,4 @@ const ProductCard = ({
             >
               {product.status === "Draft" ? (
                 <>
-                  <Play className="h-4 w-4 mr-1" />
-                  Create Campaign
-                </>
-              ) : (
-                <>
-                  <Eye className="h-4 w-4 mr-1" />
-                  View Campaign
-                </>
-              )}
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => onSalesLetter(product)}
-              className="h-8"
-            >
-              <FileText className="h-4 w-4 mr-1" />
-              Ad Creatives
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => onRecommendations(product)}
-              className="h-8"
-            >
-              <Lightbulb className="h-4 w-4 mr-1" />
-              Insights
-            </Button>
-          </div>
-        </div>
-      </CardFooter>
-      
-      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete this product and all associated data. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
-              onDelete(product.id);
-              setConfirmDelete(false);
-            }}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </Card>
-  );
-};
-
-export default SavedProducts;
+                  <Play className="h-4 w
