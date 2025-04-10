@@ -8,12 +8,18 @@ interface OpenAIImageGenerationResponse {
 
 export async function generateAdCopy(productName: string, productDescription: string): Promise<string> {
   try {
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    
+    if (!apiKey) {
+      console.warn('OpenAI API key is missing. Using mock ad copy.');
+      return `Experience the amazing ${productName}. Designed for performance and comfort. Get yours today!`;
+    }
+    
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // We'll use the Supabase API key instead of hardcoding it here
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "gpt-4o",
@@ -47,12 +53,18 @@ export async function generateAdCopy(productName: string, productDescription: st
 
 export async function generateProductImage(productName: string, productDescription: string): Promise<string> {
   try {
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    
+    if (!apiKey) {
+      console.warn('OpenAI API key is missing. Using placeholder image.');
+      return "/placeholder.svg";
+    }
+    
     const response = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // We'll use the Supabase API key instead of hardcoding it here
-        Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "dall-e-3",

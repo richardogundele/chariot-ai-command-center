@@ -2,10 +2,14 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Product } from '@/components/products/ProductsData';
 
-// Initialize the Supabase client (these environment variables will be set through Supabase integration)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Initialize the Supabase client with fallbacks for development
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+
+// Create a mock client if credentials are missing
+const supabase = supabaseUrl && supabaseKey 
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 export interface CreateProductPayload {
   name: string;
@@ -18,6 +22,27 @@ export interface CreateProductPayload {
 
 export async function saveProduct(product: CreateProductPayload): Promise<Product | null> {
   try {
+    // If Supabase isn't configured, return a mock product
+    if (!supabase) {
+      console.warn('Supabase is not configured. Using mock data instead.');
+      return {
+        id: Math.floor(Math.random() * 1000),
+        name: product.name,
+        description: product.description,
+        status: 'Draft',
+        metrics: {
+          sales: 0,
+          revenue: 0,
+          roas: 0
+        },
+        lastUpdated: 'Just now',
+        platforms: product.platforms,
+        adCopy: product.adCopy,
+        image: product.image,
+        insights: []
+      };
+    }
+
     const { data, error } = await supabase
       .from('products')
       .insert([{
@@ -64,6 +89,37 @@ export async function saveProduct(product: CreateProductPayload): Promise<Produc
 
 export async function fetchProducts(): Promise<Product[]> {
   try {
+    // If Supabase isn't configured, return mock data
+    if (!supabase) {
+      console.warn('Supabase is not configured. Using mock data instead.');
+      return [
+        {
+          id: 1,
+          name: "Premium Fitness Watch",
+          description: "Advanced health tracking features with 7-day battery life",
+          status: "Draft",
+          metrics: { sales: 0, revenue: 0, roas: 0 },
+          lastUpdated: "Just now",
+          platforms: ["facebook", "instagram"],
+          adCopy: "Track your health journey with precision. Our Premium Fitness Watch offers 24/7 monitoring.",
+          image: "/placeholder.svg",
+          insights: []
+        },
+        {
+          id: 2,
+          name: "Wireless Noise-Cancelling Headphones",
+          description: "Premium sound quality with 20-hour battery life",
+          status: "Draft",
+          metrics: { sales: 0, revenue: 0, roas: 0 },
+          lastUpdated: "Just now",
+          platforms: ["facebook"],
+          adCopy: "Immerse yourself in pure sound with our Wireless Noise-Cancelling Headphones.",
+          image: "/placeholder.svg",
+          insights: []
+        }
+      ];
+    }
+
     const { data, error } = await supabase
       .from('products')
       .select('*')
