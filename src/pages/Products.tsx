@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Loader2, Edit, Clock, Eye, Copy, Trash2, RefreshCw, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { generateAdCopy, generateProductImage } from "@/utils/openai";
+import { saveProduct } from "@/services/supabaseService";
 
 // Mock recent products data
 const recentProducts = [
@@ -49,7 +51,7 @@ const Products = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if ((activeTab === "url" && !productUrl) || (activeTab === "manual" && (!productName || !productDetails))) {
@@ -62,11 +64,16 @@ const Products = () => {
     }
     
     setLoading(true);
-    
-    // Simulate API call and AI generation
-    setTimeout(() => {
-      setLoading(false);
+    toast({
+      title: "Processing",
+      description: "Adding your product...",
+    });
 
+    try {
+      // For URL-based products, we'd normally scrape the URL, but for now we'll use a placeholder
+      const name = activeTab === "manual" ? productName : "Product from URL";
+      const description = activeTab === "manual" ? productDetails : "Imported product from " + productUrl;
+      
       // Show generating toast
       setGenerating(true);
       toast({
@@ -74,16 +81,42 @@ const Products = () => {
         description: "Generating ad copy and images for your product...",
       });
 
-      // Simulate AI generation completion
-      setTimeout(() => {
-        setGenerating(false);
+      // Generate ad copy and image in parallel
+      const [adCopy, imageUrl] = await Promise.all([
+        generateAdCopy(name, description),
+        generateProductImage(name, description)
+      ]);
+      
+      // Save to Supabase
+      const savedProduct = await saveProduct({
+        name,
+        description,
+        adCopy,
+        image: imageUrl,
+        platforms: [],
+        status: 'Draft'
+      });
+
+      if (savedProduct) {
         toast({
           title: "Product Added",
           description: "Your product and AI-generated ad content are ready.",
         });
         navigate("/saved-products");
-      }, 3000);
-    }, 1500);
+      } else {
+        throw new Error("Failed to save product");
+      }
+    } catch (error) {
+      console.error("Error in product creation:", error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+      setGenerating(false);
+    }
   };
 
   const [activeTab, setActiveTab] = useState("url");

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -12,9 +11,10 @@ import { Play, Loader2, BarChart3, Target } from "lucide-react";
 interface CampaignDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  productId?: number;
 }
 
-const CampaignDialog = ({ open, onOpenChange }: CampaignDialogProps) => {
+const CampaignDialog = ({ open, onOpenChange, productId }: CampaignDialogProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [campaignName, setCampaignName] = useState("");
