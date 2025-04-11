@@ -6,9 +6,13 @@ interface OpenAIImageGenerationResponse {
   }[];
 }
 
+// For development, you can use a default API key, but in production
+// this should be properly secured using environment variables
+const OPENAI_API_KEY = "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";
+
 export async function generateAdCopy(productName: string, productDescription: string): Promise<string> {
   try {
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || OPENAI_API_KEY;
     
     if (!apiKey) {
       console.warn('OpenAI API key is missing. Using mock ad copy.');
@@ -53,7 +57,7 @@ export async function generateAdCopy(productName: string, productDescription: st
 
 export async function generateProductImage(productName: string, productDescription: string): Promise<string> {
   try {
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || OPENAI_API_KEY;
     
     if (!apiKey) {
       console.warn('OpenAI API key is missing. Using placeholder image.');
