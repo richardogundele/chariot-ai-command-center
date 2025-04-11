@@ -9,38 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Edit, Clock, Eye, Copy, Trash2, RefreshCw, Sparkles } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus, Loader2, Clock, Copy, RefreshCw, Sparkles } from "lucide-react";
 import { generateAdCopy, generateProductImage } from "@/utils/openai";
-import { saveProduct } from "@/services/supabaseService";
-
-// Mock recent products data
-const recentProducts = [
-  {
-    id: 1,
-    name: "Premium Fitness Watch",
-    description: "Advanced health tracking features with 7-day battery life",
-    image: "/placeholder.svg",
-    adCopy: "Track your health journey with precision. Our Premium Fitness Watch offers 24/7 heart rate monitoring, sleep analysis, and week-long battery life. Perfect for serious athletes and health enthusiasts.",
-    dateAdded: "2 hours ago"
-  },
-  {
-    id: 2,
-    name: "Wireless Noise-Cancelling Headphones",
-    description: "Premium sound quality with 20-hour battery life",
-    image: "/placeholder.svg",
-    adCopy: "Immerse yourself in pure sound. Our Wireless Noise-Cancelling Headphones deliver crystal clear audio with deep bass and 20 hours of playtime. Perfect for work, travel, or escaping into your favorite music.",
-    dateAdded: "1 day ago"
-  },
-  {
-    id: 3,
-    name: "Smart Home Security Camera",
-    description: "1080p HD with night vision and motion detection",
-    image: "/placeholder.svg",
-    adCopy: "Protect what matters most. Our Smart Home Security Camera features crystal clear 1080p HD video, night vision, and instant motion alerts to your phone. Easy setup, 24/7 monitoring, and peace of mind.",
-    dateAdded: "3 days ago"
-  }
-];
+import { saveProduct, fetchProducts } from "@/services/supabaseService";
+import { useEffect } from "react";
 
 const Products = () => {
   const [productUrl, setProductUrl] = useState("");
@@ -48,8 +20,26 @@ const Products = () => {
   const [productName, setProductName] = useState("");
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [recentProducts, setRecentProducts] = useState<any[]>([]);
+  const [loadingRecent, setLoadingRecent] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadRecentProducts = async () => {
+      try {
+        const allProducts = await fetchProducts();
+        // Get the 3 most recent products
+        setRecentProducts(allProducts.slice(0, 3));
+      } catch (error) {
+        console.error("Error loading recent products:", error);
+      } finally {
+        setLoadingRecent(false);
+      }
+    };
+
+    loadRecentProducts();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,14 +220,14 @@ const Products = () => {
               <div className="flex items-center justify-between">
                 <div className="font-medium text-purple-800">1. AI analyzes your product</div>
               </div>
-              <p className="text-sm text-muted-foreground">We identify key selling points and create compelling messaging</p>
+              <p className="text-sm text-muted-foreground">We identify key selling points and create compelling messaging in Kenny Nwokoye's style</p>
             </div>
             
             <div className="rounded-lg p-4 space-y-2 bg-white shadow-sm border border-purple-100/50">
               <div className="flex items-center justify-between">
                 <div className="font-medium text-purple-800">2. Create engaging visuals</div>
               </div>
-              <p className="text-sm text-muted-foreground">Our AI generates stunning product images tailored for each platform</p>
+              <p className="text-sm text-muted-foreground">Our AI generates stunning product images using DALL-E 3</p>
             </div>
             
             <div className="rounded-lg p-4 space-y-2 bg-white shadow-sm border border-purple-100/50">
@@ -258,51 +248,74 @@ const Products = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {recentProducts.map((product) => (
-            <Card key={product.id} className="overflow-hidden shadow-sm hover:shadow transition-all">
-              <div className="relative">
-                <div className="aspect-video bg-muted overflow-hidden">
-                  <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-                </div>
-                <div className="absolute top-2 right-2">
-                  <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </div>
+        {loadingRecent ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {recentProducts.length > 0 ? (
+              recentProducts.map((product) => (
+                <Card key={product.id} className="overflow-hidden shadow-sm hover:shadow transition-all">
+                  <div className="relative">
+                    <div className="aspect-video bg-muted overflow-hidden">
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                  
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-lg">{product.name}</CardTitle>
+                    <CardDescription className="line-clamp-2">{product.description}</CardDescription>
+                  </CardHeader>
+                  
+                  <CardContent className="pb-2">
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium">AI-Generated Ad Copy</div>
+                      <p className="text-sm text-muted-foreground line-clamp-3">{product.adCopy}</p>
+                    </div>
+                  </CardContent>
+                  
+                  <CardFooter className="flex justify-between pt-2 border-t">
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3 mr-1" />
+                      Added {product.lastUpdated}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 px-2"
+                        onClick={() => {
+                          navigator.clipboard.writeText(product.adCopy);
+                          toast({
+                            title: "Copied",
+                            description: "Ad copy copied to clipboard",
+                          });
+                        }}
+                      >
+                        <Copy className="h-3 w-3 mr-1" />
+                        Copy
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 px-2"
+                        onClick={() => navigate("/saved-products")}
+                      >
+                        <RefreshCw className="h-3 w-3 mr-1" />
+                        View
+                      </Button>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12">
+                <p className="text-muted-foreground mb-4">No products found. Add your first product to get started.</p>
               </div>
-              
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">{product.name}</CardTitle>
-                <CardDescription className="line-clamp-2">{product.description}</CardDescription>
-              </CardHeader>
-              
-              <CardContent className="pb-2">
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">AI-Generated Ad Copy</div>
-                  <p className="text-sm text-muted-foreground line-clamp-3">{product.adCopy}</p>
-                </div>
-              </CardContent>
-              
-              <CardFooter className="flex justify-between pt-2 border-t">
-                <div className="flex items-center text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3 mr-1" />
-                  Added {product.dateAdded}
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" className="h-8 px-2">
-                    <Copy className="h-3 w-3 mr-1" />
-                    Copy
-                  </Button>
-                  <Button variant="ghost" size="sm" className="h-8 px-2">
-                    <RefreshCw className="h-3 w-3 mr-1" />
-                    Regenerate
-                  </Button>
-                </div>
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

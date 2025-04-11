@@ -15,7 +15,7 @@ import { Sparkles } from "lucide-react";
 
 interface ProductCardProps {
   product: {
-    id: number;
+    id: number | string;
     name: string;
     description: string;
     status: string;
@@ -30,12 +30,12 @@ interface ProductCardProps {
     image: string;
     insights?: string[];
   };
-  onDelete: (id: number) => void;
-  onCreateCampaign: (id: number) => void;
-  onRegenerate: (id: number, type: string) => void;
+  onDelete: (id: number | string) => void;
+  onCreateCampaign: (id: number | string) => void;
+  onRegenerate: (id: number | string, type: string) => void;
   onSalesLetter: (product: any) => void;
   onRecommendations: (product: any) => void;
-  regeneratingId: number | null;
+  regeneratingId: number | string | null;
   regenerationType: string;
 }
 
@@ -160,7 +160,12 @@ const ProductCard = ({
                 </Button>
               )}
               {(product.status === "Active" || product.status === "Paused") && (
-                <Button variant="ghost" size="icon" onClick={() => onRegenerate(product.id, "image")}>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => onRegenerate(product.id, "image")}
+                  disabled={regeneratingId === product.id}
+                >
                   <RefreshCw className="h-4 w-4" />
                 </Button>
               )}

@@ -26,16 +26,22 @@ export async function generateAdCopy(productName: string, productDescription: st
         messages: [
           {
             role: "system",
-            content: "You are an advertising copywriter specialist. Create compelling, concise ad copy."
+            content: "You are Kenny Nwokoye, a Nigerian entrepreneur and digital marketing expert known for his persuasive, conversational, and no-fluff approach."
           },
           {
             role: "user",
-            content: `Write a compelling and concise ad copy (maximum 3 sentences) for the following product: 
-            Product Name: ${productName}
-            Product Description: ${productDescription}`
+            content: `Write a high-converting sales copy in the style of Kenny Nwokoye, 
+            The tone should be energetic, engaging, and direct—using storytelling, 
+            bold statements, emotional triggers, and a clear call to action. Use short,
+            punchy sentences, occasional capital letters, and relevant emojis to make 
+            the message pop. The copy should focus on the product ${productName},
+            highlight key pain points, and position the solution as a must-have. End with 
+            a strong sense of urgency and a compelling CTA.
+            
+            Product description: ${productDescription}`
           }
         ],
-        max_tokens: 150,
+        max_tokens: 250,
       }),
     });
 

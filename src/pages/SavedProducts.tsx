@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -12,14 +13,14 @@ import SalesLetterDialog from "@/components/products/SalesLetterDialog";
 import RecommendationsDialog from "@/components/products/RecommendationsDialog";
 import CampaignDialog from "@/components/products/CampaignDialog";
 import { Product } from "@/components/products/ProductsData";
-import { fetchProducts } from "@/services/supabaseService";
+import { fetchProducts, deleteProduct, regenerateAdCopy, regenerateProductImage } from "@/services/supabaseService";
 
 const SavedProducts = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [regeneratingId, setRegeneratingId] = useState<number | null>(null);
+  const [regeneratingId, setRegeneratingId] = useState<number | string | null>(null);
   const [regenerationType, setRegenerationType] = useState<string>("");
   const [salesLetterDialog, setSalesLetterDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -46,15 +47,30 @@ const SavedProducts = () => {
     loadProducts();
   }, [toast]);
 
-  const handleDeleteProduct = (id: number) => {
-    setProducts(products.filter(product => product.id !== id));
-    toast({
-      title: "Product deleted",
-      description: "The product has been removed from your library",
-    });
+  const handleDeleteProduct = async (id: number | string) => {
+    try {
+      const success = await deleteProduct(id);
+      
+      if (success) {
+        setProducts(products.filter(product => product.id !== id));
+        toast({
+          title: "Product deleted",
+          description: "The product has been removed from your library",
+        });
+      } else {
+        throw new Error("Failed to delete product");
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete product. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleCreateCampaign = (id: number) => {
+  const handleCreateCampaign = (id: number | string) => {
     toast({
       title: "Campaign creation started",
       description: "Redirecting to campaign setup...",
@@ -62,7 +78,7 @@ const SavedProducts = () => {
     navigate("/campaign");
   };
 
-  const handleRegenerateContent = (id: number, type: string) => {
+  const handleRegenerateContent = async (id: number | string, type: string, product: Product) => {
     setRegeneratingId(id);
     setRegenerationType(type);
     
@@ -71,14 +87,44 @@ const SavedProducts = () => {
       description: `AI is creating new ${type === "adCopy" ? "ad copy" : "product image"}...`,
     });
 
-    setTimeout(() => {
+    try {
+      let newContent = null;
+      
+      if (type === "adCopy") {
+        newContent = await regenerateAdCopy(id, product.name, product.description);
+        if (newContent) {
+          setProducts(products.map(p => 
+            p.id === id ? { ...p, adCopy: newContent } : p
+          ));
+        }
+      } else if (type === "image") {
+        newContent = await regenerateProductImage(id, product.name, product.description);
+        if (newContent) {
+          setProducts(products.map(p => 
+            p.id === id ? { ...p, image: newContent } : p
+          ));
+        }
+      }
+      
+      if (newContent) {
+        toast({
+          title: "Content regenerated",
+          description: `New ${type === "adCopy" ? "ad copy" : "product image"} is now available.`,
+        });
+      } else {
+        throw new Error("Failed to regenerate content");
+      }
+    } catch (error) {
+      console.error(`Error regenerating ${type}:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to generate new ${type === "adCopy" ? "ad copy" : "product image"}. Please try again.`,
+        variant: "destructive",
+      });
+    } finally {
       setRegeneratingId(null);
       setRegenerationType("");
-      toast({
-        title: "Content regenerated",
-        description: `New ${type === "adCopy" ? "ad copy" : "product image"} is now available.`,
-      });
-    }, 3000);
+    }
   };
 
   const handleSalesLetterGeneration = (product: Product) => {
@@ -119,73 +165,96 @@ const SavedProducts = () => {
 
           <TabsContent value="all" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
+              {products.length > 0 ? products.map((product) => (
                 <ProductCard 
                   key={product.id}
                   product={product}
                   onDelete={handleDeleteProduct}
                   onCreateCampaign={handleCreateCampaign}
-                  onRegenerate={handleRegenerateContent}
+                  onRegenerate={(id, type) => handleRegenerateContent(id, type, product)}
                   onSalesLetter={handleSalesLetterGeneration}
                   onRecommendations={handleAIRecommendations}
                   regeneratingId={regeneratingId}
                   regenerationType={regenerationType}
                 />
-              ))}
+              )) : (
+                <div className="col-span-3 text-center py-12">
+                  <p className="text-muted-foreground mb-4">No products found. Add your first product to get started.</p>
+                  <Button onClick={() => navigate("/products")}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add New Product
+                  </Button>
+                </div>
+              )}
             </div>
           </TabsContent>
           
           <TabsContent value="active" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.filter(p => p.status === "Active").map((product) => (
-                <ProductCard 
-                  key={product.id}
-                  product={product}
-                  onDelete={handleDeleteProduct}
-                  onCreateCampaign={handleCreateCampaign}
-                  onRegenerate={handleRegenerateContent}
-                  onSalesLetter={handleSalesLetterGeneration}
-                  onRecommendations={handleAIRecommendations}
-                  regeneratingId={regeneratingId}
-                  regenerationType={regenerationType}
-                />
-              ))}
+              {products.filter(p => p.status === "Active").length > 0 ? 
+                products.filter(p => p.status === "Active").map((product) => (
+                  <ProductCard 
+                    key={product.id}
+                    product={product}
+                    onDelete={handleDeleteProduct}
+                    onCreateCampaign={handleCreateCampaign}
+                    onRegenerate={(id, type) => handleRegenerateContent(id, type, product)}
+                    onSalesLetter={handleSalesLetterGeneration}
+                    onRecommendations={handleAIRecommendations}
+                    regeneratingId={regeneratingId}
+                    regenerationType={regenerationType}
+                  />
+                )) : (
+                  <div className="col-span-3 text-center py-12">
+                    <p className="text-muted-foreground">No active products found.</p>
+                  </div>
+                )}
             </div>
           </TabsContent>
           
           <TabsContent value="paused" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.filter(p => p.status === "Paused").map((product) => (
-                <ProductCard 
-                  key={product.id}
-                  product={product}
-                  onDelete={handleDeleteProduct}
-                  onCreateCampaign={handleCreateCampaign}
-                  onRegenerate={handleRegenerateContent}
-                  onSalesLetter={handleSalesLetterGeneration}
-                  onRecommendations={handleAIRecommendations}
-                  regeneratingId={regeneratingId}
-                  regenerationType={regenerationType}
-                />
-              ))}
+              {products.filter(p => p.status === "Paused").length > 0 ? 
+                products.filter(p => p.status === "Paused").map((product) => (
+                  <ProductCard 
+                    key={product.id}
+                    product={product}
+                    onDelete={handleDeleteProduct}
+                    onCreateCampaign={handleCreateCampaign}
+                    onRegenerate={(id, type) => handleRegenerateContent(id, type, product)}
+                    onSalesLetter={handleSalesLetterGeneration}
+                    onRecommendations={handleAIRecommendations}
+                    regeneratingId={regeneratingId}
+                    regenerationType={regenerationType}
+                  />
+                )) : (
+                  <div className="col-span-3 text-center py-12">
+                    <p className="text-muted-foreground">No paused products found.</p>
+                  </div>
+                )}
             </div>
           </TabsContent>
           
           <TabsContent value="draft" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.filter(p => p.status === "Draft").map((product) => (
-                <ProductCard 
-                  key={product.id}
-                  product={product}
-                  onDelete={handleDeleteProduct}
-                  onCreateCampaign={handleCreateCampaign}
-                  onRegenerate={handleRegenerateContent}
-                  onSalesLetter={handleSalesLetterGeneration}
-                  onRecommendations={handleAIRecommendations}
-                  regeneratingId={regeneratingId}
-                  regenerationType={regenerationType}
-                />
-              ))}
+              {products.filter(p => p.status === "Draft").length > 0 ? 
+                products.filter(p => p.status === "Draft").map((product) => (
+                  <ProductCard 
+                    key={product.id}
+                    product={product}
+                    onDelete={handleDeleteProduct}
+                    onCreateCampaign={handleCreateCampaign}
+                    onRegenerate={(id, type) => handleRegenerateContent(id, type, product)}
+                    onSalesLetter={handleSalesLetterGeneration}
+                    onRecommendations={handleAIRecommendations}
+                    regeneratingId={regeneratingId}
+                    regenerationType={regenerationType}
+                  />
+                )) : (
+                  <div className="col-span-3 text-center py-12">
+                    <p className="text-muted-foreground">No draft products found.</p>
+                  </div>
+                )}
             </div>
           </TabsContent>
         </Tabs>

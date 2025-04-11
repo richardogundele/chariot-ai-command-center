@@ -9,7 +9,98 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      campaigns: {
+        Row: {
+          budget: number | null
+          created_at: string
+          id: string
+          name: string
+          platform: string
+          product_id: string
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          platform: string
+          product_id: string
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          platform?: string
+          product_id?: string
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          ad_copy: string | null
+          created_at: string
+          deleted: boolean | null
+          description: string
+          id: string
+          image: string | null
+          metrics: Json | null
+          name: string
+          platforms: string[] | null
+          price: number | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_copy?: string | null
+          created_at?: string
+          deleted?: boolean | null
+          description: string
+          id?: string
+          image?: string | null
+          metrics?: Json | null
+          name: string
+          platforms?: string[] | null
+          price?: number | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_copy?: string | null
+          created_at?: string
+          deleted?: boolean | null
+          description?: string
+          id?: string
+          image?: string | null
+          metrics?: Json | null
+          name?: string
+          platforms?: string[] | null
+          price?: number | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
