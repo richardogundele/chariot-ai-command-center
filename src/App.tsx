@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -20,31 +20,40 @@ import CampaignCreation from "./pages/CampaignCreation";
 import SavedProducts from "./pages/SavedProducts";
 import PlatformConnections from "./pages/PlatformConnections";
 import Settings from "./pages/Settings";
+import { getCurrentUser } from "./services/supabaseService";
 
 const queryClient = new QueryClient();
 
-// Simple auth check function that checks if user is logged in
-const isAuthenticated = () => {
-  return localStorage.getItem("isAuthenticated") === "true";
-};
-
-// Set up mock user data if not present
-const setupMockData = () => {
-  if (!localStorage.getItem("userName")) {
-    localStorage.setItem("userName", "Alex");
-  }
-};
-
-// Protected route component
+// ProtectedRoute component that checks Supabase authentication
 const ProtectedRoute = ({ children }) => {
-  return isAuthenticated() ? children : <Navigate to="/login" />;
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const { user } = await getCurrentUser();
+        setIsAuthenticated(!!user);
+      } catch (error) {
+        console.error("Auth check error:", error);
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    checkAuth();
+  }, []);
+
+  if (isLoading) {
+    // Consider adding a loading spinner or component here
+    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+  }
+
+  return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
 const App = () => {
-  useEffect(() => {
-    setupMockData();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

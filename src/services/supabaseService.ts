@@ -6,7 +6,7 @@ import type { Product } from '@/components/products/ProductsData';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
 
-// Create a mock client if credentials are missing
+// Create a client if credentials are available
 const supabase = supabaseUrl && supabaseKey 
   ? createClient(supabaseUrl, supabaseKey)
   : null;
@@ -18,6 +18,87 @@ export interface CreateProductPayload {
   image: string;
   platforms: string[];
   status: string;
+}
+
+// Authentication functions
+export async function signUp(email: string, password: string): Promise<{ user: any; error: any }> {
+  if (!supabase) {
+    console.warn('Supabase is not configured. Unable to sign up.');
+    return { user: null, error: new Error('Supabase is not configured') };
+  }
+  
+  const { data, error } = await supabase.auth.signUp({ 
+    email, 
+    password 
+  });
+  
+  return { 
+    user: data.user, 
+    error 
+  };
+}
+
+export async function signIn(email: string, password: string): Promise<{ user: any; error: any }> {
+  if (!supabase) {
+    console.warn('Supabase is not configured. Using mock authentication.');
+    
+    // Simulate authentication for development
+    if (email && password) {
+      localStorage.setItem("isAuthenticated", "true");
+      return { 
+        user: { email }, 
+        error: null 
+      };
+    }
+    
+    return { 
+      user: null, 
+      error: new Error('Invalid credentials') 
+    };
+  }
+  
+  const { data, error } = await supabase.auth.signInWithPassword({ 
+    email, 
+    password 
+  });
+  
+  // Set local storage for compatibility with existing code
+  if (data.user) {
+    localStorage.setItem("isAuthenticated", "true");
+  }
+  
+  return { 
+    user: data.user, 
+    error 
+  };
+}
+
+export async function signOut(): Promise<{ error: any }> {
+  // Always clear local storage
+  localStorage.removeItem("isAuthenticated");
+  
+  if (!supabase) {
+    return { error: null };
+  }
+  
+  const { error } = await supabase.auth.signOut();
+  return { error };
+}
+
+export async function getCurrentUser(): Promise<{ user: any; error: any }> {
+  if (!supabase) {
+    const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+    return { 
+      user: isAuthenticated ? { email: localStorage.getItem("userName") || "User" } : null, 
+      error: null 
+    };
+  }
+  
+  const { data, error } = await supabase.auth.getUser();
+  return { 
+    user: data?.user || null, 
+    error 
+  };
 }
 
 export async function saveProduct(product: CreateProductPayload): Promise<Product | null> {

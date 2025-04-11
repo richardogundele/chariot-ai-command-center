@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { AtSign, Github, KeyRound, Loader2, Lock, LogIn } from "lucide-react";
+import { signIn, signUp } from "@/services/supabaseService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,57 +16,80 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate authentication
-    setTimeout(() => {
-      if (email && password) {
-        // Set authentication in localStorage
-        localStorage.setItem("isAuthenticated", "true");
-        
+    try {
+      const { user, error } = await signIn(email, password);
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (user) {
         toast({
           title: "Login successful",
           description: "Redirecting to dashboard...",
         });
         navigate("/dashboard");
-      } else {
-        toast({
-          title: "Login failed",
-          description: "Please check your credentials and try again.",
-          variant: "destructive",
-        });
       }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast({
+        title: "Login failed",
+        description: error.message || "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!firstName || !lastName) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Simulate registration
-    setTimeout(() => {
-      if (email && password) {
-        // Set authentication in localStorage
-        localStorage.setItem("isAuthenticated", "true");
+    try {
+      const { user, error } = await signUp(email, password);
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (user) {
+        // Store name for profile setup
+        localStorage.setItem("userName", `${firstName} ${lastName}`);
         
         toast({
           title: "Account created",
-          description: "Your account has been created successfully.",
+          description: "Your account has been created successfully. Check your email for verification.",
         });
         navigate("/onboarding");
-      } else {
-        toast({
-          title: "Registration failed",
-          description: "Please fill in all required fields.",
-          variant: "destructive",
-        });
       }
+    } catch (error: any) {
+      console.error("Signup error:", error);
+      toast({
+        title: "Registration failed",
+        description: error.message || "Please check the information provided and try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -203,11 +227,21 @@ const Login = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="first-name">First name</Label>
-                    <Input id="first-name" required />
+                    <Input 
+                      id="first-name" 
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      required 
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="last-name">Last name</Label>
-                    <Input id="last-name" required />
+                    <Input 
+                      id="last-name" 
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      required 
+                    />
                   </div>
                 </div>
                 
