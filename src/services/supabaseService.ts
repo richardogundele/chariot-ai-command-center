@@ -95,15 +95,17 @@ export async function saveProduct(product: CreateProductPayload): Promise<Produc
 
     if (data) {
       // Transform database record to match our Product interface
+      const metrics = data.metrics as { sales: number; revenue: number; roas: number } | null;
+      
       return {
         id: data.id,
         name: data.name,
         description: data.description,
         status: data.status,
         metrics: {
-          sales: typeof data.metrics === 'object' ? data.metrics.sales || 0 : 0,
-          revenue: typeof data.metrics === 'object' ? data.metrics.revenue || 0 : 0,
-          roas: typeof data.metrics === 'object' ? data.metrics.roas || 0 : 0
+          sales: metrics?.sales ?? 0,
+          revenue: metrics?.revenue ?? 0,
+          roas: metrics?.roas ?? 0
         },
         lastUpdated: new Date(data.updated_at).toLocaleDateString(),
         platforms: data.platforms || [],
@@ -138,22 +140,26 @@ export async function fetchProducts(): Promise<Product[]> {
 
     if (error) throw error;
 
-    return (data || []).map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      description: item.description,
-      status: item.status,
-      metrics: {
-        sales: typeof item.metrics === 'object' ? item.metrics.sales || 0 : 0,
-        revenue: typeof item.metrics === 'object' ? item.metrics.revenue || 0 : 0,
-        roas: typeof item.metrics === 'object' ? item.metrics.roas || 0 : 0
-      },
-      lastUpdated: new Date(item.updated_at).toLocaleDateString(),
-      platforms: item.platforms || [],
-      adCopy: item.ad_copy,
-      image: item.image,
-      insights: item.insights || []
-    }));
+    return (data || []).map((item: any) => {
+      const metrics = item.metrics as { sales: number; revenue: number; roas: number } | null;
+      
+      return {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        status: item.status,
+        metrics: {
+          sales: metrics?.sales ?? 0,
+          revenue: metrics?.revenue ?? 0,
+          roas: metrics?.roas ?? 0
+        },
+        lastUpdated: new Date(item.updated_at).toLocaleDateString(),
+        platforms: item.platforms || [],
+        adCopy: item.ad_copy,
+        image: item.image,
+        insights: item.insights || []
+      };
+    });
   } catch (error) {
     console.error('Error fetching products:', error);
     return getMockProducts();
