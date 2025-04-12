@@ -83,7 +83,7 @@ export async function saveProduct(product: CreateProductPayload): Promise<Produc
           revenue: 0,
           roas: 0
         },
-        price: product.price,
+        price: product.price || null,
         platforms: product.platforms,
         ad_copy: product.adCopy,
         image: product.image,
@@ -100,9 +100,13 @@ export async function saveProduct(product: CreateProductPayload): Promise<Produc
         name: data.name,
         description: data.description,
         status: data.status,
-        metrics: data.metrics,
+        metrics: {
+          sales: typeof data.metrics === 'object' ? data.metrics.sales || 0 : 0,
+          revenue: typeof data.metrics === 'object' ? data.metrics.revenue || 0 : 0,
+          roas: typeof data.metrics === 'object' ? data.metrics.roas || 0 : 0
+        },
         lastUpdated: new Date(data.updated_at).toLocaleDateString(),
-        platforms: data.platforms,
+        platforms: data.platforms || [],
         adCopy: data.ad_copy,
         image: data.image,
         insights: []
@@ -139,7 +143,11 @@ export async function fetchProducts(): Promise<Product[]> {
       name: item.name,
       description: item.description,
       status: item.status,
-      metrics: item.metrics || { sales: 0, revenue: 0, roas: 0 },
+      metrics: {
+        sales: typeof item.metrics === 'object' ? item.metrics.sales || 0 : 0,
+        revenue: typeof item.metrics === 'object' ? item.metrics.revenue || 0 : 0,
+        roas: typeof item.metrics === 'object' ? item.metrics.roas || 0 : 0
+      },
       lastUpdated: new Date(item.updated_at).toLocaleDateString(),
       platforms: item.platforms || [],
       adCopy: item.ad_copy,
@@ -158,7 +166,7 @@ export async function deleteProduct(id: number | string): Promise<boolean> {
     const { error } = await supabase
       .from('products')
       .update({ deleted: true })
-      .eq('id', id);
+      .eq('id', id.toString());
 
     if (error) throw error;
     return true;
@@ -175,7 +183,7 @@ export async function regenerateAdCopy(id: number | string, productName: string,
     const { error } = await supabase
       .from('products')
       .update({ ad_copy: newAdCopy, updated_at: new Date().toISOString() })
-      .eq('id', id);
+      .eq('id', id.toString());
 
     if (error) throw error;
     return newAdCopy;
@@ -192,7 +200,7 @@ export async function regenerateProductImage(id: number | string, productName: s
     const { error } = await supabase
       .from('products')
       .update({ image: newImage, updated_at: new Date().toISOString() })
-      .eq('id', id);
+      .eq('id', id.toString());
 
     if (error) throw error;
     return newImage;
