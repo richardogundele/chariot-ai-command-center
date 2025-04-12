@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -12,8 +11,8 @@ import ProductCard from "@/components/products/ProductCard";
 import SalesLetterDialog from "@/components/products/SalesLetterDialog";
 import RecommendationsDialog from "@/components/products/RecommendationsDialog";
 import CampaignDialog from "@/components/products/CampaignDialog";
-import { Product } from "@/components/products/ProductsData";
-import { fetchProducts, deleteProduct, regenerateAdCopy, regenerateProductImage } from "@/services/supabaseService";
+import { Product } from "@/services/products/types";
+import { fetchProducts, deleteProduct, regenerateAdCopy, regenerateProductImage } from "@/services";
 
 const SavedProducts = () => {
   const navigate = useNavigate();
