@@ -1,9 +1,11 @@
 
 import { createClient } from '@supabase/supabase-js';
 import type { Product } from '@/components/products/ProductsData';
+import { Database } from '@/integrations/supabase/types';
 
 // Import the supabase client from our integrations
 import { supabase } from "@/integrations/supabase/client";
+import { generateAdCopy, generateProductImage } from '@/utils/openai';
 
 export interface CreateProductPayload {
   name: string;
