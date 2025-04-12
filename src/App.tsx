@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import ForgotPassword from "./pages/ForgotPassword";
-import Onboarding from "./pages/Onboarding";
 import Dashboard from "./pages/Dashboard";
 import Campaign from "./pages/Campaign";
 import Reports from "./pages/Reports";
@@ -20,7 +19,7 @@ import CampaignCreation from "./pages/CampaignCreation";
 import SavedProducts from "./pages/SavedProducts";
 import PlatformConnections from "./pages/PlatformConnections";
 import Settings from "./pages/Settings";
-import { getCurrentUser } from "./services/supabaseService";
+import { getCurrentUser } from "./services/auth/authService";
 
 const queryClient = new QueryClient();
 
@@ -64,7 +63,8 @@ const App = () => {
             <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/onboarding" element={<Onboarding />} />
+            {/* Redirect onboarding to dashboard - users will add products from there */}
+            <Route path="/onboarding" element={<Navigate to="/dashboard" />} />
             
             {/* Protected routes */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

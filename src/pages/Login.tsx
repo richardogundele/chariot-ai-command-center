@@ -76,9 +76,10 @@ const Login = () => {
         
         toast({
           title: "Account created",
-          description: "Your account has been created successfully. Check your email for verification.",
+          description: "Your account has been created successfully.",
         });
-        navigate("/onboarding");
+        // Redirect directly to dashboard instead of onboarding
+        navigate("/dashboard");
       }
     } catch (error: any) {
       console.error("Signup error:", error);
