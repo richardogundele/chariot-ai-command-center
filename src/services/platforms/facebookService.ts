@@ -9,16 +9,16 @@ interface FacebookCredentials {
 
 export async function saveFacebookCredentials(credentials: FacebookCredentials): Promise<boolean> {
   try {
-    const { user } = await supabase.auth.getUser();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
     
-    if (!user) {
+    if (userError || !userData.user) {
       throw new Error("User not authenticated");
     }
     
     const { error } = await supabase
       .from('platform_connections')
       .upsert({
-        user_id: user.id,
+        user_id: userData.user.id,
         platform: 'facebook',
         credentials: {
           access_token: credentials.accessToken,
@@ -39,16 +39,16 @@ export async function saveFacebookCredentials(credentials: FacebookCredentials):
 
 export async function checkFacebookConnection(): Promise<boolean> {
   try {
-    const { user } = await supabase.auth.getUser();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
     
-    if (!user) {
+    if (userError || !userData.user) {
       return false;
     }
     
     const { data, error } = await supabase
       .from('platform_connections')
       .select('connected')
-      .eq('user_id', user.id)
+      .eq('user_id', userData.user.id)
       .eq('platform', 'facebook')
       .single();
 
@@ -62,16 +62,16 @@ export async function checkFacebookConnection(): Promise<boolean> {
 
 export async function disconnectFacebook(): Promise<boolean> {
   try {
-    const { user } = await supabase.auth.getUser();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
     
-    if (!user) {
+    if (userError || !userData.user) {
       throw new Error("User not authenticated");
     }
     
     const { error } = await supabase
       .from('platform_connections')
       .update({ connected: false })
-      .eq('user_id', user.id)
+      .eq('user_id', userData.user.id)
       .eq('platform', 'facebook');
 
     if (error) throw error;

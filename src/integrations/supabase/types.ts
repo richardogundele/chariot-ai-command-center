@@ -53,6 +53,36 @@ export type Database = {
           },
         ]
       }
+      platform_connections: {
+        Row: {
+          connected: boolean
+          created_at: string
+          credentials: Json
+          id: string
+          last_updated: string
+          platform: string
+          user_id: string
+        }
+        Insert: {
+          connected?: boolean
+          created_at?: string
+          credentials?: Json
+          id?: string
+          last_updated?: string
+          platform: string
+          user_id: string
+        }
+        Update: {
+          connected?: boolean
+          created_at?: string
+          credentials?: Json
+          id?: string
+          last_updated?: string
+          platform?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           ad_copy: string | null
