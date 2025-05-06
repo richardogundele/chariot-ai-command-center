@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -13,14 +13,22 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
+import { ArrowLeft, ArrowRight, Check, HelpCircle, Loader2 } from "lucide-react";
+import { fetchProducts } from "@/services/products/productService";
+import { checkFacebookConnection } from "@/services/platforms/facebookService";
+import { Product } from "@/services/products/types";
 
 const CampaignCreation = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [hasFacebookConnection, setHasFacebookConnection] = useState(false);
   const navigate = useNavigate();
-  const { toast } = useToast();
   
   const [formData, setFormData] = useState({
     campaignName: "",
@@ -31,19 +39,76 @@ const CampaignCreation = () => {
     duration: "7",
     targetAudience: "",
     customizations: false,
+    advanced: {
+      ageRange: "18-65+",
+      gender: "all",
+      locations: [],
+      interests: [],
+      behaviors: [],
+      placement: "automatic",
+      bidStrategy: "lowest_cost",
+    }
   });
 
+  useEffect(() => {
+    const loadInitialData = async () => {
+      try {
+        // Load user products
+        const productData = await fetchProducts();
+        setProducts(productData);
+        
+        // Check Facebook connection status
+        const facebookConnected = await checkFacebookConnection();
+        setHasFacebookConnection(facebookConnected);
+        
+        if (!facebookConnected && formData.platforms.includes("facebook")) {
+          toast.warning("You need to connect your Facebook account before launching a campaign.", {
+            duration: 5000,
+            action: {
+              label: "Connect",
+              onClick: () => navigate("/platforms")
+            }
+          });
+        }
+      } catch (error) {
+        console.error("Error loading initial data:", error);
+        toast.error("Failed to load data. Please refresh the page.");
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+    
+    loadInitialData();
+  }, [navigate]);
+
   const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      setFormData(prev => ({
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [child]: value
+        }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleNext = () => {
     if (step === 1 && (!formData.campaignName || !formData.objective)) {
-      toast({
-        title: "Missing information",
-        description: "Please provide campaign name and objective",
-        variant: "destructive",
-      });
+      toast.error("Please provide campaign name and objective");
+      return;
+    }
+    
+    if (step === 2 && !formData.platforms.length) {
+      toast.error("Please select at least one platform");
+      return;
+    }
+    
+    if (step === 3 && !formData.targetAudience.trim()) {
+      toast.error("Please provide target audience description");
       return;
     }
     
@@ -53,10 +118,7 @@ const CampaignCreation = () => {
       setLoading(true);
       setTimeout(() => {
         setLoading(false);
-        toast({
-          title: "Campaign Created",
-          description: "Your campaign has been created successfully.",
-        });
+        toast.success("Campaign created successfully!");
         navigate("/campaign");
       }, 2000);
     }
@@ -68,6 +130,137 @@ const CampaignCreation = () => {
     } else {
       navigate("/campaign");
     }
+  };
+
+  const renderAdvancedOptions = () => {
+    if (!formData.customizations) return null;
+    
+    return (
+      <div className="pt-4 space-y-4 border-t">
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="demographics">
+            <AccordionTrigger className="text-sm font-medium">Demographics</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Age Range</Label>
+                  <Select 
+                    value={formData.advanced.ageRange} 
+                    onValueChange={(value) => handleChange("advanced.ageRange", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select age range" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="18-24">18-24</SelectItem>
+                      <SelectItem value="25-34">25-34</SelectItem>
+                      <SelectItem value="35-44">35-44</SelectItem>
+                      <SelectItem value="45-54">45-54</SelectItem>
+                      <SelectItem value="55-64">55-64</SelectItem>
+                      <SelectItem value="18-65+">All ages (18+)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Gender</Label>
+                  <RadioGroup 
+                    value={formData.advanced.gender}
+                    onValueChange={(value) => handleChange("advanced.gender", value)}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="all" id="gender-all" />
+                      <Label htmlFor="gender-all">All</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="male" id="gender-male" />
+                      <Label htmlFor="gender-male">Male</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="female" id="gender-female" />
+                      <Label htmlFor="gender-female">Female</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="targeting">
+            <AccordionTrigger className="text-sm font-medium">Detailed Targeting</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="interests">Interests</Label>
+                  <Textarea 
+                    id="interests" 
+                    placeholder="E.g. fitness, technology, cooking (comma-separated)" 
+                    value={formData.advanced.interests.join(", ")}
+                    onChange={(e) => handleChange("advanced.interests", e.target.value.split(",").map(i => i.trim()).filter(Boolean))}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="locations">Locations</Label>
+                  <Textarea 
+                    id="locations" 
+                    placeholder="E.g. New York, Los Angeles, Chicago (comma-separated)" 
+                    value={formData.advanced.locations.join(", ")}
+                    onChange={(e) => handleChange("advanced.locations", e.target.value.split(",").map(i => i.trim()).filter(Boolean))}
+                  />
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+          
+          <AccordionItem value="optimization">
+            <AccordionTrigger className="text-sm font-medium">Ad Delivery Optimization</AccordionTrigger>
+            <AccordionContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Placement</Label>
+                  <Select 
+                    value={formData.advanced.placement} 
+                    onValueChange={(value) => handleChange("advanced.placement", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select placement" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="automatic">Automatic Placement</SelectItem>
+                      <SelectItem value="feeds">Feeds Only</SelectItem>
+                      <SelectItem value="stories">Stories Only</SelectItem>
+                      <SelectItem value="reels">Reels Only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Bid Strategy</Label>
+                  <Select 
+                    value={formData.advanced.bidStrategy} 
+                    onValueChange={(value) => handleChange("advanced.bidStrategy", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select bid strategy" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="lowest_cost">Lowest Cost (Automatic)</SelectItem>
+                      <SelectItem value="cost_cap">Cost Cap</SelectItem>
+                      <SelectItem value="bid_cap">Bid Cap</SelectItem>
+                      <SelectItem value="target_cost">Target Cost</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Controls how your budget is spent throughout your campaign.
+                  </p>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+    );
   };
 
   return (
@@ -144,19 +337,46 @@ const CampaignCreation = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="product">Select Product</Label>
-                <Select 
-                  value={formData.product}
-                  onValueChange={(value) => handleChange("product", value)}
-                >
-                  <SelectTrigger id="product">
-                    <SelectValue placeholder="Select a product" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="product1">Premium Fitness Watch</SelectItem>
-                    <SelectItem value="product2">Wireless Headphones</SelectItem>
-                    <SelectItem value="product3">Smart Home Camera</SelectItem>
-                  </SelectContent>
-                </Select>
+                {loadingProducts ? (
+                  <div className="flex items-center space-x-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">Loading products...</span>
+                  </div>
+                ) : (
+                  <Select 
+                    value={formData.product}
+                    onValueChange={(value) => handleChange("product", value)}
+                  >
+                    <SelectTrigger id="product">
+                      <SelectValue placeholder="Select a product" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {products.length > 0 ? (
+                        products.map(product => (
+                          <SelectItem key={product.id} value={product.id.toString()}>
+                            {product.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-products" disabled>
+                          No products found
+                        </SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                )}
+                {products.length === 0 && !loadingProducts && (
+                  <p className="text-sm text-amber-600 mt-1">
+                    You don't have any products yet.{" "}
+                    <Button 
+                      variant="link" 
+                      className="h-auto p-0 text-sm text-primary"
+                      onClick={() => navigate("/add-product")}
+                    >
+                      Add a product
+                    </Button>
+                  </p>
+                )}
               </div>
             </CardContent>
           </>
@@ -170,7 +390,14 @@ const CampaignCreation = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label>Select Platforms</Label>
+                <div className="flex items-center justify-between">
+                  <Label>Select Platforms</Label>
+                  {!hasFacebookConnection && (
+                    <Badge variant="outline" className="text-amber-500 border-amber-200 bg-amber-50">
+                      Facebook not connected
+                    </Badge>
+                  )}
+                </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="flex items-center space-x-2 border rounded-md p-4">
                     <Switch 
@@ -180,6 +407,16 @@ const CampaignCreation = () => {
                           ? [...formData.platforms, "facebook"] 
                           : formData.platforms.filter(p => p !== "facebook");
                         handleChange("platforms", platforms);
+                        
+                        if (checked && !hasFacebookConnection) {
+                          toast.warning("You need to connect Facebook before launching a campaign", {
+                            duration: 5000,
+                            action: {
+                              label: "Connect",
+                              onClick: () => navigate("/platforms")
+                            }
+                          });
+                        }
                       }}
                       id="facebook"
                     />
@@ -216,8 +453,11 @@ const CampaignCreation = () => {
               
               <div className="space-y-4">
                 <div>
-                  <Label>Daily Budget</Label>
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center justify-between">
+                    <Label>Daily Budget</Label>
+                    <span className="text-sm font-medium">${formData.budget}</span>
+                  </div>
+                  <div className="flex items-center space-x-4 mt-2">
                     <Slider
                       value={[formData.budget]}
                       onValueChange={(value) => handleChange("budget", value[0])}
@@ -225,8 +465,10 @@ const CampaignCreation = () => {
                       step={10}
                       className="flex-1"
                     />
-                    <span className="font-medium">${formData.budget}</span>
                   </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Estimated monthly spend: ${formData.budget * 30}
+                  </p>
                 </div>
                 
                 <div className="space-y-2">
@@ -242,6 +484,8 @@ const CampaignCreation = () => {
                       <SelectItem value="7">7 days</SelectItem>
                       <SelectItem value="14">14 days</SelectItem>
                       <SelectItem value="30">30 days</SelectItem>
+                      <SelectItem value="60">60 days</SelectItem>
+                      <SelectItem value="90">90 days</SelectItem>
                       <SelectItem value="custom">Custom</SelectItem>
                     </SelectContent>
                   </Select>
@@ -259,7 +503,31 @@ const CampaignCreation = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="target-audience">Target Audience Description</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="target-audience">Target Audience Description</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-6 w-6">
+                        <HelpCircle className="h-4 w-4" />
+                        <span className="sr-only">Help</span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80">
+                      <div className="space-y-2">
+                        <h4 className="font-medium">About Target Audience</h4>
+                        <p className="text-sm text-muted-foreground">
+                          Describe your ideal customer in detail. Include demographics, interests, 
+                          and pain points. Our AI will use this to create targeted campaigns.
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Example: "25-34 year old professionals interested in fitness and wellness, 
+                          who are looking to improve their health with convenient solutions."
+                        </p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
                 <Textarea 
                   id="target-audience"
                   placeholder="Describe your ideal customer (e.g., age range, interests, location, etc.)"
@@ -283,14 +551,7 @@ const CampaignCreation = () => {
                 </Label>
               </div>
               
-              {formData.customizations && (
-                <div className="pt-4 space-y-4 border-t">
-                  <p className="text-sm font-medium">Advanced options coming soon</p>
-                  <p className="text-sm text-muted-foreground">
-                    Our team is working on adding more detailed targeting options.
-                  </p>
-                </div>
-              )}
+              {renderAdvancedOptions()}
             </CardContent>
           </>
         )}
@@ -320,9 +581,7 @@ const CampaignCreation = () => {
                 <div>
                   <h3 className="text-sm font-medium text-muted-foreground">Product</h3>
                   <p className="font-medium">
-                    {formData.product === "product1" ? "Premium Fitness Watch" : 
-                     formData.product === "product2" ? "Wireless Headphones" :
-                     formData.product === "product3" ? "Smart Home Camera" : "Not selected"}
+                    {products.find(p => p.id.toString() === formData.product)?.name || "Not selected"}
                   </p>
                 </div>
                 
@@ -346,6 +605,27 @@ const CampaignCreation = () => {
                   <p className="font-medium">${formData.budget}/day for {formData.duration} days</p>
                   <p className="text-sm text-muted-foreground">Total budget: ${formData.budget * parseInt(formData.duration)}</p>
                 </div>
+                
+                {formData.customizations && (
+                  <>
+                    <Separator />
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground">Advanced Targeting</h3>
+                      <div className="mt-2 text-sm">
+                        <div><strong>Age Range:</strong> {formData.advanced.ageRange}</div>
+                        <div><strong>Gender:</strong> {formData.advanced.gender === 'all' ? 'All genders' : formData.advanced.gender}</div>
+                        {formData.advanced.locations.length > 0 && (
+                          <div><strong>Locations:</strong> {formData.advanced.locations.join(", ")}</div>
+                        )}
+                        {formData.advanced.interests.length > 0 && (
+                          <div><strong>Interests:</strong> {formData.advanced.interests.join(", ")}</div>
+                        )}
+                        <div><strong>Placement:</strong> {formData.advanced.placement}</div>
+                        <div><strong>Bid Strategy:</strong> {formData.advanced.bidStrategy.replace('_', ' ')}</div>
+                      </div>
+                    </div>
+                  </>
+                )}
                 
                 <Separator />
                 

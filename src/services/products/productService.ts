@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentUser } from "../auth/authService";
 import { CreateProductPayload, Product } from "./types";
-import { generateAdCopy, generateProductImage } from "./aiGenerationService";
+import { generateAdCopy, generateProductImage } from "@/utils/openai";
 import { getMockProducts } from "./mockProductData";
 
 export async function saveProduct(product: CreateProductPayload): Promise<Product | null> {

@@ -9,11 +9,14 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Globe, Loader2, RefreshCw, CheckCircle2, DollarSign } from "lucide-react";
+import { toast } from "sonner";
+import { ArrowLeft, Globe, Loader2, RefreshCw, CheckCircle2, DollarSign, Sparkles } from "lucide-react";
+import { generateAdCopy, generateProductImage } from "@/utils/openai";
+import { saveProduct } from "@/services/products/productService";
 
 const AddProduct = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast: useToastFn } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [step, setStep] = useState(1);
@@ -25,99 +28,138 @@ const AddProduct = () => {
   const [generatedAdCopy, setGeneratedAdCopy] = useState("");
   const [generatedAdImage, setGeneratedAdImage] = useState<string | null>(null);
 
-  const handleUrlSubmit = (e: React.FormEvent) => {
+  const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productUrl) {
-      toast({
-        title: "URL required",
-        description: "Please enter a product URL to continue.",
-        variant: "destructive",
-      });
+      toast.error("Please enter a product URL to continue.");
       return;
     }
 
     setIsLoading(true);
     
-    // Simulate fetching product data from URL
-    setTimeout(() => {
+    try {
+      // In a real implementation, this would fetch product data from the URL
+      // For demo purposes, we'll simulate fetching after a delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       // Simulated data that would come from scraping the URL
       setProductName("Premium Wireless Headphones");
       setProductDescription("Experience crystal-clear audio with our premium wireless headphones. Featuring 40 hours of battery life, active noise cancellation, and a comfortable over-ear design.");
       setPrice("149.99");
       
-      setIsLoading(false);
+      toast.success("Product information retrieved successfully!");
       setStep(2);
-      
-      toast({
-        title: "Product information retrieved",
-        description: "We've extracted the product details from the URL. You can edit them if needed.",
-      });
-    }, 2000);
+    } catch (error) {
+      console.error("Error fetching product data:", error);
+      toast.error("Failed to retrieve product information. Please try again or use manual entry.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!productName || !productDescription || !price) {
-      toast({
-        title: "Missing information",
-        description: "Please fill in all required fields to continue.",
-        variant: "destructive",
-      });
+    if (!productName || !productDescription) {
+      toast.error("Please fill in all required fields to continue.");
       return;
     }
 
     setStep(2);
+    toast.success("Product details saved. Ready for AI content generation.");
   };
 
-  const handleGenerateAdContent = () => {
+  const handleGenerateAdContent = async () => {
     setIsGenerating(true);
     
-    // Simulate AI generating ad content
-    setTimeout(() => {
-      setGeneratedAdCopy("Immerse yourself in sound like never before. Our Premium Wireless Headphones deliver studio-quality audio with 40+ hours of battery life. Perfect for work, travel, or just escaping into your favorite music. Limited time offer: $149.99 with free shipping!");
-      setGeneratedAdImage("/placeholder.svg");
-      setIsGenerating(false);
+    try {
+      // Generate ad copy and image in parallel
+      const [adCopy, imageUrl] = await Promise.all([
+        generateAdCopy(productName, productDescription),
+        generateProductImage(productName, productDescription)
+      ]);
       
-      toast({
-        title: "Ad content generated",
-        description: "AI has created ad copy and visuals based on your product details.",
-      });
-    }, 3000);
+      setGeneratedAdCopy(adCopy);
+      setGeneratedAdImage(imageUrl);
+      
+      toast.success("AI has created ad content based on your product details.");
+    } catch (error) {
+      console.error("Error generating ad content:", error);
+      toast.error("Failed to generate AI content. Please try again.");
+      
+      // Fallback content in case of error
+      setGeneratedAdCopy("Experience the amazing " + productName + ". Designed for performance and comfort. Get yours today!");
+      setGeneratedAdImage("/placeholder.svg");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleAdCopyEdit = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setGeneratedAdCopy(e.target.value);
   };
 
-  const handleRegenerateAdContent = () => {
+  const handleRegenerateAdContent = async () => {
     setIsGenerating(true);
     
-    // Simulate regenerating content
-    setTimeout(() => {
-      setGeneratedAdCopy("Experience audio excellence with our Premium Wireless Headphones. Tune out the world with active noise cancellation and enjoy 40 hours of uninterrupted listening. Your commute just got upgraded. Now only $149.99 – high quality doesn't have to come at a high price.");
+    try {
+      const newAdCopy = await generateAdCopy(productName, productDescription);
+      setGeneratedAdCopy(newAdCopy);
+      toast.success("New ad copy generated successfully!");
+    } catch (error) {
+      console.error("Error regenerating ad copy:", error);
+      toast.error("Failed to generate new ad copy. Please try again.");
+    } finally {
       setIsGenerating(false);
-      
-      toast({
-        title: "New ad copy generated",
-        description: "We've created a new variation of ad copy for your review.",
-      });
-    }, 2000);
+    }
   };
 
-  const handleSaveProduct = () => {
+  const handleRegenerateImage = async () => {
+    setIsGenerating(true);
+    
+    try {
+      const newImageUrl = await generateProductImage(productName, productDescription);
+      setGeneratedAdImage(newImageUrl);
+      toast.success("New product image generated successfully!");
+    } catch (error) {
+      console.error("Error regenerating image:", error);
+      toast.error("Failed to generate new image. Please try again.");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleSaveProduct = async () => {
+    if (!productName || !productDescription || !generatedAdCopy || !generatedAdImage) {
+      toast.error("Missing required information. Please complete all steps.");
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Simulate saving product and ad copy
-    setTimeout(() => {
-      setIsLoading(false);
-      
-      toast({
-        title: "Product ready for campaign",
-        description: "Your product has been saved and is ready for campaign launch.",
+    try {
+      // Save to Supabase
+      const result = await saveProduct({
+        name: productName,
+        description: productDescription,
+        adCopy: generatedAdCopy,
+        image: generatedAdImage,
+        price: price ? parseFloat(price) : undefined,
+        platforms: [],
+        status: 'Draft'
       });
       
-      navigate("/saved-products");
-    }, 1500);
+      if (result) {
+        toast.success("Product saved successfully!");
+        navigate("/saved-products");
+      } else {
+        throw new Error("Failed to save product");
+      }
+    } catch (error) {
+      console.error("Error saving product:", error);
+      toast.error("Failed to save product. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -228,16 +270,18 @@ const AddProduct = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="price">Price</Label>
+                    <Label htmlFor="price">Price (Optional)</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input 
                         id="price" 
                         placeholder="99.99" 
                         className="pl-10" 
+                        type="number"
+                        step="0.01"
+                        min="0"
                         value={price}
                         onChange={(e) => setPrice(e.target.value)}
-                        required
                       />
                     </div>
                   </div>
@@ -271,24 +315,29 @@ const AddProduct = () => {
                     <p className="text-sm">{productDescription}</p>
                   </div>
                   
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground mb-1">Price</h3>
-                    <p>${price}</p>
-                  </div>
+                  {price && (
+                    <div>
+                      <h3 className="text-sm font-medium text-muted-foreground mb-1">Price</h3>
+                      <p>${price}</p>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex flex-col justify-center items-center space-y-4 border rounded-md p-4">
                   <p className="text-center text-sm text-muted-foreground">
-                    Our AI will generate optimized ad images for your product based on the description.
+                    Our AI will generate optimized ad content for your product based on the description.
                   </p>
                   <Button onClick={handleGenerateAdContent} disabled={isGenerating} className="w-full">
                     {isGenerating ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
                         Generating...
                       </>
                     ) : (
-                      "Generate Ad Content"
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Generate Ad Content
+                      </>
                     )}
                   </Button>
                 </div>
@@ -362,6 +411,7 @@ const AddProduct = () => {
                     <Button 
                       variant="outline"
                       className="w-full"
+                      onClick={handleRegenerateImage}
                       disabled={isGenerating}
                     >
                       <RefreshCw className="mr-2 h-4 w-4" />
@@ -371,7 +421,10 @@ const AddProduct = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <Button variant="outline" onClick={() => setGeneratedAdCopy("")}>
+                <Button variant="outline" onClick={() => {
+                  setGeneratedAdCopy("");
+                  setGeneratedAdImage(null);
+                }}>
                   Reset
                 </Button>
                 <Button onClick={handleSaveProduct} disabled={isLoading}>
@@ -383,7 +436,7 @@ const AddProduct = () => {
                   ) : (
                     <>
                       <CheckCircle2 className="mr-2 h-4 w-4" />
-                      Mark Ready for Campaign
+                      Save Product
                     </>
                   )}
                 </Button>
