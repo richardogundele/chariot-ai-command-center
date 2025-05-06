@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
-import { ArrowLeft, Globe, Loader2, RefreshCw, CheckCircle2, DollarSign, Sparkles } from "lucide-react";
+import { ArrowLeft, Globe, Loader2, RefreshCw, CheckCircle2, DollarSign, Sparkles, AlertCircle, Settings as SettingsIcon } from "lucide-react";
 import { generateAdCopy, generateProductImage, extractProductFromUrl } from "@/services/products/aiGenerationService";
 import { saveProduct } from "@/services/products/productService";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -27,6 +28,14 @@ const AddProduct = () => {
   const [generatedAdCopy, setGeneratedAdCopy] = useState("");
   const [generatedAdImage, setGeneratedAdImage] = useState<string | null>(null);
   const [urlError, setUrlError] = useState("");
+  const [generationError, setGenerationError] = useState("");
+  const [hasApiKey, setHasApiKey] = useState(false);
+
+  useEffect(() => {
+    // Check if API key is available either in env or localStorage
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY || localStorage.getItem('openai_api_key');
+    setHasApiKey(!!apiKey);
+  }, []);
 
   const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,6 +197,20 @@ const AddProduct = () => {
           </div>
         </div>
       </div>
+      
+      {!hasApiKey && (
+        <Alert variant="warning" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>OpenAI API Key Missing</AlertTitle>
+          <AlertDescription className="flex justify-between items-center">
+            <span>For full functionality, please add your OpenAI API key in settings. The application will use placeholder content until then.</span>
+            <Button variant="outline" size="sm" onClick={() => navigate("/settings")}>
+              <SettingsIcon className="h-4 w-4 mr-2" />
+              Go to Settings
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
       
       <div className="flex gap-4 mb-6">
         <div className={`relative flex-1 flex h-1 ${step >= 1 ? 'bg-primary' : 'bg-muted'}`}>

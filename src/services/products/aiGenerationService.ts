@@ -6,9 +6,24 @@ interface OpenAIImageGenerationResponse {
   }[];
 }
 
+interface OpenAIChatResponse {
+  choices: [
+    {
+      message: {
+        content: string;
+      };
+    }
+  ];
+}
+
+// Helper function to get API key from environment variables or localStorage
+function getOpenAIApiKey(): string {
+  return import.meta.env.VITE_OPENAI_API_KEY || localStorage.getItem('openai_api_key') || '';
+}
+
 export async function generateAdCopy(productName: string, productDescription: string): Promise<string> {
   try {
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    const apiKey = getOpenAIApiKey();
     
     if (!apiKey) {
       console.warn('OpenAI API key is missing. Using mock ad copy.');
@@ -26,6 +41,8 @@ export async function generateAdCopy(productName: string, productDescription: st
     a strong sense of urgency and a compelling CTA.
     
     Product description: ${productDescription}`;
+
+    console.log('Sending request to OpenAI for ad copy generation with:', { productName, productDescription });
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -45,15 +62,19 @@ export async function generateAdCopy(productName: string, productDescription: st
             content: userPrompt
           }
         ],
-        max_tokens: 250,
+        max_tokens: 300,
+        temperature: 0.7,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorData = await response.json();
+      console.error("OpenAI API error:", errorData);
+      throw new Error(`OpenAI API error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as OpenAIChatResponse;
+    console.log('Ad copy generation response:', data);
     return data.choices[0].message.content.trim();
   } catch (error) {
     console.error("Failed to generate ad copy:", error);
@@ -63,13 +84,15 @@ export async function generateAdCopy(productName: string, productDescription: st
 
 export async function generateProductImage(productName: string, productDescription: string): Promise<string> {
   try {
-    const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+    const apiKey = getOpenAIApiKey();
     
     if (!apiKey) {
       console.warn('OpenAI API key is missing. Using placeholder image.');
       return "/placeholder.svg";
     }
     
+    console.log('Sending request to OpenAI for image generation with:', { productName, productDescription });
+
     const response = await fetch("https://api.openai.com/v1/images/generations", {
       method: "POST",
       headers: {
@@ -87,10 +110,13 @@ export async function generateProductImage(productName: string, productDescripti
     });
 
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorData = await response.json();
+      console.error("OpenAI API error:", errorData);
+      throw new Error(`OpenAI API error: ${response.status} - ${JSON.stringify(errorData)}`);
     }
 
     const data = await response.json() as OpenAIImageGenerationResponse;
+    console.log('Image generation response:', data);
     return data.data[0].url;
   } catch (error) {
     console.error("Failed to generate product image:", error);
