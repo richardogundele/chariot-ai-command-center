@@ -114,44 +114,52 @@ export async function extractProductFromUrl(url: string): Promise<{
       };
     }
     
-    // In a production environment, this would be a server-side function
-    // that scrapes the website or calls a product information API
-    // For demo purposes, we'll simulate this with a delay
+    // For demo purposes, we'll simulate successful extraction for any valid URL
     console.log('Attempting to extract product from URL:', url);
     
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Check for popular e-commerce domains to provide more realistic simulated data
-    const domain = new URL(url).hostname.toLowerCase();
-    
-    if (domain.includes('amazon')) {
-      return {
-        success: true,
-        name: 'Premium Bluetooth Headphones',
-        description: 'Wireless over-ear headphones with active noise cancellation, 30-hour battery life, and premium sound quality. Features quick charging and comfortable memory foam ear cushions.',
-        price: 149.99
-      };
-    } else if (domain.includes('etsy')) {
-      return {
-        success: true,
-        name: 'Handcrafted Wooden Watch',
-        description: 'Unique handmade wooden watch crafted from sustainable bamboo. Features Japanese quartz movement, soft leather strap, and splash-resistant design.',
-        price: 89.95
-      };
-    } else if (domain.includes('shopify') || domain.includes('myshopify')) {
-      return {
-        success: true,
-        name: 'Organic Skincare Gift Set',
-        description: 'All-natural skincare collection featuring facial cleanser, toner, moisturizer, and serum. Made with organic ingredients and essential oils. Free from parabens and artificial fragrances.',
-        price: 64.50
-      };
-    } else {
-      // Generic product for other domains
-      return {
-        success: true,
-        name: 'Sample Product',
-        description: 'This is a simulated product description based on the URL you provided. In a real implementation, we would extract actual product details from the page.',
-        price: 99.99
+    try {
+      // Validate URL by trying to create a URL object
+      new URL(url);
+      
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Check for popular e-commerce domains to provide more realistic simulated data
+      const domain = new URL(url).hostname.toLowerCase();
+      
+      if (domain.includes('amazon')) {
+        return {
+          success: true,
+          name: 'Premium Bluetooth Headphones',
+          description: 'Wireless over-ear headphones with active noise cancellation, 30-hour battery life, and premium sound quality. Features quick charging and comfortable memory foam ear cushions.',
+          price: 149.99
+        };
+      } else if (domain.includes('etsy')) {
+        return {
+          success: true,
+          name: 'Handcrafted Wooden Watch',
+          description: 'Unique handmade wooden watch crafted from sustainable bamboo. Features Japanese quartz movement, soft leather strap, and splash-resistant design.',
+          price: 89.95
+        };
+      } else if (domain.includes('shopify') || domain.includes('myshopify')) {
+        return {
+          success: true,
+          name: 'Organic Skincare Gift Set',
+          description: 'All-natural skincare collection featuring facial cleanser, toner, moisturizer, and serum. Made with organic ingredients and essential oils. Free from parabens and artificial fragrances.',
+          price: 64.50
+        };
+      } else {
+        // Generic product for other domains
+        return {
+          success: true,
+          name: 'Sample Product',
+          description: 'This is a simulated product description based on the URL you provided. In a real implementation, we would extract actual product details from the page.',
+          price: 99.99
+        };
+      }
+    } catch (error) {
+      return { 
+        success: false, 
+        error: 'Invalid URL format. Please check the URL and try again.' 
       };
     }
   } catch (error) {

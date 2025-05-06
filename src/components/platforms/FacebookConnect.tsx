@@ -23,14 +23,15 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { saveFacebookCredentials, checkFacebookConnection, disconnectFacebook } from "@/services/platforms/facebookService";
 import { useEffect } from "react";
-import { Check, Facebook, X } from "lucide-react";
+import { Check, ExternalLink, Facebook, Loader2, X } from "lucide-react";
+import { toast } from "sonner";
 
 export const FacebookConnect = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [accessToken, setAccessToken] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { toast } = useToast();
+  const [simulateDemo, setSimulateDemo] = useState(false);
 
   useEffect(() => {
     async function checkConnection() {
@@ -41,12 +42,50 @@ export const FacebookConnect = () => {
     checkConnection();
   }, []);
 
+  const handleSimulateConnect = async () => {
+    setIsLoading(true);
+    
+    // Simulate API connection process with a delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    try {
+      const demoToken = `DEMO_MVP_TOKEN_${Date.now()}`;
+      const success = await saveFacebookCredentials({ 
+        accessToken: demoToken,
+        userId: "demo_user_123456789",
+        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      
+      if (success) {
+        toast.success("Facebook account connected successfully", {
+          description: "Demo connection established for your MVP presentation"
+        });
+        setIsConnected(true);
+        setIsDialogOpen(false);
+      } else {
+        toast.error("Connection failed", {
+          description: "There was an issue connecting to Facebook"
+        });
+      }
+    } catch (error) {
+      console.error("Facebook connection error:", error);
+      toast.error("Connection error", {
+        description: "An unexpected error occurred"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleConnect = async () => {
+    if (simulateDemo) {
+      handleSimulateConnect();
+      return;
+    }
+    
     if (!accessToken.trim()) {
-      toast({
-        title: "Missing token",
-        description: "Please enter a valid Facebook access token",
-        variant: "destructive",
+      toast.error("Missing token", {
+        description: "Please enter a valid Facebook access token"
       });
       return;
     }
@@ -57,25 +96,20 @@ export const FacebookConnect = () => {
       const success = await saveFacebookCredentials({ accessToken });
       
       if (success) {
-        toast({
-          title: "Connection successful",
-          description: "Your Facebook account has been connected",
+        toast.success("Connection successful", {
+          description: "Your Facebook account has been connected"
         });
         setIsConnected(true);
         setIsDialogOpen(false);
       } else {
-        toast({
-          title: "Connection failed",
-          description: "Failed to connect to Facebook. Please try again.",
-          variant: "destructive",
+        toast.error("Connection failed", {
+          description: "Failed to connect to Facebook. Please try again."
         });
       }
     } catch (error) {
       console.error("Facebook connection error:", error);
-      toast({
-        title: "Connection error",
-        description: "An error occurred while connecting to Facebook",
-        variant: "destructive",
+      toast.error("Connection error", {
+        description: "An error occurred while connecting to Facebook"
       });
     } finally {
       setIsLoading(false);
@@ -89,24 +123,19 @@ export const FacebookConnect = () => {
       const success = await disconnectFacebook();
       
       if (success) {
-        toast({
-          title: "Disconnected",
-          description: "Your Facebook account has been disconnected",
+        toast.success("Disconnected", {
+          description: "Your Facebook account has been disconnected"
         });
         setIsConnected(false);
       } else {
-        toast({
-          title: "Disconnect failed",
-          description: "Failed to disconnect from Facebook. Please try again.",
-          variant: "destructive",
+        toast.error("Disconnect failed", {
+          description: "Failed to disconnect from Facebook. Please try again."
         });
       }
     } catch (error) {
       console.error("Facebook disconnection error:", error);
-      toast({
-        title: "Disconnect error",
-        description: "An error occurred while disconnecting from Facebook",
-        variant: "destructive",
+      toast.error("Disconnect error", {
+        description: "An error occurred while disconnecting from Facebook"
       });
     } finally {
       setIsLoading(false);
@@ -141,7 +170,14 @@ export const FacebookConnect = () => {
           
           {isConnected ? (
             <Button variant="outline" disabled={isLoading} onClick={handleDisconnect}>
-              {isLoading ? "Processing..." : "Disconnect"}
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Disconnect"
+              )}
             </Button>
           ) : (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -152,22 +188,63 @@ export const FacebookConnect = () => {
                 <DialogHeader>
                   <DialogTitle>Connect to Facebook</DialogTitle>
                   <DialogDescription>
-                    Enter your Facebook access token to connect your account
+                    Connect your Facebook account to manage your campaigns
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fb-token">Access Token</Label>
-                    <Input 
-                      id="fb-token" 
-                      value={accessToken} 
-                      onChange={(e) => setAccessToken(e.target.value)}
-                      placeholder="Enter your Facebook access token" 
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="demo-mode"
+                      checked={simulateDemo}
+                      onChange={(e) => setSimulateDemo(e.target.checked)}
+                      className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Get your access token from the Facebook Developer Portal
-                    </p>
+                    <Label htmlFor="demo-mode" className="text-sm font-medium text-muted-foreground">
+                      Use demo mode for MVP presentation
+                    </Label>
                   </div>
+                  
+                  {!simulateDemo && (
+                    <div className="space-y-2">
+                      <Label htmlFor="fb-token">Access Token</Label>
+                      <Input 
+                        id="fb-token" 
+                        value={accessToken} 
+                        onChange={(e) => setAccessToken(e.target.value)}
+                        placeholder="Enter your Facebook access token" 
+                      />
+                      <div className="flex items-center justify-between pt-2">
+                        <p className="text-xs text-muted-foreground">
+                          Get your access token from the Facebook Developer Portal
+                        </p>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-auto p-1 flex items-center gap-1"
+                          onClick={() => window.open('https://developers.facebook.com/tools/explorer/', '_blank')}
+                        >
+                          <ExternalLink className="h-3 w-3" />
+                          <span className="text-xs">Get Token</span>
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {simulateDemo && (
+                    <div className="rounded-md bg-blue-50 p-4">
+                      <div className="flex">
+                        <div className="flex-shrink-0">
+                          <Check className="h-5 w-5 text-blue-400" />
+                        </div>
+                        <div className="ml-3">
+                          <p className="text-sm text-blue-700">
+                            Demo mode will create a simulated connection for your MVP presentation
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <DialogFooter>
                   <Button 
@@ -178,7 +255,14 @@ export const FacebookConnect = () => {
                     Cancel
                   </Button>
                   <Button onClick={handleConnect} disabled={isLoading}>
-                    {isLoading ? "Connecting..." : "Connect"}
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {simulateDemo ? "Simulating..." : "Connecting..."}
+                      </>
+                    ) : (
+                      simulateDemo ? "Connect Demo" : "Connect"
+                    )}
                   </Button>
                 </DialogFooter>
               </DialogContent>
