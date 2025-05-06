@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Loader2, Clock, Copy, RefreshCw, Sparkles } from "lucide-react";
-import { generateAdCopy, generateProductImage } from "@/utils/openai";
-import { saveProduct, fetchProducts } from "@/services/supabaseService";
+import { extractProductFromUrl, generateAdCopy, generateProductImage } from "@/services/products/aiGenerationService";
+import { saveProduct, fetchProducts } from "@/services/products/productService";
 import { useEffect } from "react";
 
 const Products = () => {
@@ -22,6 +22,7 @@ const Products = () => {
   const [generating, setGenerating] = useState(false);
   const [recentProducts, setRecentProducts] = useState<any[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
+  const [urlError, setUrlError] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -60,9 +61,27 @@ const Products = () => {
     });
 
     try {
-      // For URL-based products, we'd normally scrape the URL, but for now we'll use a placeholder
-      const name = activeTab === "manual" ? productName : "Product from URL";
-      const description = activeTab === "manual" ? productDetails : "Imported product from " + productUrl;
+      let name = productName;
+      let description = productDetails;
+      
+      // Handle URL-based products by extracting information
+      if (activeTab === "url") {
+        const extractResult = await extractProductFromUrl(productUrl);
+        
+        if (!extractResult.success) {
+          setUrlError(extractResult.error || "Failed to extract product information");
+          toast({
+            title: "Error",
+            description: "Could not extract product information from this URL.",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+        
+        name = extractResult.name || "Product from URL";
+        description = extractResult.description || `Imported product from ${productUrl}`;
+      }
       
       // Show generating toast
       setGenerating(true);
@@ -149,8 +168,13 @@ const Products = () => {
                       id="product-url"
                       placeholder="https://example.com/product"
                       value={productUrl}
-                      onChange={(e) => setProductUrl(e.target.value)}
+                      onChange={(e) => {
+                        setProductUrl(e.target.value);
+                        if (urlError) setUrlError("");
+                      }}
+                      className={urlError ? "border-red-500" : ""}
                     />
+                    {urlError && <p className="text-xs text-red-500">{urlError}</p>}
                     <p className="text-xs text-muted-foreground">We'll automatically extract product information from this URL</p>
                   </div>
                   <Button type="submit" className="w-full" disabled={loading || generating}>

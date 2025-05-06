@@ -2,8 +2,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import { getCurrentUser } from "../auth/authService";
 import { CreateProductPayload, Product } from "./types";
-import { generateAdCopy, generateProductImage } from "@/utils/openai";
 import { getMockProducts } from "./mockProductData";
+import { generateAdCopy, generateProductImage } from "./aiGenerationService";
 
 export async function saveProduct(product: CreateProductPayload): Promise<Product | null> {
   try {
@@ -53,7 +53,8 @@ export async function saveProduct(product: CreateProductPayload): Promise<Produc
         platforms: data.platforms || [],
         adCopy: data.ad_copy,
         image: data.image,
-        insights: []
+        insights: [],
+        price: data.price
       };
     }
 
@@ -99,7 +100,8 @@ export async function fetchProducts(): Promise<Product[]> {
         platforms: item.platforms || [],
         adCopy: item.ad_copy,
         image: item.image,
-        insights: item.insights || []
+        insights: item.insights || [],
+        price: item.price
       };
     });
   } catch (error) {

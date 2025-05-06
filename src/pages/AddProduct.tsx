@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -11,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
 import { ArrowLeft, Globe, Loader2, RefreshCw, CheckCircle2, DollarSign, Sparkles } from "lucide-react";
-import { generateAdCopy, generateProductImage } from "@/utils/openai";
+import { generateAdCopy, generateProductImage, extractProductFromUrl } from "@/services/products/aiGenerationService";
 import { saveProduct } from "@/services/products/productService";
 
 const AddProduct = () => {
@@ -27,6 +26,7 @@ const AddProduct = () => {
   const [price, setPrice] = useState("");
   const [generatedAdCopy, setGeneratedAdCopy] = useState("");
   const [generatedAdImage, setGeneratedAdImage] = useState<string | null>(null);
+  const [urlError, setUrlError] = useState("");
 
   const handleUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,21 +36,28 @@ const AddProduct = () => {
     }
 
     setIsLoading(true);
+    setUrlError("");
     
     try {
-      // In a real implementation, this would fetch product data from the URL
-      // For demo purposes, we'll simulate fetching after a delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Extract product data from URL
+      const result = await extractProductFromUrl(productUrl);
       
-      // Simulated data that would come from scraping the URL
-      setProductName("Premium Wireless Headphones");
-      setProductDescription("Experience crystal-clear audio with our premium wireless headphones. Featuring 40 hours of battery life, active noise cancellation, and a comfortable over-ear design.");
-      setPrice("149.99");
-      
-      toast.success("Product information retrieved successfully!");
-      setStep(2);
+      if (result.success && result.name && result.description) {
+        setProductName(result.name);
+        setProductDescription(result.description);
+        if (result.price) {
+          setPrice(result.price.toString());
+        }
+        
+        toast.success("Product information retrieved successfully!");
+        setStep(2);
+      } else {
+        setUrlError(result.error || "Could not extract product information from this URL.");
+        toast.error("Failed to retrieve product information. Please check the URL or use manual entry.");
+      }
     } catch (error) {
       console.error("Error fetching product data:", error);
+      setUrlError("An unexpected error occurred. Please try again or use manual entry.");
       toast.error("Failed to retrieve product information. Please try again or use manual entry.");
     } finally {
       setIsLoading(false);
@@ -213,11 +220,17 @@ const AddProduct = () => {
                       <Input 
                         id="product-url" 
                         placeholder="https://example.com/product" 
-                        className="pl-10"
+                        className={`pl-10 ${urlError ? 'border-red-500' : ''}`}
                         value={productUrl}
-                        onChange={(e) => setProductUrl(e.target.value)}
+                        onChange={(e) => {
+                          setProductUrl(e.target.value);
+                          if (urlError) setUrlError("");
+                        }}
                       />
                     </div>
+                    {urlError && (
+                      <p className="text-sm text-red-500">{urlError}</p>
+                    )}
                     <p className="text-sm text-muted-foreground">
                       Enter the URL of your product page. We'll extract the name, description, and price.
                     </p>
