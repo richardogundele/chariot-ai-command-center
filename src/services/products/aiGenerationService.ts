@@ -16,14 +16,15 @@ interface OpenAIChatResponse {
   ];
 }
 
-// Helper function to get API key from environment variables or localStorage
-function getOpenAIApiKey(): string {
-  return import.meta.env.VITE_OPENAI_API_KEY || localStorage.getItem('openai_api_key') || '';
+// Helper function to get API key from the localStorage as fallback
+function getApiKeyFromLocalStorage(keyName: string): string | null {
+  return localStorage.getItem(keyName) || null;
 }
 
 export async function generateAdCopy(productName: string, productDescription: string): Promise<string> {
   try {
-    const apiKey = getOpenAIApiKey();
+    // Try to get the API key from localStorage as a fallback
+    const apiKey = getApiKeyFromLocalStorage('openai_api_key');
     
     if (!apiKey) {
       console.warn('OpenAI API key is missing. Using mock ad copy.');
@@ -84,7 +85,8 @@ export async function generateAdCopy(productName: string, productDescription: st
 
 export async function generateProductImage(productName: string, productDescription: string): Promise<string> {
   try {
-    const apiKey = getOpenAIApiKey();
+    // Try to get the API key from localStorage as a fallback
+    const apiKey = getApiKeyFromLocalStorage('openai_api_key');
     
     if (!apiKey) {
       console.warn('OpenAI API key is missing. Using placeholder image.');
