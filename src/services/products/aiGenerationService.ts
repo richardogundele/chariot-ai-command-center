@@ -62,7 +62,7 @@ export async function generateAdCopy(productName: string, productDescription: st
             content: userPrompt
           }
         ],
-        max_tokens: 300,
+        max_tokens: 400,
         temperature: 0.7,
       }),
     });

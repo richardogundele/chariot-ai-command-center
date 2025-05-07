@@ -10,7 +10,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Trash2, Play, Loader2, FileText, Lightbulb, Eye } from "lucide-react";
+import { RefreshCw, Trash2, Play, Loader2, FileText, Lightbulb, Eye, Edit } from "lucide-react";
 import { Sparkles } from "lucide-react";
 
 interface ProductCardProps {
@@ -57,6 +57,7 @@ const ProductCard = ({
   const [campaignBudget, setCampaignBudget] = useState("50");
   const [campaignPlatform, setCampaignPlatform] = useState("facebook");
   const [campaignLoading, setCampaignLoading] = useState(false);
+  const [editDialog, setEditDialog] = useState(false);
   
   const handleQuickCampaignCreation = () => {
     setCampaignLoading(true);
@@ -78,13 +79,36 @@ const ProductCard = ({
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative">
         <div className="aspect-video bg-muted overflow-hidden">
-          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+          {product.image ? (
+            <img 
+              src={product.image} 
+              alt={product.name} 
+              className="w-full h-full object-cover" 
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.svg";
+                console.error("Failed to load product image, using placeholder");
+              }} 
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-slate-100">
+              <span className="text-muted-foreground">No image available</span>
+            </div>
+          )}
         </div>
         {regeneratingId === product.id && regenerationType === "image" && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-white" />
           </div>
         )}
+        <Button 
+          size="icon" 
+          variant="ghost" 
+          className="absolute top-2 right-2 bg-white/80 hover:bg-white" 
+          onClick={() => setEditDialog(true)}
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
       </div>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
@@ -156,19 +180,17 @@ const ProductCard = ({
                   className="h-8"
                 >
                   <RefreshCw className="h-4 w-4 mr-1" />
-                  Regenerate
+                  Regenerate Copy
                 </Button>
               )}
-              {(product.status === "Active" || product.status === "Paused") && (
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => onRegenerate(product.id, "image")}
-                  disabled={regeneratingId === product.id}
-                >
-                  <RefreshCw className="h-4 w-4" />
-                </Button>
-              )}
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => onRegenerate(product.id, "image")}
+                disabled={regeneratingId === product.id}
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => setConfirmDelete(true)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -301,6 +323,64 @@ const ProductCard = ({
                   Launch
                 </>
               )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={editDialog} onOpenChange={setEditDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Product</DialogTitle>
+            <DialogDescription>
+              Make changes to your product details
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="product-name">Product Name</Label>
+              <Input 
+                id="product-name" 
+                defaultValue={product.name}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="product-description">Description</Label>
+              <Input 
+                id="product-description" 
+                defaultValue={product.description}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="product-status">Status</Label>
+              <Select defaultValue={product.status}>
+                <SelectTrigger id="product-status">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Draft">Draft</SelectItem>
+                  <SelectItem value="Active">Active</SelectItem>
+                  <SelectItem value="Paused">Paused</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => {
+              toast({
+                title: "Product Updated",
+                description: "Your product has been updated successfully.",
+              });
+              setEditDialog(false);
+            }}>
+              Save Changes
             </Button>
           </DialogFooter>
         </DialogContent>
