@@ -1,4 +1,6 @@
 
+import { getApiKey } from "@/services/api/apiKeyService";
+
 interface OpenAIImageGenerationResponse {
   created: number;
   data: {
@@ -23,8 +25,11 @@ function getApiKeyFromLocalStorage(keyName: string): string | null {
 
 export async function generateAdCopy(productName: string, productDescription: string): Promise<string> {
   try {
-    // Try to get the API key from localStorage as a fallback
-    const apiKey = getApiKeyFromLocalStorage('openai_api_key');
+    // Try to get the API key from Supabase first, then localStorage as fallback
+    let apiKey = await getApiKey('openai_api_key');
+    if (!apiKey) {
+      apiKey = getApiKeyFromLocalStorage('openai_api_key');
+    }
     
     if (!apiKey) {
       console.warn('OpenAI API key is missing. Using mock ad copy.');
@@ -85,8 +90,11 @@ export async function generateAdCopy(productName: string, productDescription: st
 
 export async function generateProductImage(productName: string, productDescription: string): Promise<string> {
   try {
-    // Try to get the API key from localStorage as a fallback
-    const apiKey = getApiKeyFromLocalStorage('openai_api_key');
+    // Try to get the API key from Supabase first, then localStorage as fallback
+    let apiKey = await getApiKey('openai_api_key');
+    if (!apiKey) {
+      apiKey = getApiKeyFromLocalStorage('openai_api_key');
+    }
     
     if (!apiKey) {
       console.warn('OpenAI API key is missing. Using placeholder image.');

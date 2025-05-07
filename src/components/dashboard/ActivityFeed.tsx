@@ -1,5 +1,5 @@
 
-import { Clock, Zap, TrendingUp, Users, BarChart3, DollarSign } from "lucide-react";
+import { Clock, Zap, TrendingUp, Users, BarChart3, DollarSign, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ActivityItem {
@@ -48,6 +48,24 @@ export const ActivityFeed = () => {
     {
       id: 4,
       time: "1 hour ago",
+      icon: Plus,
+      iconColor: "text-purple-500",
+      iconBgColor: "bg-purple-500/10",
+      title: "New product added",
+      description: "Premium Fitness Watch added to library",
+    },
+    {
+      id: 5,
+      time: "2 hours ago",
+      icon: Trash2,
+      iconColor: "text-red-500",
+      iconBgColor: "bg-red-500/10",
+      title: "Product deleted",
+      description: "Wireless Headphones removed from library",
+    },
+    {
+      id: 6,
+      time: "3 hours ago",
       icon: Users,
       iconColor: "text-indigo-500",
       iconBgColor: "bg-indigo-500/10",
@@ -55,31 +73,13 @@ export const ActivityFeed = () => {
       description: "Found 2 high-performing segments",
     },
     {
-      id: 5,
-      time: "2 hours ago",
+      id: 7,
+      time: "4 hours ago",
       icon: BarChart3,
       iconColor: "text-purple-500",
       iconBgColor: "bg-purple-500/10",
       title: "Weekly performance report",
       description: "ROAS increased by 0.4x compared to last week",
-    },
-    {
-      id: 6,
-      time: "4 hours ago",
-      icon: Zap,
-      iconColor: "text-orange-500",
-      iconBgColor: "bg-orange-500/10",
-      title: "Ad optimization completed",
-      description: "Updated bidding strategy for better performance",
-    },
-    {
-      id: 7,
-      time: "5 hours ago",
-      icon: Clock,
-      iconColor: "text-gray-500",
-      iconBgColor: "bg-gray-500/10",
-      title: "Campaign schedule updated",
-      description: "Paused ads during non-converting hours",
     },
   ];
 

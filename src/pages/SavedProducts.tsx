@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -30,6 +31,7 @@ const SavedProducts = () => {
     const loadProducts = async () => {
       try {
         const data = await fetchProducts();
+        console.log("Fetched products:", data);
         setProducts(data);
       } catch (error) {
         console.error("Error loading products:", error);
@@ -136,6 +138,9 @@ const SavedProducts = () => {
     setRecommendationsDialog(true);
   };
 
+  console.log("Current products:", products);
+  console.log("Products with 'Paused' status:", products.filter(p => p.status === "Paused"));
+
   return (
     <DashboardLayout>
       <div className="flex justify-between items-center mb-8">
@@ -157,9 +162,9 @@ const SavedProducts = () => {
         <Tabs defaultValue="all" className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="all">All Products</TabsTrigger>
-            <TabsTrigger value="active">Active</TabsTrigger>
-            <TabsTrigger value="paused">Paused</TabsTrigger>
-            <TabsTrigger value="draft">Ready for Ads</TabsTrigger>
+            <TabsTrigger value="Active">Active</TabsTrigger>
+            <TabsTrigger value="Paused">Paused</TabsTrigger>
+            <TabsTrigger value="Draft">Ready for Ads</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-0">
@@ -188,7 +193,7 @@ const SavedProducts = () => {
             </div>
           </TabsContent>
           
-          <TabsContent value="active" className="mt-0">
+          <TabsContent value="Active" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.filter(p => p.status === "Active").length > 0 ? 
                 products.filter(p => p.status === "Active").map((product) => (
@@ -211,7 +216,7 @@ const SavedProducts = () => {
             </div>
           </TabsContent>
           
-          <TabsContent value="paused" className="mt-0">
+          <TabsContent value="Paused" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.filter(p => p.status === "Paused").length > 0 ? 
                 products.filter(p => p.status === "Paused").map((product) => (
@@ -234,7 +239,7 @@ const SavedProducts = () => {
             </div>
           </TabsContent>
           
-          <TabsContent value="draft" className="mt-0">
+          <TabsContent value="Draft" className="mt-0">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {products.filter(p => p.status === "Draft").length > 0 ? 
                 products.filter(p => p.status === "Draft").map((product) => (

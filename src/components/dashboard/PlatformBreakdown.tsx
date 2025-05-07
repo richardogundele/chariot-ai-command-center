@@ -8,7 +8,6 @@ const revenueData = [
   { name: 'Instagram', value: 8940, color: '#7E69AB' },
   { name: 'Google', value: 6780, color: '#D6BCFA' },
   { name: 'TikTok', value: 4300, color: '#38BDF8' },
-  { name: 'YouTube', value: 2450, color: '#FB923C' },
 ];
 
 const impressionData = [
@@ -16,7 +15,6 @@ const impressionData = [
   { name: 'Instagram', value: 98600, color: '#7E69AB' },
   { name: 'Google', value: 45800, color: '#D6BCFA' },
   { name: 'TikTok', value: 86400, color: '#38BDF8' },
-  { name: 'YouTube', value: 32100, color: '#FB923C' },
 ];
 
 const clickData = [
@@ -24,7 +22,6 @@ const clickData = [
   { name: 'Instagram', value: 4260, color: '#7E69AB' },
   { name: 'Google', value: 3540, color: '#D6BCFA' },
   { name: 'TikTok', value: 2780, color: '#38BDF8' },
-  { name: 'YouTube', value: 1430, color: '#FB923C' },
 ];
 
 export const PlatformBreakdown = () => {
