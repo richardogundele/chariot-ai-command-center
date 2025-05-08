@@ -36,7 +36,7 @@ const ProductCard = ({
   regeneratingId,
   regenerationType
 }: ProductCardProps) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [imageError, setImageError] = useState(false);
   
   const statusColors = {
     Active: "bg-green-500/10 text-green-600 hover:bg-green-500/20",
@@ -49,9 +49,13 @@ const ProductCard = ({
       <div className="relative">
         <div className="aspect-video bg-muted overflow-hidden">
           <img 
-            src={product.image} 
+            src={imageError ? "/placeholder.svg" : product.image || "/placeholder.svg"} 
             alt={product.name} 
             className="w-full h-full object-cover"
+            onError={() => {
+              console.error("Failed to load product image:", product.image);
+              setImageError(true);
+            }}
           />
         </div>
         <div className="absolute top-3 right-3 flex gap-2">

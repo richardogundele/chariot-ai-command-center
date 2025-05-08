@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -12,7 +13,11 @@ export async function generateAdCopy(productName: string, productDescription: st
       .eq('key_name', 'openai_api_key')
       .maybeSingle();
 
-    // If there's no API key in the database, try to get it from localStorage
+    if (apiKeyError) {
+      console.error("Error fetching API key:", apiKeyError);
+    }
+
+    // If there's no API key in the database, try to get it from localStorage or env
     const apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || import.meta.env.VITE_OPENAI_API_KEY;
 
     if (!apiKey) {
@@ -56,6 +61,12 @@ export async function generateAdCopy(productName: string, productDescription: st
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("OpenAI API error:", errorData);
+      throw new Error(`OpenAI API responded with status ${response.status}: ${JSON.stringify(errorData)}`);
+    }
+
     const data = await response.json();
 
     if (data.choices && data.choices[0]) {
@@ -82,7 +93,11 @@ export async function generateProductImage(productName: string, productDescripti
       .eq('key_name', 'openai_api_key')
       .maybeSingle();
 
-    // If there's no API key in the database, try to get it from localStorage
+    if (apiKeyError) {
+      console.error("Error fetching API key:", apiKeyError);
+    }
+
+    // If there's no API key in the database, try to get it from localStorage or env
     const apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || import.meta.env.VITE_OPENAI_API_KEY;
 
     if (!apiKey) {
@@ -92,6 +107,8 @@ export async function generateProductImage(productName: string, productDescripti
     }
 
     const prompt = `A futuristic, eye-catching digital advertisement scene showing a sleek, modern ${productName} in action. Vibrant colors, clean design, minimalistic UI elements glowing subtly. The background should be dynamic and visually striking—like a city at dusk, a digital interface, or abstract tech waves. Include bold typography space for a headline. Style should be premium, cinematic, and optimized for social media. ${productDescription}`;
+
+    console.log("Sending image generation request with prompt:", prompt.substring(0, 50) + "...");
 
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
@@ -107,10 +124,17 @@ export async function generateProductImage(productName: string, productDescripti
       }),
     });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("DALL-E API error:", errorData);
+      throw new Error(`DALL-E API responded with status ${response.status}: ${JSON.stringify(errorData)}`);
+    }
+
     const data = await response.json();
+    console.log("DALL-E API response:", data);
     
     if (data.data && data.data[0] && data.data[0].url) {
-      // Save the image to Supabase storage or just return the URL
+      // Return the URL directly
       return data.data[0].url;
     }
     

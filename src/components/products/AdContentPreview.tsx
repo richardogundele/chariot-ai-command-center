@@ -26,7 +26,7 @@ const AdContentPreview = ({ open, onOpenChange, content }: AdContentPreviewProps
           <div className="space-y-4">
             <h3 className="font-medium">Ad Copy</h3>
             <div className="border p-4 rounded-md bg-muted/30 whitespace-pre-wrap max-h-96 overflow-y-auto">
-              {content?.adCopy}
+              {content?.adCopy || "No ad copy available"}
             </div>
             <Button 
               variant="outline" 
@@ -48,12 +48,21 @@ const AdContentPreview = ({ open, onOpenChange, content }: AdContentPreviewProps
           <div className="space-y-4">
             <h3 className="font-medium">Ad Image</h3>
             <div className="border p-4 rounded-md bg-muted/30 flex justify-center">
-              {content?.image && (
+              {content?.image ? (
                 <img 
                   src={content.image} 
                   alt="Ad image" 
                   className="max-h-96 object-contain"
+                  onError={(e) => {
+                    console.error("Image failed to load:", content.image);
+                    e.currentTarget.src = "/placeholder.svg";
+                    e.currentTarget.alt = "Failed to load image";
+                  }}
                 />
+              ) : (
+                <div className="flex items-center justify-center h-48 w-full text-muted-foreground">
+                  No image available
+                </div>
               )}
             </div>
           </div>

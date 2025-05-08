@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,16 @@ import CampaignDialog from "@/components/products/CampaignDialog";
 import { CampaignSummaryCards } from "@/components/campaign/CampaignSummaryCards";
 import { CampaignList } from "@/components/campaign/CampaignList";
 import { CampaignPerformanceTabs } from "@/components/campaign/CampaignPerformanceTabs";
+import { supabase } from "@/integrations/supabase/client"; 
+
+interface Campaign {
+  id: string;
+  name: string;
+  status: string;
+  platform: string;
+  budget: number;
+  roas?: number;
+}
 
 const Campaign = () => {
   const navigate = useNavigate();
@@ -22,23 +32,100 @@ const Campaign = () => {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const [selectedCampaignName, setSelectedCampaignName] = useState<string>("");
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(false);
   
-  const handleDeleteCampaign = () => {
-    // In a real app, this would make an API call to delete the campaign
-    toast({
-      title: "Campaign Deleted",
-      description: "The campaign has been deleted successfully.",
-    });
-    setDeleteDialogOpen(false);
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+  
+  const fetchCampaigns = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*');
+      
+      if (error) throw error;
+      
+      setCampaigns(data || []);
+    } catch (error) {
+      console.error("Error fetching campaigns:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load campaign data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
   
-  const handleEditCampaign = () => {
-    // In a real app, this would make an API call to update the campaign
-    toast({
-      title: "Campaign Updated",
-      description: "The campaign has been updated successfully.",
-    });
-    setEditDialogOpen(false);
+  const handleDeleteCampaign = async () => {
+    if (!selectedCampaignId) return;
+    
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .delete()
+        .eq('id', selectedCampaignId);
+        
+      if (error) throw error;
+      
+      // Remove from local state
+      setCampaigns(campaigns.filter(campaign => campaign.id !== selectedCampaignId));
+      
+      toast({
+        title: "Campaign Deleted",
+        description: "The campaign has been deleted successfully.",
+      });
+    } catch (error) {
+      console.error("Error deleting campaign:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete campaign. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setDeleteDialogOpen(false);
+    }
+  };
+  
+  const handleEditCampaign = async (formData: { name: string, budget: number }) => {
+    if (!selectedCampaignId) return;
+    
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ 
+          name: formData.name,
+          budget: formData.budget 
+        })
+        .eq('id', selectedCampaignId);
+        
+      if (error) throw error;
+      
+      // Update in local state
+      setCampaigns(campaigns.map(campaign => 
+        campaign.id === selectedCampaignId 
+          ? { ...campaign, name: formData.name, budget: formData.budget }
+          : campaign
+      ));
+      
+      toast({
+        title: "Campaign Updated",
+        description: "The campaign has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating campaign:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update campaign. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setEditDialogOpen(false);
+    }
   };
   
   const openDeleteDialog = (id: string, name: string) => {
@@ -95,40 +182,49 @@ const Campaign = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-t">
-                  <td className="p-3">Summer Sale 2023</td>
-                  <td className="p-3"><span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Active</span></td>
-                  <td className="p-3">Facebook</td>
-                  <td className="p-3">$50/day</td>
-                  <td className="p-3">2.4x ROAS</td>
-                  <td className="p-3 text-right">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEditDialog("1", "Summer Sale 2023")}>
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openDeleteDialog("1", "Summer Sale 2023")}>
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
-                    </Button>
-                  </td>
-                </tr>
-                <tr className="border-t">
-                  <td className="p-3">Back to School</td>
-                  <td className="p-3"><span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">Paused</span></td>
-                  <td className="p-3">Instagram</td>
-                  <td className="p-3">$35/day</td>
-                  <td className="p-3">1.8x ROAS</td>
-                  <td className="p-3 text-right">
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEditDialog("2", "Back to School")}>
-                      <Edit className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openDeleteDialog("2", "Back to School")}>
-                      <Trash2 className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
-                    </Button>
-                  </td>
-                </tr>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-4">
+                      <div className="flex justify-center">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                      </div>
+                    </td>
+                  </tr>
+                ) : campaigns.length > 0 ? (
+                  campaigns.map(campaign => (
+                    <tr key={campaign.id} className="border-t">
+                      <td className="p-3">{campaign.name}</td>
+                      <td className="p-3">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          campaign.status === 'Active' ? 'bg-green-100 text-green-800' :
+                          campaign.status === 'Paused' ? 'bg-orange-100 text-orange-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {campaign.status}
+                        </span>
+                      </td>
+                      <td className="p-3">{campaign.platform}</td>
+                      <td className="p-3">${campaign.budget}/day</td>
+                      <td className="p-3">{campaign.roas ? `${campaign.roas.toFixed(1)}x ROAS` : 'No data'}</td>
+                      <td className="p-3 text-right">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openEditDialog(campaign.id, campaign.name)}>
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => openDeleteDialog(campaign.id, campaign.name)}>
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="text-center py-8 text-muted-foreground">
+                      No campaigns found. Create your first campaign to get started.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -141,6 +237,7 @@ const Campaign = () => {
       <CampaignDialog 
         open={campaignDialogOpen}
         onOpenChange={setCampaignDialogOpen}
+        onSuccess={fetchCampaigns}
       />
       
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -169,20 +266,28 @@ const Campaign = () => {
               Make changes to your campaign settings.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="name">Campaign Name</Label>
-              <Input id="name" defaultValue={selectedCampaignName} />
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            const name = formData.get('name') as string;
+            const budget = parseFloat(formData.get('budget') as string);
+            handleEditCampaign({ name, budget });
+          }}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Campaign Name</Label>
+                <Input id="name" name="name" defaultValue={selectedCampaignName} required />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="budget">Daily Budget</Label>
+                <Input id="budget" name="budget" type="number" defaultValue={50} min={1} step={0.01} required />
+              </div>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="budget">Daily Budget</Label>
-              <Input id="budget" type="number" defaultValue={50} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleEditCampaign}>Save Changes</Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+              <Button type="submit">Save Changes</Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </DashboardLayout>
