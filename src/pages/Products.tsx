@@ -26,6 +26,8 @@ const Products = () => {
   const navigate = useNavigate();
   const [previewProduct, setPreviewProduct] = useState<null | {adCopy: string, image: string}>(null);
   const [viewDialog, setViewDialog] = useState(false);
+  const [generatedAdCopy, setGeneratedAdCopy] = useState("");
+  const [generatedAdImage, setGeneratedAdImage] = useState<string | null>(null);
 
   useEffect(() => {
     const loadRecentProducts = async () => {
@@ -75,6 +77,16 @@ const Products = () => {
         generateProductImage(productName, productDetails)
       ]);
       
+      setGeneratedAdCopy(adCopy);
+      setGeneratedAdImage(imageUrl);
+      
+      // Show preview automatically
+      setPreviewProduct({
+        adCopy,
+        image: imageUrl
+      });
+      setViewDialog(true);
+      
       // Save to Supabase
       const savedProduct = await saveProduct({
         name: productName,
@@ -90,7 +102,6 @@ const Products = () => {
           title: "Product Added",
           description: "Your product and AI-generated ad content are ready.",
         });
-        navigate("/saved-products");
       } else {
         throw new Error("Failed to save product");
       }
@@ -108,7 +119,7 @@ const Products = () => {
   };
   
   const handleAddProduct = () => {
-    navigate("/saved-products");
+    navigate("/add-product");
   };
 
   const handlePreviewAdContent = (product: any) => {

@@ -5,6 +5,7 @@ import { Bell, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState, useEffect } from "react";
+import { getCurrentUser } from "@/services/auth/authService";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,15 +13,30 @@ interface DashboardLayoutProps {
 }
 
 export const DashboardLayout = ({ children, className }: DashboardLayoutProps) => {
-  const [userName, setUserName] = useState("User");
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    // In a real app, this would come from an auth service
-    // For now, we'll use a mock username stored in localStorage
-    const storedName = localStorage.getItem("userName");
-    if (storedName) {
-      setUserName(storedName);
-    }
+    const fetchUserInfo = async () => {
+      try {
+        const { user } = await getCurrentUser();
+        if (user) {
+          if (user.user_metadata && user.user_metadata.full_name) {
+            const fullName = user.user_metadata.full_name as string;
+            const firstName = fullName.split(' ')[0];
+            setUserName(firstName);
+          } else if (user.email) {
+            setUserName(user.email.split('@')[0]);
+          } else {
+            setUserName("User");
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+        setUserName("User");
+      }
+    };
+
+    fetchUserInfo();
   }, []);
 
   return (

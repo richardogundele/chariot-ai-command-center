@@ -1,18 +1,20 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
-import { ArrowLeft, Globe, Loader2, RefreshCw, CheckCircle2, DollarSign, Sparkles, AlertCircle, Settings as SettingsIcon } from "lucide-react";
-import { generateAdCopy, generateProductImage, extractProductFromUrl } from "@/services/products/aiGenerationService";
+import { ArrowLeft, Loader2, RefreshCw, CheckCircle2, DollarSign, Sparkles, AlertCircle, Settings as SettingsIcon } from "lucide-react";
+import { generateAdCopy, generateProductImage } from "@/services/products/aiGenerationService";
 import { saveProduct } from "@/services/products/productService";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Copy } from "lucide-react";
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -20,16 +22,15 @@ const AddProduct = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [step, setStep] = useState(1);
-  const [inputMethod, setInputMethod] = useState<"url" | "manual">("url");
-  const [productUrl, setProductUrl] = useState("");
   const [productName, setProductName] = useState("");
   const [productDescription, setProductDescription] = useState("");
   const [price, setPrice] = useState("");
   const [generatedAdCopy, setGeneratedAdCopy] = useState("");
   const [generatedAdImage, setGeneratedAdImage] = useState<string | null>(null);
-  const [urlError, setUrlError] = useState("");
   const [generationError, setGenerationError] = useState("");
   const [hasApiKey, setHasApiKey] = useState(false);
+  const [viewDialog, setViewDialog] = useState(false);
+  const [previewProduct, setPreviewProduct] = useState<null | {adCopy: string, image: string}>(null);
 
   useEffect(() => {
     // Check if API key is available either in env or localStorage
@@ -37,43 +38,7 @@ const AddProduct = () => {
     setHasApiKey(!!apiKey);
   }, []);
 
-  const handleUrlSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!productUrl) {
-      toast.error("Please enter a product URL to continue.");
-      return;
-    }
-
-    setIsLoading(true);
-    setUrlError("");
-    
-    try {
-      // Extract product data from URL
-      const result = await extractProductFromUrl(productUrl);
-      
-      if (result.success && result.name && result.description) {
-        setProductName(result.name);
-        setProductDescription(result.description);
-        if (result.price) {
-          setPrice(result.price.toString());
-        }
-        
-        toast.success("Product information retrieved successfully!");
-        setStep(2);
-      } else {
-        setUrlError(result.error || "Could not extract product information from this URL.");
-        toast.error("Failed to retrieve product information. Please check the URL or use manual entry.");
-      }
-    } catch (error) {
-      console.error("Error fetching product data:", error);
-      setUrlError("An unexpected error occurred. Please try again or use manual entry.");
-      toast.error("Failed to retrieve product information. Please try again or use manual entry.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleManualSubmit = (e: React.FormEvent) => {
+  const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productName || !productDescription) {
       toast.error("Please fill in all required fields to continue.");
@@ -81,7 +46,10 @@ const AddProduct = () => {
     }
 
     setStep(2);
-    toast.success("Product details saved. Ready for AI content generation.");
+    
+    // Auto-generate content immediately
+    handleGenerateAdContent();
+    toast.success("Product details saved. Generating AI content...");
   };
 
   const handleGenerateAdContent = async () => {
@@ -96,6 +64,13 @@ const AddProduct = () => {
       
       setGeneratedAdCopy(adCopy);
       setGeneratedAdImage(imageUrl);
+      
+      // Auto show preview
+      setPreviewProduct({
+        adCopy,
+        image: imageUrl
+      });
+      setViewDialog(true);
       
       toast.success("AI has created ad content based on your product details.");
     } catch (error) {
@@ -120,6 +95,15 @@ const AddProduct = () => {
     try {
       const newAdCopy = await generateAdCopy(productName, productDescription);
       setGeneratedAdCopy(newAdCopy);
+      
+      // Update preview if open
+      if (viewDialog && previewProduct) {
+        setPreviewProduct({
+          ...previewProduct,
+          adCopy: newAdCopy
+        });
+      }
+      
       toast.success("New ad copy generated successfully!");
     } catch (error) {
       console.error("Error regenerating ad copy:", error);
@@ -135,6 +119,15 @@ const AddProduct = () => {
     try {
       const newImageUrl = await generateProductImage(productName, productDescription);
       setGeneratedAdImage(newImageUrl);
+      
+      // Update preview if open
+      if (viewDialog && previewProduct) {
+        setPreviewProduct({
+          ...previewProduct,
+          image: newImageUrl
+        });
+      }
+      
       toast.success("New product image generated successfully!");
     } catch (error) {
       console.error("Error regenerating image:", error);
@@ -223,111 +216,64 @@ const AddProduct = () => {
       
       {step === 1 && (
         <Card className="mb-8">
-          <Tabs value={inputMethod} onValueChange={(value) => setInputMethod(value as "url" | "manual")}>
-            <TabsList className="w-full grid grid-cols-2">
-              <TabsTrigger value="url">Product URL</TabsTrigger>
-              <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="url">
-              <form onSubmit={handleUrlSubmit}>
-                <CardHeader>
-                  <CardTitle>Enter Product URL</CardTitle>
-                  <CardDescription>We'll extract product information automatically</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="product-url">Product URL</Label>
-                    <div className="relative">
-                      <Globe className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        id="product-url" 
-                        placeholder="https://example.com/product" 
-                        className={`pl-10 ${urlError ? 'border-red-500' : ''}`}
-                        value={productUrl}
-                        onChange={(e) => {
-                          setProductUrl(e.target.value);
-                          if (urlError) setUrlError("");
-                        }}
-                      />
-                    </div>
-                    {urlError && (
-                      <p className="text-sm text-red-500">{urlError}</p>
-                    )}
-                    <p className="text-sm text-muted-foreground">
-                      Enter the URL of your product page. We'll extract the name, description, and price.
-                    </p>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit" disabled={isLoading}>
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing URL...
-                      </>
-                    ) : (
-                      "Continue"
-                    )}
-                  </Button>
-                </CardFooter>
-              </form>
-            </TabsContent>
-            
-            <TabsContent value="manual">
-              <form onSubmit={handleManualSubmit}>
-                <CardHeader>
-                  <CardTitle>Enter Product Details</CardTitle>
-                  <CardDescription>Add your product information manually</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="product-name">Product Name</Label>
-                    <Input 
-                      id="product-name" 
-                      placeholder="Premium Wireless Headphones" 
-                      value={productName}
-                      onChange={(e) => setProductName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="product-description">Product Description</Label>
-                    <Textarea 
-                      id="product-description" 
-                      placeholder="Describe your product in detail..."
-                      rows={4}
-                      value={productDescription}
-                      onChange={(e) => setProductDescription(e.target.value)}
-                      required
-                    />
-                    <p className="text-xs text-muted-foreground">Our AI will analyze this to create targeted ads</p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="price">Price (Optional)</Label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        id="price" 
-                        placeholder="99.99" 
-                        className="pl-10" 
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button type="submit">Continue</Button>
-                </CardFooter>
-              </form>
-            </TabsContent>
-          </Tabs>
+          <form onSubmit={handleManualSubmit}>
+            <CardHeader>
+              <CardTitle>Enter Product Details</CardTitle>
+              <CardDescription>Add your product information</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="product-name">Product Name</Label>
+                <Input 
+                  id="product-name" 
+                  placeholder="Premium Wireless Headphones" 
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="product-description">Product Description</Label>
+                <Textarea 
+                  id="product-description" 
+                  placeholder="Describe your product in detail..."
+                  rows={4}
+                  value={productDescription}
+                  onChange={(e) => setProductDescription(e.target.value)}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">Our AI will analyze this to create targeted ads in Kenny Nwokoye's style</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="price">Price (Optional)</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    id="price" 
+                    placeholder="99.99" 
+                    className="pl-10" 
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                  />
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : "Continue"}
+              </Button>
+            </CardFooter>
+          </form>
         </Card>
       )}
       
@@ -481,6 +427,50 @@ const AddProduct = () => {
           )}
         </div>
       )}
+
+      <Dialog open={viewDialog} onOpenChange={setViewDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Ad Content Preview</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="font-medium">Ad Copy</h3>
+              <div className="border p-4 rounded-md bg-muted/30 whitespace-pre-wrap max-h-96 overflow-y-auto">
+                {previewProduct?.adCopy}
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  if (previewProduct?.adCopy) {
+                    navigator.clipboard.writeText(previewProduct.adCopy);
+                    useToastFn({
+                      title: "Copied",
+                      description: "Ad copy copied to clipboard",
+                    });
+                  }
+                }}
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                Copy Ad Copy
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <h3 className="font-medium">Ad Image</h3>
+              <div className="border p-4 rounded-md bg-muted/30 flex justify-center">
+                {previewProduct?.image && (
+                  <img 
+                    src={previewProduct.image} 
+                    alt="Ad image" 
+                    className="max-h-96 object-contain"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };

@@ -37,11 +37,21 @@ export const ActivityFeed = () => {
     fetchUserInfo();
   }, []);
 
-  // Sample activity data
+  // Sample activity data with product activities included
   const activities: ActivityItem[] = [
     {
       id: 1,
       time: "Just now",
+      icon: Plus,
+      iconColor: "text-green-500",
+      iconBgColor: "bg-green-500/10",
+      title: "New product added",
+      description: userFirstName ? `${userFirstName} added Premium Fitness Watch to library` : "Premium Fitness Watch added to library",
+      isNew: true
+    },
+    {
+      id: 2,
+      time: "5 min ago",
       icon: Zap,
       iconColor: "text-yellow-500",
       iconBgColor: "bg-yellow-500/10",
@@ -50,32 +60,22 @@ export const ActivityFeed = () => {
       isNew: true
     },
     {
-      id: 2,
-      time: "5 min ago",
+      id: 3,
+      time: "23 min ago",
       icon: TrendingUp,
       iconColor: "text-green-500",
       iconBgColor: "bg-green-500/10",
       title: "Budget reallocation",
       description: "Moved $50 from Instagram to Facebook ads",
-      isNew: true
     },
     {
-      id: 3,
-      time: "23 min ago",
+      id: 4,
+      time: "1 hour ago",
       icon: DollarSign,
       iconColor: "text-blue-500",
       iconBgColor: "bg-blue-500/10",
       title: "New sale recorded",
       description: "Product X - $89.99 from Facebook campaign",
-    },
-    {
-      id: 4,
-      time: "1 hour ago",
-      icon: Plus,
-      iconColor: "text-purple-500",
-      iconBgColor: "bg-purple-500/10",
-      title: "New product added",
-      description: userFirstName ? `${userFirstName} added Premium Fitness Watch to library` : "Premium Fitness Watch added to library",
     },
     {
       id: 5,

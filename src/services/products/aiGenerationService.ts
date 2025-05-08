@@ -1,214 +1,138 @@
-import { getApiKey } from "@/services/api/apiKeyService";
+import { supabase } from "@/integrations/supabase/client";
 
-interface OpenAIImageGenerationResponse {
-  created: number;
-  data: {
-    url: string;
-  }[];
-}
-
-interface OpenAIChatResponse {
-  choices: [
-    {
-      message: {
-        content: string;
-      };
-    }
-  ];
-}
-
-// Helper function to get API key from the localStorage as fallback
-function getApiKeyFromLocalStorage(keyName: string): string | null {
-  return localStorage.getItem(keyName) || null;
-}
-
+/**
+ * Generates ad copy for a product using OpenAI in Kenny Nwokoye's style
+ */
 export async function generateAdCopy(productName: string, productDescription: string): Promise<string> {
   try {
-    // Try to get the API key from Supabase first, then localStorage as fallback
-    let apiKey = await getApiKey('openai_api_key');
-    if (!apiKey) {
-      apiKey = getApiKeyFromLocalStorage('openai_api_key');
-    }
-    
-    if (!apiKey) {
-      console.warn('OpenAI API key is missing. Using mock ad copy.');
-      return `Experience the amazing ${productName}. Designed for performance and comfort. Get yours today!`;
-    }
-    
-    const systemPrompt = `You are Kenny Nwokoye, a Nigerian entrepreneur and digital marketing expert known for your persuasive, conversational, and no-fluff approach.`;
-    
-    const userPrompt = `Write a high-converting sales copy in the style of Kenny Nwokoye. 
-    The tone should be energetic, engaging, and direct—using storytelling, 
-    bold statements, emotional triggers, and a clear call to action. Use short,
-    punchy sentences, occasional capital letters, and relevant emojis to make 
-    the message pop. The copy should focus on the product ${productName},
-    highlight key pain points, and position the solution as a must-have. End with 
-    a strong sense of urgency and a compelling CTA.
-    
-    Product description: ${productDescription}
-    
-    Make the copy very conversational, like you're talking directly to the reader. 
-    Include phrases like "Hey there!" or "Listen up!" that Kenny often uses.
-    Add emotionally charged phrases and create a sense of FOMO (fear of missing out).
-    Use all caps for emphasis on important points.
-    Include at least 2-3 emojis in strategic places.
-    Keep the copy under 1500 characters total.`;
+    // First, try to get the API key from the database
+    const { data: apiKeyData, error: apiKeyError } = await supabase
+      .from('api_keys')
+      .select('key_value')
+      .eq('key_name', 'openai_api_key')
+      .single();
 
-    console.log('Sending request to OpenAI for ad copy generation with:', { productName, productDescription });
+    // If there's no API key in the database, try to get it from localStorage
+    const apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || import.meta.env.VITE_OPENAI_API_KEY;
 
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
+    if (!apiKey) {
+      console.warn("No OpenAI API key found");
+      // Return placeholder text
+      return `Experience the amazing ${productName}!\n\nStop settling for average. ${productName} delivers exceptional quality and performance that will transform your daily life.\n\n✅ Premium quality\n✅ Exceptional performance\n✅ Outstanding value\n\nYou deserve the best. Invest in yourself today with ${productName}.\n\nLIMITED TIME OFFER: Get 15% off when you order now!`;
+    }
+
+    // Kenny Nwokoye's style prompt for marketing copy
+    const prompt = `
+      Create compelling marketing copy for ${productName} in the exact sales style of Kenny Nwokoye with these key characteristics:
+      1. Use direct, conversational language that creates urgency without being pushy
+      2. Include emotionally engaging phrases that connect with the reader's needs and desires
+      3. Create a clear value proposition with benefits-focused bullets (using emoji bullet points ✅)
+      4. Use short, punchy sentences that build excitement
+      5. Include phrases like "LIMITED TIME OFFER", "You deserve the best", "Stop settling for..."
+      6. Structure the copy with clear sections including headline, hook, benefits, and call to action
+      7. 1-2 engaging questions that make the reader reflect on their needs
+      8. Use brief but powerful testimonial-style statements
+      9. Make it suitable for both social media ads and product pages
+
+      Product Description: ${productDescription}
+    `;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: 'gpt-4o-mini',
         messages: [
-          {
-            role: "system",
-            content: systemPrompt
+          { 
+            role: 'system', 
+            content: 'You are a world-class marketing copywriter specializing in Kenny Nwokoye\'s persuasive style of direct response marketing.' 
           },
-          {
-            role: "user",
-            content: userPrompt
+          { 
+            role: 'user', 
+            content: prompt 
           }
         ],
         max_tokens: 600,
-        temperature: 0.7,
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("OpenAI API error:", errorData);
-      throw new Error(`OpenAI API error: ${response.status} - ${JSON.stringify(errorData)}`);
-    }
+    const data = await response.json();
 
-    const data = await response.json() as OpenAIChatResponse;
-    console.log('Ad copy generation response:', data);
-    return data.choices[0].message.content.trim();
+    if (data.choices && data.choices[0]) {
+      return data.choices[0].message.content.trim();
+    }
+    
+    throw new Error("No content in the OpenAI response");
+
   } catch (error) {
-    console.error("Failed to generate ad copy:", error);
-    return `Hey there! 🔥 Looking for a game-changer? Check out our amazing ${productName}! This isn't just any product - it's the solution you've been waiting for. Don't miss out! Get yours NOW before they're gone! 💯`;
+    console.error("Error generating ad copy:", error);
+    return `Experience the amazing ${productName}!\n\nStop settling for average. ${productName} delivers exceptional quality and performance that will transform your daily life.\n\n✅ Premium quality\n✅ Exceptional performance\n✅ Outstanding value\n\nYou deserve the best. Invest in yourself today with ${productName}.\n\nLIMITED TIME OFFER: Get 15% off when you order now!`;
   }
 }
 
+/**
+ * Generates product image using DALL-E API
+ */
 export async function generateProductImage(productName: string, productDescription: string): Promise<string> {
   try {
-    // Try to get the API key from Supabase first, then localStorage as fallback
-    let apiKey = await getApiKey('openai_api_key');
+    // First, try to get the API key from the database
+    const { data: apiKeyData, error: apiKeyError } = await supabase
+      .from('api_keys')
+      .select('key_value')
+      .eq('key_name', 'openai_api_key')
+      .single();
+
+    // If there's no API key in the database, try to get it from localStorage
+    const apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || import.meta.env.VITE_OPENAI_API_KEY;
+
     if (!apiKey) {
-      apiKey = getApiKeyFromLocalStorage('openai_api_key');
-    }
-    
-    if (!apiKey) {
-      console.warn('OpenAI API key is missing. Using placeholder image.');
+      console.warn("No OpenAI API key found");
+      // Return placeholder image
       return "/placeholder.svg";
     }
-    
-    console.log('Sending request to OpenAI for image generation with:', { productName, productDescription });
 
-    const response = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
+    const prompt = `Create a professional, high-quality marketing image for ${productName}. ${productDescription}. The image should be clean, professional, product-focused and suitable for advertisements. Photorealistic style.`;
+
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "dall-e-3",
-        prompt: `Create a professional, clean product advertisement image for: ${productName}. 
-        Product details: ${productDescription}. 
-        Style: Modern, minimal product photography on white background, suitable for e-commerce.`,
+        prompt: prompt,
         n: 1,
         size: "1024x1024",
       }),
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error("OpenAI API error:", errorData);
-      throw new Error(`OpenAI API error: ${response.status} - ${JSON.stringify(errorData)}`);
+    const data = await response.json();
+    
+    if (data.data && data.data[0] && data.data[0].url) {
+      // Save the image to Supabase storage or just return the URL
+      return data.data[0].url;
     }
-
-    const data = await response.json() as OpenAIImageGenerationResponse;
-    console.log('Image generation response:', data);
-    return data.data[0].url;
+    
+    throw new Error("No image URL in the DALL-E response");
   } catch (error) {
-    console.error("Failed to generate product image:", error);
+    console.error("Error generating product image:", error);
     return "/placeholder.svg";
   }
 }
 
-// Helper function to extract product details from a URL
-export async function extractProductFromUrl(url: string): Promise<{
-  success: boolean;
-  name?: string;
-  description?: string;
-  price?: number;
-  error?: string;
-}> {
-  try {
-    if (!url || !url.startsWith('http')) {
-      return { 
-        success: false, 
-        error: 'Invalid URL format. Please provide a complete URL including http:// or https://' 
-      };
-    }
-    
-    // For demo purposes, we'll simulate successful extraction for any valid URL
-    console.log('Attempting to extract product from URL:', url);
-    
-    try {
-      // Validate URL by trying to create a URL object
-      new URL(url);
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Check for popular e-commerce domains to provide more realistic simulated data
-      const domain = new URL(url).hostname.toLowerCase();
-      
-      if (domain.includes('amazon')) {
-        return {
-          success: true,
-          name: 'Premium Bluetooth Headphones',
-          description: 'Wireless over-ear headphones with active noise cancellation, 30-hour battery life, and premium sound quality. Features quick charging and comfortable memory foam ear cushions.',
-          price: 149.99
-        };
-      } else if (domain.includes('etsy')) {
-        return {
-          success: true,
-          name: 'Handcrafted Wooden Watch',
-          description: 'Unique handmade wooden watch crafted from sustainable bamboo. Features Japanese quartz movement, soft leather strap, and splash-resistant design.',
-          price: 89.95
-        };
-      } else if (domain.includes('shopify') || domain.includes('myshopify')) {
-        return {
-          success: true,
-          name: 'Organic Skincare Gift Set',
-          description: 'All-natural skincare collection featuring facial cleanser, toner, moisturizer, and serum. Made with organic ingredients and essential oils. Free from parabens and artificial fragrances.',
-          price: 64.50
-        };
-      } else {
-        // Generic product for other domains
-        return {
-          success: true,
-          name: 'Sample Product',
-          description: 'This is a simulated product description based on the URL you provided. In a real implementation, we would extract actual product details from the page.',
-          price: 99.99
-        };
-      }
-    } catch (error) {
-      return { 
-        success: false, 
-        error: 'Invalid URL format. Please check the URL and try again.' 
-      };
-    }
-  } catch (error) {
-    console.error('Error extracting product data:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to extract product information'
-    };
-  }
+/**
+ * Extract product information from a URL
+ * Note: This is kept as a placeholder for feature completeness
+ */
+export async function extractProductFromUrl(url: string) {
+  // This function is no longer needed since we removed the URL option
+  // But we'll keep it to avoid breaking any existing code references
+  return {
+    success: false,
+    error: "Product URL extraction has been disabled"
+  };
 }
