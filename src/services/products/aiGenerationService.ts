@@ -10,7 +10,7 @@ export async function generateAdCopy(productName: string, productDescription: st
       .from('api_keys')
       .select('key_value')
       .eq('key_name', 'openai_api_key')
-      .single();
+      .maybeSingle();
 
     // If there's no API key in the database, try to get it from localStorage
     const apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || import.meta.env.VITE_OPENAI_API_KEY;
@@ -21,21 +21,18 @@ export async function generateAdCopy(productName: string, productDescription: st
       return `Experience the amazing ${productName}!\n\nStop settling for average. ${productName} delivers exceptional quality and performance that will transform your daily life.\n\n✅ Premium quality\n✅ Exceptional performance\n✅ Outstanding value\n\nYou deserve the best. Invest in yourself today with ${productName}.\n\nLIMITED TIME OFFER: Get 15% off when you order now!`;
     }
 
-    // Kenny Nwokoye's style prompt for marketing copy
-    const prompt = `
-      Create compelling marketing copy for ${productName} in the exact sales style of Kenny Nwokoye with these key characteristics:
-      1. Use direct, conversational language that creates urgency without being pushy
-      2. Include emotionally engaging phrases that connect with the reader's needs and desires
-      3. Create a clear value proposition with benefits-focused bullets (using emoji bullet points ✅)
-      4. Use short, punchy sentences that build excitement
-      5. Include phrases like "LIMITED TIME OFFER", "You deserve the best", "Stop settling for..."
-      6. Structure the copy with clear sections including headline, hook, benefits, and call to action
-      7. 1-2 engaging questions that make the reader reflect on their needs
-      8. Use brief but powerful testimonial-style statements
-      9. Make it suitable for both social media ads and product pages
+    const systemPrompt = `You are Kenny Nwokoye, a Nigerian entrepreneur and digital marketing genius and expert known for his persuasive, conversational, and no-fluff approach with consistency in making crazy sales.`;
 
-      Product Description: ${productDescription}
-    `;
+    const userPrompt = 
+    `Write a high-converting sales copy in the style of Kenny Nwokoye, 
+     The tone should be energetic, engaging, and direct—using storytelling, 
+     bold statements, emotional triggers, and a clear call to action. Use short,
+      punchy sentences, occasional capital letters, and relevant emojis to make 
+      the message pop. The copy should focus on the product ${productName},
+      highlight key pain points, and position the solution as a must-have. End with 
+      a strong sense of urgency and a compelling CTA.
+      
+      Product Description: ${productDescription}`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -48,11 +45,11 @@ export async function generateAdCopy(productName: string, productDescription: st
         messages: [
           { 
             role: 'system', 
-            content: 'You are a world-class marketing copywriter specializing in Kenny Nwokoye\'s persuasive style of direct response marketing.' 
+            content: systemPrompt
           },
           { 
             role: 'user', 
-            content: prompt 
+            content: userPrompt
           }
         ],
         max_tokens: 600,
@@ -83,7 +80,7 @@ export async function generateProductImage(productName: string, productDescripti
       .from('api_keys')
       .select('key_value')
       .eq('key_name', 'openai_api_key')
-      .single();
+      .maybeSingle();
 
     // If there's no API key in the database, try to get it from localStorage
     const apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || import.meta.env.VITE_OPENAI_API_KEY;
@@ -94,7 +91,7 @@ export async function generateProductImage(productName: string, productDescripti
       return "/placeholder.svg";
     }
 
-    const prompt = `Create a professional, high-quality marketing image for ${productName}. ${productDescription}. The image should be clean, professional, product-focused and suitable for advertisements. Photorealistic style.`;
+    const prompt = `A futuristic, eye-catching digital advertisement scene showing a sleek, modern ${productName} in action. Vibrant colors, clean design, minimalistic UI elements glowing subtly. The background should be dynamic and visually striking—like a city at dusk, a digital interface, or abstract tech waves. Include bold typography space for a headline. Style should be premium, cinematic, and optimized for social media. ${productDescription}`;
 
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
