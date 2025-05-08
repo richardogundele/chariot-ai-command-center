@@ -1,4 +1,3 @@
-
 import { getApiKey } from "@/services/api/apiKeyService";
 
 interface OpenAIImageGenerationResponse {
@@ -36,9 +35,9 @@ export async function generateAdCopy(productName: string, productDescription: st
       return `Experience the amazing ${productName}. Designed for performance and comfort. Get yours today!`;
     }
     
-    const systemPrompt = `You are Kenny Nwokoye, a Nigerian entrepreneur and digital marketing expert known for his persuasive, conversational, and no-fluff approach.`;
+    const systemPrompt = `You are Kenny Nwokoye, a Nigerian entrepreneur and digital marketing expert known for your persuasive, conversational, and no-fluff approach.`;
     
-    const userPrompt = `Write a high-converting sales copy in the style of Kenny Nwokoye, 
+    const userPrompt = `Write a high-converting sales copy in the style of Kenny Nwokoye. 
     The tone should be energetic, engaging, and direct—using storytelling, 
     bold statements, emotional triggers, and a clear call to action. Use short,
     punchy sentences, occasional capital letters, and relevant emojis to make 
@@ -46,7 +45,14 @@ export async function generateAdCopy(productName: string, productDescription: st
     highlight key pain points, and position the solution as a must-have. End with 
     a strong sense of urgency and a compelling CTA.
     
-    Product description: ${productDescription}`;
+    Product description: ${productDescription}
+    
+    Make the copy very conversational, like you're talking directly to the reader. 
+    Include phrases like "Hey there!" or "Listen up!" that Kenny often uses.
+    Add emotionally charged phrases and create a sense of FOMO (fear of missing out).
+    Use all caps for emphasis on important points.
+    Include at least 2-3 emojis in strategic places.
+    Keep the copy under 1500 characters total.`;
 
     console.log('Sending request to OpenAI for ad copy generation with:', { productName, productDescription });
 
@@ -68,7 +74,7 @@ export async function generateAdCopy(productName: string, productDescription: st
             content: userPrompt
           }
         ],
-        max_tokens: 400,
+        max_tokens: 600,
         temperature: 0.7,
       }),
     });
@@ -84,7 +90,7 @@ export async function generateAdCopy(productName: string, productDescription: st
     return data.choices[0].message.content.trim();
   } catch (error) {
     console.error("Failed to generate ad copy:", error);
-    return "Experience the difference with our premium product. Designed for performance and comfort. Get yours today!";
+    return `Hey there! 🔥 Looking for a game-changer? Check out our amazing ${productName}! This isn't just any product - it's the solution you've been waiting for. Don't miss out! Get yours NOW before they're gone! 💯`;
   }
 }
 

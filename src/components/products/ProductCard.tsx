@@ -1,390 +1,145 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RefreshCw, Trash2, Play, Loader2, FileText, Lightbulb, Eye, Edit } from "lucide-react";
-import { Sparkles } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { RefreshCw, MoreHorizontal, FileEdit, PlayCircle, Trash2, FileText, Lightbulb, Eye } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
+import { Product } from "@/services/products/types";
 
 interface ProductCardProps {
-  product: {
-    id: number | string;
-    name: string;
-    description: string;
-    status: string;
-    metrics: {
-      sales: number;
-      revenue: number;
-      roas: number;
-    };
-    lastUpdated: string;
-    platforms: string[];
-    adCopy: string;
-    image: string;
-    insights?: string[];
-  };
+  product: Product;
   onDelete: (id: number | string) => void;
   onCreateCampaign: (id: number | string) => void;
   onRegenerate: (id: number | string, type: string) => void;
-  onSalesLetter: (product: any) => void;
-  onRecommendations: (product: any) => void;
+  onSalesLetter: (product: Product) => void;
+  onRecommendations: (product: Product) => void;
+  onViewAdContent: (product: Product) => void;
   regeneratingId: number | string | null;
   regenerationType: string;
 }
 
-const ProductCard = ({ 
-  product, 
-  onDelete, 
-  onCreateCampaign, 
+const ProductCard = ({
+  product,
+  onDelete,
+  onCreateCampaign,
   onRegenerate,
   onSalesLetter,
   onRecommendations,
+  onViewAdContent,
   regeneratingId,
   regenerationType
 }: ProductCardProps) => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [campaignDialog, setCampaignDialog] = useState(false);
-  const [campaignName, setCampaignName] = useState("");
-  const [campaignBudget, setCampaignBudget] = useState("50");
-  const [campaignPlatform, setCampaignPlatform] = useState("facebook");
-  const [campaignLoading, setCampaignLoading] = useState(false);
-  const [editDialog, setEditDialog] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   
-  const handleQuickCampaignCreation = () => {
-    setCampaignLoading(true);
-    
-    setTimeout(() => {
-      setCampaignLoading(false);
-      setCampaignDialog(false);
-      
-      toast({
-        title: "Campaign Created",
-        description: "Your campaign has been created successfully. View details in Campaign page.",
-      });
-      
-      navigate("/campaign");
-    }, 2000);
+  const statusColors = {
+    Active: "bg-green-500/10 text-green-600 hover:bg-green-500/20",
+    Paused: "bg-amber-500/10 text-amber-600 hover:bg-amber-500/20",
+    Draft: "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20"
   };
   
   return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
+    <Card className="overflow-hidden shadow-sm hover:shadow-md transition-all">
       <div className="relative">
         <div className="aspect-video bg-muted overflow-hidden">
-          {product.image ? (
-            <img 
-              src={product.image} 
-              alt={product.name} 
-              className="w-full h-full object-cover" 
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = "/placeholder.svg";
-                console.error("Failed to load product image, using placeholder");
-              }} 
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-slate-100">
-              <span className="text-muted-foreground">No image available</span>
-            </div>
-          )}
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className="w-full h-full object-cover"
+          />
         </div>
-        {regeneratingId === product.id && regenerationType === "image" && (
-          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-white" />
-          </div>
-        )}
-        <Button 
-          size="icon" 
-          variant="ghost" 
-          className="absolute top-2 right-2 bg-white/80 hover:bg-white" 
-          onClick={() => setEditDialog(true)}
-        >
-          <Edit className="h-4 w-4" />
-        </Button>
-      </div>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <CardTitle className="text-xl">{product.name}</CardTitle>
+        <div className="absolute top-3 right-3 flex gap-2">
           <Badge 
-            variant={
-              product.status === "Active" ? "default" : 
-              product.status === "Paused" ? "secondary" : "outline"
-            }
+            variant="outline" 
+            className={`${product.status in statusColors ? statusColors[product.status as keyof typeof statusColors] : "bg-gray-500/10"}`}
           >
             {product.status}
           </Badge>
         </div>
-        <CardDescription className="line-clamp-2">{product.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {product.status !== "Draft" ? (
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">Sales</p>
-                <p className="text-xl font-semibold">{product.metrics.sales}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">Revenue</p>
-                <p className="text-xl font-semibold">${product.metrics.revenue}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground">ROAS</p>
-                <p className="text-xl font-semibold">{product.metrics.roas}x</p>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-1">
-              <div className="text-sm font-medium pb-1">AI-Generated Ad Copy</div>
-              <div className="relative">
-                <p className="text-sm text-muted-foreground line-clamp-3">{product.adCopy}</p>
-                {regeneratingId === product.id && regenerationType === "adCopy" && (
-                  <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                    <Sparkles className="h-4 w-4 text-primary animate-pulse mr-2" />
-                    <span className="text-sm">Regenerating...</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          
-          <div className="flex gap-2 mt-2">
-            {product.platforms.includes("facebook") && (
-              <Badge variant="outline" className="bg-blue-50">Facebook</Badge>
-            )}
-            {product.platforms.includes("instagram") && (
-              <Badge variant="outline" className="bg-purple-50">Instagram</Badge>
-            )}
+      </div>
+      
+      <CardHeader className="pb-2">
+        <div className="flex items-start justify-between">
+          <div>
+            <h3 className="text-lg font-medium">{product.name}</h3>
+            <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+              {product.description}
+            </p>
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                <MoreHorizontal className="h-4 w-4" />
+                <span className="sr-only">More options</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onViewAdContent(product)}>
+                <Eye className="mr-2 h-4 w-4" />
+                View Ad Content
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onRegenerate(product.id, "adCopy")}>
+                <FileEdit className="mr-2 h-4 w-4" />
+                Regenerate Copy
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onRegenerate(product.id, "image")}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Regenerate Image
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onSalesLetter(product)}>
+                <FileText className="mr-2 h-4 w-4" />
+                Generate Sales Letter
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onRecommendations(product)}>
+                <Lightbulb className="mr-2 h-4 w-4" />
+                AI Recommendations
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-destructive focus:text-destructive"
+                onClick={() => onDelete(product.id)}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Product
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-2">
+        <div className="space-y-1">
+          <div className="text-sm font-medium">AI-Generated Ad Copy</div>
+          <p className="text-xs text-muted-foreground line-clamp-3">{product.adCopy}</p>
         </div>
       </CardContent>
-      <CardFooter className="border-t pt-4">
+
+      <CardFooter className="pt-2">
         <div className="w-full">
-          <div className="flex justify-between items-center mb-3">
-            <p className="text-xs text-muted-foreground">Updated {product.lastUpdated}</p>
-            <div className="flex gap-2">
-              {product.status === "Draft" && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => onRegenerate(product.id, "adCopy")}
-                  disabled={regeneratingId === product.id}
-                  className="h-8"
-                >
-                  <RefreshCw className="h-4 w-4 mr-1" />
-                  Regenerate Copy
-                </Button>
-              )}
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => onRegenerate(product.id, "image")}
-                disabled={regeneratingId === product.id}
-              >
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={() => setConfirmDelete(true)}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
+          <div className="mb-3 text-xs text-muted-foreground">
+            Last updated: {product.lastUpdated}
           </div>
-          
-          <div className="grid grid-cols-3 gap-2">
-            <Button 
-              variant="default" 
-              size="sm" 
-              onClick={() => product.status === "Draft" ? setCampaignDialog(true) : navigate('/campaign')}
-              className="h-8"
-            >
-              {product.status === "Draft" ? (
-                <>
-                  <Play className="h-4 w-4 mr-1" />
-                  Create Campaign
-                </>
-              ) : (
-                <>
-                  <Eye className="h-4 w-4 mr-1" />
-                  View Campaign
-                </>
-              )}
+          {regeneratingId === product.id ? (
+            <Button disabled className="w-full">
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating {regenerationType === "adCopy" ? "Copy" : "Image"}...
             </Button>
+          ) : (
             <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => onSalesLetter(product)}
-              className="h-8"
+              onClick={() => onCreateCampaign(product.id)}
+              className="w-full"
             >
-              <FileText className="h-4 w-4 mr-1" />
-              Ad Creatives
+              <PlayCircle className="mr-2 h-4 w-4" />
+              Create Campaign
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => onRecommendations(product)}
-              className="h-8"
-            >
-              <Lightbulb className="h-4 w-4 mr-1" />
-              Insights
-            </Button>
-          </div>
+          )}
         </div>
       </CardFooter>
-      
-      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete this product and all associated data. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
-              onDelete(product.id);
-              setConfirmDelete(false);
-            }}>
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      
-      <Dialog open={campaignDialog} onOpenChange={setCampaignDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create Quick Campaign</DialogTitle>
-            <DialogDescription>
-              Set up a basic campaign to promote your product. You can customize it further later.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="campaign-name">Campaign Name</Label>
-              <Input 
-                id="campaign-name" 
-                placeholder="Summer Sale 2023" 
-                value={campaignName}
-                onChange={(e) => setCampaignName(e.target.value)}
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="campaign-budget">Daily Budget ($)</Label>
-              <Input 
-                id="campaign-budget" 
-                type="number" 
-                placeholder="50" 
-                value={campaignBudget}
-                onChange={(e) => setCampaignBudget(e.target.value)}
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="campaign-platform">Platform</Label>
-              <Select value={campaignPlatform} onValueChange={setCampaignPlatform}>
-                <SelectTrigger id="campaign-platform">
-                  <SelectValue placeholder="Select platform" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="facebook">Facebook</SelectItem>
-                  <SelectItem value="instagram">Instagram</SelectItem>
-                  <SelectItem value="both">Both</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCampaignDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => navigate("/campaign-creation")} variant="outline">
-              Advanced Setup
-            </Button>
-            <Button onClick={handleQuickCampaignCreation} disabled={campaignLoading || !campaignName}>
-              {campaignLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Play className="mr-2 h-4 w-4" />
-                  Launch
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={editDialog} onOpenChange={setEditDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit Product</DialogTitle>
-            <DialogDescription>
-              Make changes to your product details
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="product-name">Product Name</Label>
-              <Input 
-                id="product-name" 
-                defaultValue={product.name}
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="product-description">Description</Label>
-              <Input 
-                id="product-description" 
-                defaultValue={product.description}
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="product-status">Status</Label>
-              <Select defaultValue={product.status}>
-                <SelectTrigger id="product-status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Draft">Draft</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Paused">Paused</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => {
-              toast({
-                title: "Product Updated",
-                description: "Your product has been updated successfully.",
-              });
-              setEditDialog(false);
-            }}>
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </Card>
   );
 };

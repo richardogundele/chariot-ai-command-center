@@ -1,6 +1,8 @@
 
-import { Clock, Zap, TrendingUp, Users, BarChart3, DollarSign, Plus, Trash2 } from "lucide-react";
+import { Clock, Zap, TrendingUp, Users, BarChart3, DollarSign, Plus, Trash2, Image, Edit } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "@/services/auth/authService";
 
 interface ActivityItem {
   id: number;
@@ -14,6 +16,27 @@ interface ActivityItem {
 }
 
 export const ActivityFeed = () => {
+  const [userFirstName, setUserFirstName] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const { user } = await getCurrentUser();
+        if (user && user.user_metadata && user.user_metadata.full_name) {
+          const fullName = user.user_metadata.full_name as string;
+          const firstName = fullName.split(' ')[0];
+          setUserFirstName(firstName);
+        } else if (user && user.email) {
+          setUserFirstName(user.email.split('@')[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+    
+    fetchUserInfo();
+  }, []);
+
   // Sample activity data
   const activities: ActivityItem[] = [
     {
@@ -52,7 +75,7 @@ export const ActivityFeed = () => {
       iconColor: "text-purple-500",
       iconBgColor: "bg-purple-500/10",
       title: "New product added",
-      description: "Premium Fitness Watch added to library",
+      description: userFirstName ? `${userFirstName} added Premium Fitness Watch to library` : "Premium Fitness Watch added to library",
     },
     {
       id: 5,
@@ -61,25 +84,25 @@ export const ActivityFeed = () => {
       iconColor: "text-red-500",
       iconBgColor: "bg-red-500/10",
       title: "Product deleted",
-      description: "Wireless Headphones removed from library",
+      description: userFirstName ? `${userFirstName} removed Wireless Headphones from library` : "Wireless Headphones removed from library",
     },
     {
       id: 6,
       time: "3 hours ago",
-      icon: Users,
-      iconColor: "text-indigo-500",
-      iconBgColor: "bg-indigo-500/10",
-      title: "Audience analysis completed",
-      description: "Found 2 high-performing segments",
+      icon: Edit,
+      iconColor: "text-cyan-500",
+      iconBgColor: "bg-cyan-500/10",
+      title: "Ad copy regenerated",
+      description: userFirstName ? `${userFirstName} updated copy for Organic Skincare Set` : "Updated copy for Organic Skincare Set",
     },
     {
       id: 7,
       time: "4 hours ago",
-      icon: BarChart3,
-      iconColor: "text-purple-500",
-      iconBgColor: "bg-purple-500/10",
-      title: "Weekly performance report",
-      description: "ROAS increased by 0.4x compared to last week",
+      icon: Image,
+      iconColor: "text-emerald-500",
+      iconBgColor: "bg-emerald-500/10",
+      title: "Product image updated",
+      description: userFirstName ? `${userFirstName} generated new image for Smart Home Hub` : "Generated new image for Smart Home Hub",
     },
   ];
 

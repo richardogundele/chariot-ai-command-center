@@ -4,27 +4,28 @@ import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Clock, Copy, RefreshCw, Sparkles } from "lucide-react";
-import { extractProductFromUrl, generateAdCopy, generateProductImage } from "@/services/products/aiGenerationService";
+import { Plus, Loader2, Clock, Copy, RefreshCw, Sparkles, Eye } from "lucide-react";
+import { generateAdCopy, generateProductImage } from "@/services/products/aiGenerationService";
 import { saveProduct, fetchProducts } from "@/services/products/productService";
 import { useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { getCurrentUser } from "@/services";
 
 const Products = () => {
-  const [productUrl, setProductUrl] = useState("");
-  const [productDetails, setProductDetails] = useState("");
   const [productName, setProductName] = useState("");
+  const [productDetails, setProductDetails] = useState("");
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [recentProducts, setRecentProducts] = useState<any[]>([]);
   const [loadingRecent, setLoadingRecent] = useState(true);
-  const [urlError, setUrlError] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [previewProduct, setPreviewProduct] = useState<null | {adCopy: string, image: string}>(null);
+  const [viewDialog, setViewDialog] = useState(false);
 
   useEffect(() => {
     const loadRecentProducts = async () => {
@@ -45,7 +46,7 @@ const Products = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if ((activeTab === "url" && !productUrl) || (activeTab === "manual" && (!productName || !productDetails))) {
+    if (!productName || !productDetails) {
       toast({
         title: "Missing Information",
         description: "Please fill out all required fields.",
@@ -61,28 +62,6 @@ const Products = () => {
     });
 
     try {
-      let name = productName;
-      let description = productDetails;
-      
-      // Handle URL-based products by extracting information
-      if (activeTab === "url") {
-        const extractResult = await extractProductFromUrl(productUrl);
-        
-        if (!extractResult.success) {
-          setUrlError(extractResult.error || "Failed to extract product information");
-          toast({
-            title: "Error",
-            description: "Could not extract product information from this URL.",
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
-        
-        name = extractResult.name || "Product from URL";
-        description = extractResult.description || `Imported product from ${productUrl}`;
-      }
-      
       // Show generating toast
       setGenerating(true);
       toast({
@@ -92,14 +71,14 @@ const Products = () => {
 
       // Generate ad copy and image in parallel
       const [adCopy, imageUrl] = await Promise.all([
-        generateAdCopy(name, description),
-        generateProductImage(name, description)
+        generateAdCopy(productName, productDetails),
+        generateProductImage(productName, productDetails)
       ]);
       
       // Save to Supabase
       const savedProduct = await saveProduct({
-        name,
-        description,
+        name: productName,
+        description: productDetails,
         adCopy,
         image: imageUrl,
         platforms: [],
@@ -127,11 +106,17 @@ const Products = () => {
       setGenerating(false);
     }
   };
-
-  const [activeTab, setActiveTab] = useState("url");
   
   const handleAddProduct = () => {
     navigate("/saved-products");
+  };
+
+  const handlePreviewAdContent = (product: any) => {
+    setPreviewProduct({
+      adCopy: product.adCopy,
+      image: product.image
+    });
+    setViewDialog(true);
   };
 
   return (
@@ -155,81 +140,41 @@ const Products = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 mb-4">
-                  <TabsTrigger value="url">Product URL</TabsTrigger>
-                  <TabsTrigger value="manual">Manual Entry</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="url" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="product-url">Product URL</Label>
-                    <Input 
-                      id="product-url"
-                      placeholder="https://example.com/product"
-                      value={productUrl}
-                      onChange={(e) => {
-                        setProductUrl(e.target.value);
-                        if (urlError) setUrlError("");
-                      }}
-                      className={urlError ? "border-red-500" : ""}
-                    />
-                    {urlError && <p className="text-xs text-red-500">{urlError}</p>}
-                    <p className="text-xs text-muted-foreground">We'll automatically extract product information from this URL</p>
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading || generating}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Adding Product...
-                      </>
-                    ) : generating ? (
-                      <>
-                        <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
-                        Generating Ad Content...
-                      </>
-                    ) : "Add Product"}
-                  </Button>
-                </TabsContent>
-                
-                <TabsContent value="manual" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="product-name">Product Name</Label>
-                    <Input 
-                      id="product-name"
-                      placeholder="e.g., Wireless Headphones"
-                      value={productName}
-                      onChange={(e) => setProductName(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="product-details">Product Description</Label>
-                    <Textarea 
-                      id="product-details"
-                      placeholder="Describe your product's features and benefits"
-                      value={productDetails}
-                      onChange={(e) => setProductDetails(e.target.value)}
-                      rows={3}
-                    />
-                    <p className="text-xs text-muted-foreground">Our AI will analyze this to create targeted ads</p>
-                  </div>
-                  
-                  <Button type="submit" className="w-full" disabled={loading || generating}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Adding Product...
-                      </>
-                    ) : generating ? (
-                      <>
-                        <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
-                        Generating Ad Content...
-                      </>
-                    ) : "Add Product"}
-                  </Button>
-                </TabsContent>
-              </Tabs>
+              <div className="space-y-2">
+                <Label htmlFor="product-name">Product Name</Label>
+                <Input 
+                  id="product-name"
+                  placeholder="e.g., Wireless Headphones"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="product-details">Product Description</Label>
+                <Textarea 
+                  id="product-details"
+                  placeholder="Describe your product's features and benefits"
+                  value={productDetails}
+                  onChange={(e) => setProductDetails(e.target.value)}
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground">Our AI will analyze this to create targeted ads in Kenny Nwokoye's style</p>
+              </div>
+              
+              <Button type="submit" className="w-full" disabled={loading || generating}>
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Adding Product...
+                  </>
+                ) : generating ? (
+                  <>
+                    <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
+                    Generating Ad Content...
+                  </>
+                ) : "Add Product"}
+              </Button>
             </form>
           </CardContent>
         </Card>
@@ -324,9 +269,9 @@ const Products = () => {
                         variant="ghost" 
                         size="sm" 
                         className="h-8 px-2"
-                        onClick={() => navigate("/saved-products")}
+                        onClick={() => handlePreviewAdContent(product)}
                       >
-                        <RefreshCw className="h-3 w-3 mr-1" />
+                        <Eye className="h-3 w-3 mr-1" />
                         View
                       </Button>
                     </div>
@@ -341,6 +286,50 @@ const Products = () => {
           </div>
         )}
       </div>
+
+      <Dialog open={viewDialog} onOpenChange={setViewDialog}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Ad Content Preview</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="font-medium">Ad Copy</h3>
+              <div className="border p-4 rounded-md bg-muted/30 whitespace-pre-wrap max-h-96 overflow-y-auto">
+                {previewProduct?.adCopy}
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  if (previewProduct?.adCopy) {
+                    navigator.clipboard.writeText(previewProduct.adCopy);
+                    toast({
+                      title: "Copied",
+                      description: "Ad copy copied to clipboard",
+                    });
+                  }
+                }}
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                Copy Ad Copy
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <h3 className="font-medium">Ad Image</h3>
+              <div className="border p-4 rounded-md bg-muted/30 flex justify-center">
+                {previewProduct?.image && (
+                  <img 
+                    src={previewProduct.image} 
+                    alt="Ad image" 
+                    className="max-h-96 object-contain"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
