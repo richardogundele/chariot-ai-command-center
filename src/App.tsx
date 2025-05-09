@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import SavedProducts from "./pages/SavedProducts";
 import PlatformConnections from "./pages/PlatformConnections";
 import Settings from "./pages/Settings";
 import { getCurrentUser } from "./services/auth/authService";
+import { SetupNotification } from "./components/notifications/SetupNotification";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +50,14 @@ const ProtectedRoute = ({ children }) => {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
 
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  return isAuthenticated ? (
+    <>
+      {children}
+      <SetupNotification />
+    </>
+  ) : (
+    <Navigate to="/login" />
+  );
 };
 
 const App = () => {
