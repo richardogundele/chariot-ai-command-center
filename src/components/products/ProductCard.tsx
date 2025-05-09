@@ -12,6 +12,7 @@ import { RefreshCw, MoreHorizontal, FileEdit, PlayCircle, Trash2, FileText, Ligh
 import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 import { Product } from "@/services/products/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ProductCardProps {
   product: Product;
@@ -48,15 +49,21 @@ const ProductCard = ({
     <Card className="overflow-hidden shadow-sm hover:shadow-md transition-all">
       <div className="relative">
         <div className="aspect-video bg-muted overflow-hidden">
-          <img 
-            src={imageError ? "/placeholder.svg" : product.image || "/placeholder.svg"} 
-            alt={product.name} 
-            className="w-full h-full object-cover"
-            onError={() => {
-              console.error("Failed to load product image:", product.image);
-              setImageError(true);
-            }}
-          />
+          {/* Switch to using Avatar component with proper fallback handling */}
+          <Avatar className="w-full h-full rounded-none">
+            <AvatarImage 
+              src={product.image || "/placeholder.svg"} 
+              alt={product.name} 
+              className="w-full h-full object-cover"
+              onError={() => {
+                console.error("Failed to load product image:", product.image);
+                setImageError(true);
+              }}
+            />
+            <AvatarFallback className="w-full h-full rounded-none flex items-center justify-center text-muted-foreground bg-muted">
+              {product.name.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
         </div>
         <div className="absolute top-3 right-3 flex gap-2">
           <Badge 

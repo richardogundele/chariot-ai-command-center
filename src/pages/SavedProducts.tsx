@@ -5,16 +5,16 @@ import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Loader2, Eye, Copy } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 
 // Import refactored components
 import ProductCard from "@/components/products/ProductCard";
 import SalesLetterDialog from "@/components/products/SalesLetterDialog";
 import RecommendationsDialog from "@/components/products/RecommendationsDialog";
 import CampaignDialog from "@/components/products/CampaignDialog";
+import AdContentPreview from "@/components/products/AdContentPreview";
 import { Product } from "@/services/products/types";
 import { fetchProducts, deleteProduct, regenerateAdCopy, regenerateProductImage } from "@/services";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const SavedProducts = () => {
   const navigate = useNavigate();
@@ -75,11 +75,18 @@ const SavedProducts = () => {
   };
 
   const handleCreateCampaign = (id: number | string) => {
-    toast({
-      title: "Campaign creation started",
-      description: "Redirecting to campaign setup...",
-    });
-    navigate("/campaign");
+    // Set the selected product for use in the campaign dialog
+    const product = products.find(p => p.id === id);
+    if (product) {
+      setSelectedProduct(product);
+      setCampaignDialog(true);
+    } else {
+      toast({
+        title: "Error",
+        description: "Product not found. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleViewAdContent = (product: Product) => {
@@ -294,51 +301,17 @@ const SavedProducts = () => {
       <CampaignDialog 
         open={campaignDialog}
         onOpenChange={setCampaignDialog}
+        onCampaignCreated={() => {
+          // Refresh products after campaign creation
+          fetchProducts().then(data => setProducts(data));
+        }}
       />
 
-      <Dialog open={viewDialog} onOpenChange={setViewDialog}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Ad Content Preview</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="font-medium">Ad Copy</h3>
-              <div className="border p-4 rounded-md bg-muted/30 whitespace-pre-wrap max-h-96 overflow-y-auto">
-                {previewContent?.adCopy}
-              </div>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => {
-                  if (previewContent?.adCopy) {
-                    navigator.clipboard.writeText(previewContent.adCopy);
-                    toast({
-                      title: "Copied",
-                      description: "Ad copy copied to clipboard",
-                    });
-                  }
-                }}
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                Copy Ad Copy
-              </Button>
-            </div>
-            <div className="space-y-4">
-              <h3 className="font-medium">Ad Image</h3>
-              <div className="border p-4 rounded-md bg-muted/30 flex justify-center">
-                {previewContent?.image && (
-                  <img 
-                    src={previewContent.image} 
-                    alt="Ad image" 
-                    className="max-h-96 object-contain"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AdContentPreview 
+        open={viewDialog}
+        onOpenChange={setViewDialog}
+        content={previewContent}
+      />
     </DashboardLayout>
   );
 };

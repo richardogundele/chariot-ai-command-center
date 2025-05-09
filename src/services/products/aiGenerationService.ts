@@ -121,6 +121,7 @@ export async function generateProductImage(productName: string, productDescripti
         prompt: prompt,
         n: 1,
         size: "1024x1024",
+        response_format: "b64_json" // Request base64 encoded image instead of URL
       }),
     });
 
@@ -131,14 +132,14 @@ export async function generateProductImage(productName: string, productDescripti
     }
 
     const data = await response.json();
-    console.log("DALL-E API response:", data);
+    console.log("DALL-E API response received");
     
-    if (data.data && data.data[0] && data.data[0].url) {
-      // Return the URL directly
-      return data.data[0].url;
+    if (data.data && data.data[0] && data.data[0].b64_json) {
+      // Return data URL to display the image directly
+      return `data:image/png;base64,${data.data[0].b64_json}`;
     }
     
-    throw new Error("No image URL in the DALL-E response");
+    throw new Error("No image data in the DALL-E response");
   } catch (error) {
     console.error("Error generating product image:", error);
     return "/placeholder.svg";

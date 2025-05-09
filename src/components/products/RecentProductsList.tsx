@@ -7,6 +7,7 @@ import { Clock, Copy, Eye, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/services/products/types";
 import { fetchProducts } from "@/services/products/productService";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface RecentProductsListProps {
   onViewProduct: (product: Product) => void;
@@ -54,7 +55,16 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
               <Card key={product.id} className="overflow-hidden shadow-sm hover:shadow transition-all">
                 <div className="relative">
                   <div className="aspect-video bg-muted overflow-hidden">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+                    <Avatar className="w-full h-full rounded-none">
+                      <AvatarImage 
+                        src={product.image || "/placeholder.svg"} 
+                        alt={product.name} 
+                        className="w-full h-full object-cover"
+                      />
+                      <AvatarFallback className="w-full h-full rounded-none flex items-center justify-center text-muted-foreground bg-muted">
+                        {product.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                 </div>
                 

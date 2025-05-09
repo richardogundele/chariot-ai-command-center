@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface AdContentPreviewProps {
   open: boolean;
@@ -48,22 +49,16 @@ const AdContentPreview = ({ open, onOpenChange, content }: AdContentPreviewProps
           <div className="space-y-4">
             <h3 className="font-medium">Ad Image</h3>
             <div className="border p-4 rounded-md bg-muted/30 flex justify-center">
-              {content?.image ? (
-                <img 
-                  src={content.image} 
+              <Avatar className="rounded-none w-full h-auto aspect-video">
+                <AvatarImage 
+                  src={content?.image || ""} 
                   alt="Ad image" 
-                  className="max-h-96 object-contain"
-                  onError={(e) => {
-                    console.error("Image failed to load:", content.image);
-                    e.currentTarget.src = "/placeholder.svg";
-                    e.currentTarget.alt = "Failed to load image";
-                  }}
+                  className="object-contain max-h-96"
                 />
-              ) : (
-                <div className="flex items-center justify-center h-48 w-full text-muted-foreground">
-                  No image available
-                </div>
-              )}
+                <AvatarFallback className="w-full h-full rounded-none flex items-center justify-center text-muted-foreground bg-muted">
+                  {content?.image ? "Failed to load image" : "No image available"}
+                </AvatarFallback>
+              </Avatar>
             </div>
           </div>
         </div>
