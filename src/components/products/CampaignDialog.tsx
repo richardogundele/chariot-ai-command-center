@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { checkFacebookConnection } from "@/services/platforms/facebookService";
+import { checkFacebookConnection, createFacebookCampaign } from "@/services/platforms/facebookService";
 import { toast } from "sonner";
 import { AlertCircle, Loader2 } from "lucide-react";
 
@@ -54,7 +53,7 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
     }
   }, [open]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!campaignName.trim()) {
       toast.error("Campaign name is required");
       return;
@@ -62,24 +61,50 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
     
     setIsSubmitting(true);
     
-    // Simulate campaign creation process
-    setTimeout(() => {
-      setIsSubmitting(false);
-      onOpenChange(false);
-      
-      toast.success("Campaign created", {
-        description: "You will now be redirected to the campaign creation page"
+    try {
+      // Create campaign in Facebook
+      const result = await createFacebookCampaign({
+        name: campaignName,
+        objective: campaignType,
+        budget: 50, // Default budget
+        duration: 7, // Default duration in days
+        productId: "default", // This would typically come from a selected product
+        targetAudience: "Default audience", // This would typically be defined by the user
+        platforms: ["facebook"]
       });
-      
-      // Call the callback if provided
-      if (onCampaignCreated) {
-        onCampaignCreated();
+
+      if (result.success) {
+        toast.success("Campaign created", {
+          description: "Your campaign has been created successfully"
+        });
+        
+        // Call the callback if provided
+        if (onCampaignCreated) {
+          onCampaignCreated();
+        }
+        
+        onOpenChange(false);
+        
+        // Navigate to the campaign page instead of campaign-creation
+        navigate("/campaign", { 
+          state: { 
+            campaignName, 
+            campaignType,
+            newCampaign: true,
+            campaignId: result.campaignId
+          } 
+        });
+      } else {
+        throw new Error(result.error || "Failed to create campaign");
       }
-      
-      navigate("/campaign-creation", { 
-        state: { campaignName, campaignType } 
+    } catch (error) {
+      console.error("Campaign creation error:", error);
+      toast.error("Campaign creation failed", {
+        description: error instanceof Error ? error.message : "An unexpected error occurred"
       });
-    }, 1500);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleConnectFacebook = () => {
