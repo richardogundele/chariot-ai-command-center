@@ -34,15 +34,16 @@ export const SalesLetterCreator = ({ productId, productName, initialContent = ""
     setIsSaving(true);
     
     try {
+      // Convert productId to string if it's a number
+      const productIdString = typeof productId === 'number' ? productId.toString() : productId;
+      
       const { data, error } = await supabase
         .from('sales_letters')
-        .insert([
-          {
-            product_id: productId,
-            title: letterTitle,
-            content: content,
-          },
-        ])
+        .insert({
+          product_id: productIdString,
+          title: letterTitle,
+          content: content
+        })
         .select()
         .single();
 

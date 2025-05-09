@@ -20,9 +20,10 @@ import { AlertCircle, Loader2 } from "lucide-react";
 interface CampaignDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCampaignCreated?: () => void; // Optional callback for when a campaign is created
 }
 
-const CampaignDialog = ({ open, onOpenChange }: CampaignDialogProps) => {
+const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialogProps) => {
   const [campaignName, setCampaignName] = useState("");
   const [campaignType, setCampaignType] = useState("conversion");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -69,6 +70,11 @@ const CampaignDialog = ({ open, onOpenChange }: CampaignDialogProps) => {
       toast.success("Campaign created", {
         description: "You will now be redirected to the campaign creation page"
       });
+      
+      // Call the callback if provided
+      if (onCampaignCreated) {
+        onCampaignCreated();
+      }
       
       navigate("/campaign-creation", { 
         state: { campaignName, campaignType } 

@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Play, CalendarDays, Trash2, Edit, Plus } from "lucide-react";
+import { Play, CalendarDays, Trash2, Edit, Plus, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -237,7 +236,8 @@ const Campaign = () => {
       <CampaignDialog 
         open={campaignDialogOpen}
         onOpenChange={setCampaignDialogOpen}
-        onSuccess={fetchCampaigns}
+        // Pass a callback function that will refetch campaigns after a new one is created
+        onCampaignCreated={fetchCampaigns}
       />
       
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
