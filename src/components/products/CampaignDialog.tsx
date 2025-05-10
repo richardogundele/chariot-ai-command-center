@@ -13,12 +13,28 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { checkFacebookConnection, createFacebookCampaign } from "@/services/platforms/facebookService";
+import { 
+  checkFacebookConnection, 
+  createFacebookCampaign,
+  getFacebookAdAccounts 
+} from "@/services/platforms/facebookService";
 import { toast } from "sonner";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, ChevronDown, Loader2 } from "lucide-react";
 import { fetchProducts } from "@/services/products/productService";
 import { Product } from "@/services/products/types";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CampaignDialogProps {
   open: boolean;
@@ -30,11 +46,16 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
   const [campaignName, setCampaignName] = useState("");
   const [campaignType, setCampaignType] = useState("conversion");
   const [selectedProductId, setSelectedProductId] = useState("");
+  const [budget, setBudget] = useState(50);
+  const [duration, setDuration] = useState(7);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasFacebookConnection, setHasFacebookConnection] = useState(false);
   const [checkingConnection, setCheckingConnection] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [products, setProducts] = useState<Product[]>([]);
+  const [adAccounts, setAdAccounts] = useState<Array<{ id: string, name: string }>>([]);
+  const [selectedAdAccount, setSelectedAdAccount] = useState("");
+  const [launchImmediately, setLaunchImmediately] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,6 +64,9 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
       setCampaignName("");
       setCampaignType("conversion");
       setSelectedProductId("");
+      setBudget(50);
+      setDuration(7);
+      setLaunchImmediately(true);
       
       // Check if Facebook is connected
       const checkConnections = async () => {
@@ -50,6 +74,18 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
         try {
           const fbConnected = await checkFacebookConnection();
           setHasFacebookConnection(fbConnected);
+          
+          if (fbConnected) {
+            // Fetch Facebook ad accounts
+            const accountsResult = await getFacebookAdAccounts();
+            if (accountsResult.success && accountsResult.accounts) {
+              setAdAccounts(accountsResult.accounts);
+              if (accountsResult.accounts.length > 0) {
+                setSelectedAdAccount(accountsResult.accounts[0].id);
+              }
+            }
+          }
+          
         } catch (error) {
           console.error("Error checking connections:", error);
         } finally {
@@ -93,16 +129,20 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
       const result = await createFacebookCampaign({
         name: campaignName,
         objective: campaignType,
-        budget: 50, // Default budget
-        duration: 7, // Default duration in days
+        budget: budget,
+        duration: duration,
         productId: selectedProductId, 
         targetAudience: "Default audience", // This would typically be defined by the user
-        platforms: ["facebook"]
+        platforms: ["facebook"],
+        advanced: {
+          adAccountId: selectedAdAccount,
+          launchImmediately
+        }
       });
 
       if (result.success) {
         toast.success("Campaign created", {
-          description: "Your campaign has been created successfully"
+          description: `Your campaign has been ${launchImmediately ? 'launched' : 'saved'} successfully`
         });
         
         // Call the callback if provided
@@ -112,13 +152,14 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
         
         onOpenChange(false);
         
-        // Navigate to the campaign page instead of campaign-creation
+        // Navigate to the campaign page
         navigate("/campaign", { 
           state: { 
             campaignName, 
             campaignType,
             newCampaign: true,
-            campaignId: result.campaignId
+            campaignId: result.campaignId,
+            status: result.status
           } 
         });
       } else {
@@ -141,7 +182,7 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Create New Campaign</DialogTitle>
           <DialogDescription>
@@ -255,6 +296,64 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
                   </div>
                 </RadioGroup>
               </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="budget">Daily Budget (USD)</Label>
+                <div className="flex items-center space-x-2">
+                  <span>$</span>
+                  <Input 
+                    id="budget"
+                    type="number"
+                    min="5"
+                    value={budget}
+                    onChange={(e) => setBudget(Number(e.target.value))}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Estimated monthly spend: ${budget * 30}
+                </p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="duration">Campaign Duration (days)</Label>
+                <Input 
+                  id="duration"
+                  type="number"
+                  min="1"
+                  value={duration}
+                  onChange={(e) => setDuration(Number(e.target.value))}
+                />
+              </div>
+              
+              {adAccounts.length > 0 && (
+                <div className="space-y-2">
+                  <Label>Ad Account</Label>
+                  <Select 
+                    value={selectedAdAccount}
+                    onValueChange={setSelectedAdAccount}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Ad Account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {adAccounts.map(account => (
+                        <SelectItem key={account.id} value={account.id}>
+                          {account.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              
+              <div className="flex items-center space-x-2 pt-2">
+                <Checkbox 
+                  id="launch" 
+                  checked={launchImmediately}
+                  onCheckedChange={(checked) => setLaunchImmediately(!!checked)} 
+                />
+                <Label htmlFor="launch">Launch campaign immediately</Label>
+              </div>
             </div>
             <DialogFooter>
               <Button 
@@ -268,10 +367,10 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
+                    {launchImmediately ? "Launching..." : "Creating..."}
                   </>
                 ) : (
-                  "Create Campaign"
+                  launchImmediately ? "Launch Campaign" : "Create Campaign"
                 )}
               </Button>
             </DialogFooter>

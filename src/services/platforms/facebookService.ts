@@ -47,12 +47,19 @@ export async function checkFacebookConnection(): Promise<boolean> {
     
     const { data, error } = await supabase
       .from('platform_connections')
-      .select('connected')
+      .select('connected, credentials')
       .eq('user_id', userData.user.id)
       .eq('platform', 'facebook')
       .single();
 
     if (error || !data) return false;
+    
+    // Check if token is expired
+    if (data.credentials?.expires_at && data.credentials.expires_at < Date.now()) {
+      console.warn("Facebook token expired");
+      return false;
+    }
+    
     return data.connected;
   } catch (error) {
     console.error('Error checking Facebook connection:', error);
@@ -92,7 +99,7 @@ export async function createFacebookCampaign(campaignData: {
   targetAudience: string;
   platforms: string[];
   advanced?: Record<string, any>;
-}): Promise<{ success: boolean; campaignId?: string; error?: string }> {
+}): Promise<{ success: boolean; campaignId?: string; error?: string; status?: string }> {
   try {
     const { data: userData, error: userError } = await supabase.auth.getUser();
     
@@ -101,8 +108,15 @@ export async function createFacebookCampaign(campaignData: {
     }
     
     // Check if Facebook is connected
-    const fbConnected = await checkFacebookConnection();
-    if (!fbConnected) {
+    const { data: connectionData, error: connectionError } = await supabase
+      .from('platform_connections')
+      .select('credentials')
+      .eq('user_id', userData.user.id)
+      .eq('platform', 'facebook')
+      .eq('connected', true)
+      .single();
+    
+    if (connectionError || !connectionData) {
       return { success: false, error: "Facebook account not connected" };
     }
     
@@ -111,31 +125,63 @@ export async function createFacebookCampaign(campaignData: {
       return { success: false, error: "Valid product ID is required" };
     }
     
-    // In a real implementation, this would make API calls to Facebook Marketing API
-    // For now, we'll simulate by creating a record in our campaigns table
-    const { data, error } = await supabase
+    // First create a record in our campaigns table
+    const { data: campaignRecord, error: campaignError } = await supabase
       .from('campaigns')
       .insert({
         user_id: userData.user.id,
         product_id: campaignData.productId,
         name: campaignData.name,
         platform: campaignData.platforms.includes('facebook') ? 'Facebook' : 'Multiple',
-        status: 'Active',
+        status: 'Pending', // Set as pending initially
         budget: campaignData.budget
       })
       .select()
       .single();
     
-    if (error) {
-      console.error("Error creating campaign record:", error);
-      return { success: false, error: error.message };
+    if (campaignError || !campaignRecord) {
+      console.error("Error creating campaign record:", campaignError);
+      return { success: false, error: campaignError?.message || "Failed to create campaign record" };
     }
     
-    // Return the created campaign ID
-    return { 
-      success: true, 
-      campaignId: data.id 
-    };
+    // In a real implementation, this would make API calls to Facebook Marketing API
+    // We'll simulate this process with a delay
+    
+    // Call the Facebook Graph API to create a campaign
+    // Note: In a real implementation, you would use the Facebook SDK or make API calls
+    try {
+      const accessToken = connectionData.credentials.access_token;
+      if (!accessToken) {
+        throw new Error("Facebook access token not found");
+      }
+      
+      // Simulation: Update campaign to "Active" after a brief delay
+      // In a real implementation, this would be replaced with actual API calls
+      setTimeout(async () => {
+        await supabase
+          .from('campaigns')
+          .update({ status: 'Active' })
+          .eq('id', campaignRecord.id);
+      }, 2000);
+      
+      // Return the created campaign ID
+      return { 
+        success: true, 
+        campaignId: campaignRecord.id,
+        status: 'Pending',
+      };
+    } catch (fbError) {
+      // If Facebook API call fails, update our record to reflect the failure
+      await supabase
+        .from('campaigns')
+        .update({ status: 'Failed' })
+        .eq('id', campaignRecord.id);
+        
+      return { 
+        success: false,
+        error: fbError instanceof Error ? fbError.message : 'Facebook API error',
+      };
+    }
   } catch (error) {
     console.error('Error creating Facebook campaign:', error);
     return { 
@@ -145,8 +191,52 @@ export async function createFacebookCampaign(campaignData: {
   }
 }
 
+// New function to get Facebook ad account information
+export async function getFacebookAdAccounts(): Promise<{
+  success: boolean;
+  accounts?: Array<{ id: string, name: string }>;
+  error?: string;
+}> {
+  try {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !userData.user) {
+      return { success: false, error: "User not authenticated" };
+    }
+    
+    const { data, error } = await supabase
+      .from('platform_connections')
+      .select('credentials')
+      .eq('user_id', userData.user.id)
+      .eq('platform', 'facebook')
+      .eq('connected', true)
+      .single();
+      
+    if (error || !data || !data.credentials.access_token) {
+      return { success: false, error: "Facebook account not connected or missing access token" };
+    }
+    
+    // In a real implementation, make API call to Facebook Marketing API
+    // For now, return mock data
+    return {
+      success: true,
+      accounts: [
+        { id: 'act_123456789', name: 'Primary Ad Account' },
+        { id: 'act_987654321', name: 'Business Ad Account' }
+      ]
+    };
+  } catch (error) {
+    console.error('Error fetching Facebook ad accounts:', error);
+    return { 
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
+}
+
 // New function to get Facebook ad campaign analytics
 export async function getFacebookCampaignAnalytics(campaignId: string): Promise<{
+  success?: boolean;
   impressions?: number;
   clicks?: number;
   ctr?: number;
@@ -157,6 +247,24 @@ export async function getFacebookCampaignAnalytics(campaignId: string): Promise<
   error?: string;
 }> {
   try {
+    // Check if campaign exists and belongs to the user
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !userData.user) {
+      return { success: false, error: "User not authenticated" };
+    }
+    
+    const { data: campaignData, error: campaignError } = await supabase
+      .from('campaigns')
+      .select('id, status')
+      .eq('id', campaignId)
+      .eq('user_id', userData.user.id)
+      .single();
+      
+    if (campaignError || !campaignData) {
+      return { success: false, error: "Campaign not found" };
+    }
+    
     // In a real implementation, this would make API calls to Facebook Marketing API
     // For now, we'll simulate analytics data
     
@@ -172,6 +280,7 @@ export async function getFacebookCampaignAnalytics(campaignId: string): Promise<
     const roas = revenue / spend;
     
     return {
+      success: true,
       impressions,
       clicks,
       ctr,
@@ -183,7 +292,50 @@ export async function getFacebookCampaignAnalytics(campaignId: string): Promise<
   } catch (error) {
     console.error('Error fetching Facebook campaign analytics:', error);
     return { 
+      success: false,
       error: error instanceof Error ? error.message : 'Unknown error occurred'
     };
+  }
+}
+
+// New function to get campaign status
+export async function getCampaignStatus(campaignId: string): Promise<{
+  status?: string;
+  lastUpdated?: string;
+  error?: string;
+}> {
+  try {
+    const { data, error } = await supabase
+      .from('campaigns')
+      .select('status, updated_at')
+      .eq('id', campaignId)
+      .single();
+      
+    if (error || !data) {
+      return { error: "Campaign not found" };
+    }
+    
+    return {
+      status: data.status,
+      lastUpdated: data.updated_at
+    };
+  } catch (error) {
+    console.error('Error getting campaign status:', error);
+    return { error: error instanceof Error ? error.message : 'Unknown error occurred' };
+  }
+}
+
+// Function to update campaign status manually
+export async function updateCampaignStatus(campaignId: string, status: string): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('campaigns')
+      .update({ status, updated_at: new Date().toISOString() })
+      .eq('id', campaignId);
+      
+    return !error;
+  } catch (error) {
+    console.error('Error updating campaign status:', error);
+    return false;
   }
 }
