@@ -65,6 +65,7 @@ export type Database = {
           budget: number | null
           created_at: string
           id: string
+          meta_data: Json | null
           name: string
           platform: string
           product_id: string
@@ -76,6 +77,7 @@ export type Database = {
           budget?: number | null
           created_at?: string
           id?: string
+          meta_data?: Json | null
           name: string
           platform: string
           product_id: string
@@ -87,6 +89,7 @@ export type Database = {
           budget?: number | null
           created_at?: string
           id?: string
+          meta_data?: Json | null
           name?: string
           platform?: string
           product_id?: string

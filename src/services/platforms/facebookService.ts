@@ -538,7 +538,12 @@ export async function getFacebookCampaignAnalytics(campaignId: string): Promise<
       .eq('user_id', userData.user.id)
       .single();
       
-    if (campaignError || !campaignData) {
+    if (campaignError) {
+      console.error("Error fetching campaign:", campaignError);
+      return { success: false, error: "Campaign not found" };
+    }
+    
+    if (!campaignData) {
       return { success: false, error: "Campaign not found" };
     }
     
@@ -549,7 +554,7 @@ export async function getFacebookCampaignAnalytics(campaignId: string): Promise<
     }
     
     // If we have a real Facebook campaign ID
-    if (campaignData.meta_data?.campaign_id) {
+    if (campaignData.meta_data && campaignData.meta_data.campaign_id) {
       const metaCampaignId = campaignData.meta_data.campaign_id;
       
       // Get insights from Facebook API
@@ -662,12 +667,17 @@ export async function getCampaignStatus(campaignId: string): Promise<{
       .eq('id', campaignId)
       .single();
       
-    if (error || !data) {
+    if (error) {
+      console.error("Error fetching campaign status:", error);
+      return { error: "Campaign not found" };
+    }
+    
+    if (!data) {
       return { error: "Campaign not found" };
     }
     
     // If the campaign has a meta_campaign_id, check its status on Facebook
-    if (data.meta_data?.campaign_id && 
+    if (data.meta_data && data.meta_data.campaign_id && 
         (data.status === 'Active' || data.status === 'Paused')) {
       try {
         const accessToken = await getUserAccessToken();
@@ -727,12 +737,17 @@ export async function updateCampaignStatus(campaignId: string, status: string): 
       .eq('id', campaignId)
       .single();
       
-    if (getError || !campaignData) {
+    if (getError) {
+      console.error("Error fetching campaign:", getError);
+      return false;
+    }
+    
+    if (!campaignData) {
       return false;
     }
     
     // If we have a Facebook campaign ID, update it there too
-    if (campaignData.meta_data?.campaign_id) {
+    if (campaignData.meta_data && campaignData.meta_data.campaign_id) {
       const accessToken = await getUserAccessToken();
       if (accessToken) {
         try {
