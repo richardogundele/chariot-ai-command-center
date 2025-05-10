@@ -191,7 +191,7 @@ const Campaign = () => {
           <div>
             <h1 className="text-3xl font-bold">Campaigns</h1>
             <p className="text-muted-foreground">
-              Manage your marketing campaigns
+              Manage your Facebook marketing campaigns
             </p>
           </div>
           <Button onClick={handleCreateCampaign}>

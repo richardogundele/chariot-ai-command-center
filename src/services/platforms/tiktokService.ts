@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { CampaignData } from "../index";
 
 interface TikTokCredentials {
   accessToken: string;
@@ -96,16 +97,13 @@ export async function disconnectTikTok(): Promise<boolean> {
   }
 }
 
-// Placeholder for future TikTok campaign functionality
-export async function createTikTokCampaign(campaignData: {
-  name: string;
-  objective: string;
-  budget: number;
-  duration: number;
-  productId: string;
-  targetAudience: string;
-  platforms: string[];
-}): Promise<{ success: boolean; campaignId?: string; error?: string }> {
+// Create a TikTok ad campaign
+export async function createTikTokCampaign(campaignData: CampaignData): Promise<{ 
+  success: boolean; 
+  campaignId?: string; 
+  error?: string;
+  status?: string; 
+}> {
   // Implementation will be added when TikTok integration is fully developed
   return { 
     success: false, 
@@ -113,6 +111,7 @@ export async function createTikTokCampaign(campaignData: {
   };
 }
 
+// Get TikTok ad campaign analytics
 export async function getTikTokCampaignAnalytics(campaignId: string): Promise<{
   success?: boolean;
   impressions?: number;
@@ -129,4 +128,22 @@ export async function getTikTokCampaignAnalytics(campaignId: string): Promise<{
     success: false, 
     error: "TikTok analytics retrieval is not yet implemented"
   };
+}
+
+// Get TikTok campaign status
+export async function getTikTokCampaignStatus(campaignId: string): Promise<{
+  status?: string;
+  lastUpdated?: string;
+  error?: string;
+}> {
+  // Implementation will be added when TikTok integration is fully developed
+  return { 
+    error: "TikTok status retrieval is not yet implemented" 
+  };
+}
+
+// Update TikTok campaign status
+export async function updateTikTokCampaignStatus(campaignId: string, status: string): Promise<boolean> {
+  // Implementation will be added when TikTok integration is fully developed
+  return false;
 }
