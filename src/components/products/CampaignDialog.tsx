@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +16,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { checkFacebookConnection, createFacebookCampaign } from "@/services/platforms/facebookService";
 import { toast } from "sonner";
 import { AlertCircle, Loader2 } from "lucide-react";
+import { fetchProducts } from "@/services/products/productService";
+import { Product } from "@/services/products/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CampaignDialogProps {
   open: boolean;
@@ -25,9 +29,12 @@ interface CampaignDialogProps {
 const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialogProps) => {
   const [campaignName, setCampaignName] = useState("");
   const [campaignType, setCampaignType] = useState("conversion");
+  const [selectedProductId, setSelectedProductId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasFacebookConnection, setHasFacebookConnection] = useState(false);
   const [checkingConnection, setCheckingConnection] = useState(true);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +42,7 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
       // Reset form state when dialog opens
       setCampaignName("");
       setCampaignType("conversion");
+      setSelectedProductId("");
       
       // Check if Facebook is connected
       const checkConnections = async () => {
@@ -49,13 +57,32 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
         }
       };
       
+      // Load products
+      const loadProducts = async () => {
+        setLoadingProducts(true);
+        try {
+          const productsList = await fetchProducts();
+          setProducts(productsList);
+        } catch (error) {
+          console.error("Error loading products:", error);
+        } finally {
+          setLoadingProducts(false);
+        }
+      };
+      
       checkConnections();
+      loadProducts();
     }
   }, [open]);
 
   const handleSubmit = async () => {
     if (!campaignName.trim()) {
       toast.error("Campaign name is required");
+      return;
+    }
+    
+    if (!selectedProductId) {
+      toast.error("Please select a product");
       return;
     }
     
@@ -68,7 +95,7 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
         objective: campaignType,
         budget: 50, // Default budget
         duration: 7, // Default duration in days
-        productId: "default", // This would typically come from a selected product
+        productId: selectedProductId, 
         targetAudience: "Default audience", // This would typically be defined by the user
         platforms: ["facebook"]
       });
@@ -166,6 +193,48 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
               </div>
               
               <div className="space-y-2">
+                <Label>Select Product</Label>
+                {loadingProducts ? (
+                  <div className="flex items-center space-x-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">Loading products...</span>
+                  </div>
+                ) : products.length > 0 ? (
+                  <Select 
+                    value={selectedProductId}
+                    onValueChange={setSelectedProductId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a product" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {products.map(product => (
+                        <SelectItem key={product.id} value={product.id.toString()}>
+                          {product.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div className="py-2">
+                    <p className="text-sm text-amber-600">
+                      You don't have any products yet.{" "}
+                      <Button 
+                        variant="link" 
+                        className="h-auto p-0 text-sm text-primary"
+                        onClick={() => {
+                          onOpenChange(false);
+                          navigate("/add-product");
+                        }}
+                      >
+                        Add a product
+                      </Button>
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
                 <Label>Campaign Type</Label>
                 <RadioGroup 
                   value={campaignType} 
@@ -195,7 +264,7 @@ const CampaignDialog = ({ open, onOpenChange, onCampaignCreated }: CampaignDialo
               >
                 Cancel
               </Button>
-              <Button onClick={handleSubmit} disabled={isSubmitting}>
+              <Button onClick={handleSubmit} disabled={isSubmitting || !selectedProductId}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

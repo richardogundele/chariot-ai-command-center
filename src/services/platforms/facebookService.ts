@@ -106,6 +106,11 @@ export async function createFacebookCampaign(campaignData: {
       return { success: false, error: "Facebook account not connected" };
     }
     
+    // Fix: Check if productId is "default" and handle it appropriately
+    if (!campaignData.productId || campaignData.productId === "default") {
+      return { success: false, error: "Valid product ID is required" };
+    }
+    
     // In a real implementation, this would make API calls to Facebook Marketing API
     // For now, we'll simulate by creating a record in our campaigns table
     const { data, error } = await supabase
