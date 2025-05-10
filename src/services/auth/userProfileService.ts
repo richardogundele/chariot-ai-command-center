@@ -30,10 +30,10 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     
     // Map database column names to our interface property names
     return {
-      fullName: data.full_name || '',
-      company: data.company || '',
-      jobTitle: data.job_title || '',
-      phone: data.phone || ''
+      fullName: data?.full_name || '',
+      company: data?.company || '',
+      jobTitle: data?.job_title || '',
+      phone: data?.phone || ''
     };
   } catch (error) {
     console.error("Error in getUserProfile:", error);

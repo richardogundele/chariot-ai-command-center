@@ -217,6 +217,36 @@ export type Database = {
           },
         ]
       }
+      user_profiles: {
+        Row: {
+          company: string | null
+          created_at: string
+          full_name: string | null
+          job_title: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          full_name?: string | null
+          job_title?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          full_name?: string | null
+          job_title?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_recommendations: {
         Row: {
           created_at: string
