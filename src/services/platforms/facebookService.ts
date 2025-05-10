@@ -1,10 +1,15 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 interface FacebookCredentials {
   accessToken: string;
   userId?: string;
   expiresAt?: number;
+}
+
+interface CredentialsData {
+  access_token?: string;
+  user_id?: string;
+  expires_at?: number;
 }
 
 export async function saveFacebookCredentials(credentials: FacebookCredentials): Promise<boolean> {
@@ -55,7 +60,8 @@ export async function checkFacebookConnection(): Promise<boolean> {
     if (error || !data) return false;
     
     // Check if token is expired
-    if (data.credentials?.expires_at && data.credentials.expires_at < Date.now()) {
+    const credentials = data.credentials as CredentialsData;
+    if (credentials?.expires_at && credentials.expires_at < Date.now()) {
       console.warn("Facebook token expired");
       return false;
     }
@@ -150,7 +156,9 @@ export async function createFacebookCampaign(campaignData: {
     // Call the Facebook Graph API to create a campaign
     // Note: In a real implementation, you would use the Facebook SDK or make API calls
     try {
-      const accessToken = connectionData.credentials.access_token;
+      const credentials = connectionData.credentials as CredentialsData;
+      const accessToken = credentials?.access_token;
+      
       if (!accessToken) {
         throw new Error("Facebook access token not found");
       }
@@ -212,8 +220,13 @@ export async function getFacebookAdAccounts(): Promise<{
       .eq('connected', true)
       .single();
       
-    if (error || !data || !data.credentials.access_token) {
+    if (error || !data) {
       return { success: false, error: "Facebook account not connected or missing access token" };
+    }
+    
+    const credentials = data.credentials as CredentialsData;
+    if (!credentials.access_token) {
+      return { success: false, error: "Facebook access token not found" };
     }
     
     // In a real implementation, make API call to Facebook Marketing API

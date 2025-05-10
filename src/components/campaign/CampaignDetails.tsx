@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -33,7 +32,64 @@ interface Product {
   ad_copy: string;
 }
 
-const CampaignDetails = () => {
+export interface CampaignDetailsProps {
+  campaign: any;
+  product: any;
+}
+
+export const CampaignDetails = ({ campaign, product }: CampaignDetailsProps) => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Campaign Details</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <dl className="space-y-4">
+          <div>
+            <dt className="text-sm text-muted-foreground">Platform</dt>
+            <dd className="font-medium">{campaign?.platform || 'N/A'}</dd>
+          </div>
+          <div>
+            <dt className="text-sm text-muted-foreground">Daily Budget</dt>
+            <dd className="font-medium">${campaign?.budget || '0'}/day</dd>
+          </div>
+          <div>
+            <dt className="text-sm text-muted-foreground">Product</dt>
+            <dd className="font-medium">{product?.name || 'N/A'}</dd>
+          </div>
+          
+          {product && product.ad_copy && (
+            <div>
+              <dt className="text-sm text-muted-foreground">Ad Copy</dt>
+              <dd className="mt-1 text-sm border rounded-md p-3 max-h-32 overflow-y-auto">
+                {product.ad_copy}
+              </dd>
+            </div>
+          )}
+          
+          {product && product.image && (
+            <div>
+              <dt className="text-sm text-muted-foreground">Ad Image</dt>
+              <dd className="mt-1">
+                <img 
+                  src={product.image} 
+                  alt={product.name} 
+                  className="w-full h-32 object-cover rounded-md" 
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
+                />
+              </dd>
+            </div>
+          )}
+        </dl>
+      </CardContent>
+    </Card>
+  );
+};
+
+// Keep the default export for direct route usage
+const CampaignDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -316,4 +372,4 @@ const CampaignDetails = () => {
   );
 };
 
-export default CampaignDetails;
+export default CampaignDetailsPage;

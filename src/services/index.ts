@@ -6,3 +6,4 @@ export * from './products/types';
 export * from './api/apiKeyService';
 export * from './products/aiGenerationService';
 export * from './platforms/facebookService';
+export * from './platforms/tiktokService';
