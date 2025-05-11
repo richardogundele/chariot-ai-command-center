@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 interface FacebookCredentials {
@@ -332,7 +333,7 @@ export async function createFacebookCampaign(campaignData: CampaignData): Promis
       }, accessToken);
       
       // Create the metadata object with campaign IDs
-      const metaData: CampaignMetaData = {
+      const metaData = {
         campaign_id: metaCampaignId,
         ad_set_id: adSetId,
         ad_creative_id: adCreativeId,
@@ -592,20 +593,22 @@ export async function getFacebookCampaignAnalytics(campaignId: string): Promise<
         };
       }
       
+      const insightData = insights.data[0];
+      
       // Find conversion actions
       let conversions = 0;
       let revenue = 0;
       
-      if (data.actions) {
-        for (const action of data.actions) {
+      if (insightData.actions) {
+        for (const action of insightData.actions) {
           if (['purchase', 'offsite_conversion'].includes(action.action_type)) {
             conversions += parseInt(action.value || '0');
           }
         }
       }
       
-      if (data.action_values) {
-        for (const actionValue of data.action_values) {
+      if (insightData.action_values) {
+        for (const actionValue of insightData.action_values) {
           if (['purchase', 'offsite_conversion'].includes(actionValue.action_type)) {
             revenue += parseFloat(actionValue.value || '0');
           }
@@ -613,10 +616,10 @@ export async function getFacebookCampaignAnalytics(campaignId: string): Promise<
       }
       
       // Calculate metrics
-      const impressions = parseInt(data.impressions || '0');
-      const clicks = parseInt(data.clicks || '0');
-      const ctr = parseFloat(data.ctr || '0') * 100; // Convert to percentage
-      const spend = parseFloat(data.spend || '0');
+      const impressions = parseInt(insightData.impressions || '0');
+      const clicks = parseInt(insightData.clicks || '0');
+      const ctr = parseFloat(insightData.ctr || '0') * 100; // Convert to percentage
+      const spend = parseFloat(insightData.spend || '0');
       
       const cpa = conversions > 0 ? spend / conversions : 0;
       const roas = spend > 0 ? revenue / spend : 0;
