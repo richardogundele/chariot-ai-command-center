@@ -12,7 +12,7 @@ import { CampaignSummaryCards } from "@/components/campaign/CampaignSummaryCards
 import { CampaignRealTimeMetrics } from "@/components/campaign/CampaignRealTimeMetrics";
 import { CampaignActions } from "@/components/campaign/CampaignActions";
 import { toast } from "sonner";
-import { getCampaignStatus, getFacebookCampaignAnalytics } from "@/services/platforms/facebookService";
+import { getCampaignStatus, getFacebookCampaignAnalytics } from "@/services/platforms/facebook";
 import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";

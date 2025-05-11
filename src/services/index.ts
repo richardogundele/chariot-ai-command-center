@@ -5,17 +5,5 @@ export * from './products/productService';
 export * from './products/types';
 export * from './api/apiKeyService';
 export * from './products/aiGenerationService';
-export * from './platforms/facebookService';
-export * from './platforms/tiktokService';
+export * from './platforms'; // Updated to use the new platform directory structure
 
-// Export campaign data interface
-export interface CampaignData {
-  name: string;
-  objective: string;
-  budget: number;
-  duration: number;
-  productId: string;
-  targetAudience?: string;
-  platforms: string[];
-  advanced?: Record<string, any>;
-}
