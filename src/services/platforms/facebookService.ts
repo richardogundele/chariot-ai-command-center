@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 interface FacebookCredentials {
@@ -11,6 +10,15 @@ interface CredentialsData {
   access_token?: string;
   user_id?: string;
   expires_at?: number;
+}
+
+// Add interface for campaign meta_data
+interface CampaignMetaData {
+  campaign_id?: string;
+  ad_set_id?: string;
+  ad_creative_id?: string;
+  ad_id?: string;
+  error?: string;
 }
 
 // Meta Marketing API configurations
@@ -323,17 +331,20 @@ export async function createFacebookCampaign(campaignData: CampaignData): Promis
         status: campaignData.advanced?.launchImmediately ? 'ACTIVE' : 'PAUSED'
       }, accessToken);
       
+      // Create the metadata object with campaign IDs
+      const metaData: CampaignMetaData = {
+        campaign_id: metaCampaignId,
+        ad_set_id: adSetId,
+        ad_creative_id: adCreativeId,
+        ad_id: adResponse.id
+      };
+      
       // Update our record with the Facebook IDs
       await supabase
         .from('campaigns')
         .update({ 
           status: campaignData.advanced?.launchImmediately ? 'Active' : 'Paused',
-          meta_data: {
-            campaign_id: metaCampaignId,
-            ad_set_id: adSetId,
-            ad_creative_id: adCreativeId,
-            ad_id: adResponse.id
-          }
+          meta_data: metaData
         })
         .eq('id', campaignRecord.id);
       
@@ -554,8 +565,9 @@ export async function getFacebookCampaignAnalytics(campaignId: string): Promise<
     }
     
     // If we have a real Facebook campaign ID
-    if (campaignData.meta_data && campaignData.meta_data.campaign_id) {
-      const metaCampaignId = campaignData.meta_data.campaign_id;
+    const metaData = campaignData.meta_data as CampaignMetaData | null;
+    if (metaData && metaData.campaign_id) {
+      const metaCampaignId = metaData.campaign_id;
       
       // Get insights from Facebook API
       const insights = await makeMetaApiCall(`/${metaCampaignId}/insights`, 'GET', {
@@ -579,8 +591,6 @@ export async function getFacebookCampaignAnalytics(campaignId: string): Promise<
           roas: 0
         };
       }
-      
-      const data = insights.data[0];
       
       // Find conversion actions
       let conversions = 0;
@@ -677,13 +687,14 @@ export async function getCampaignStatus(campaignId: string): Promise<{
     }
     
     // If the campaign has a meta_campaign_id, check its status on Facebook
-    if (data.meta_data && data.meta_data.campaign_id && 
+    const metaData = data.meta_data as CampaignMetaData | null;
+    if (metaData && metaData.campaign_id && 
         (data.status === 'Active' || data.status === 'Paused')) {
       try {
         const accessToken = await getUserAccessToken();
         if (accessToken) {
           const fbCampaign = await makeMetaApiCall(
-            `/${data.meta_data.campaign_id}`, 
+            `/${metaData.campaign_id}`, 
             'GET', 
             { fields: 'status,effective_status' },
             accessToken
@@ -747,7 +758,8 @@ export async function updateCampaignStatus(campaignId: string, status: string): 
     }
     
     // If we have a Facebook campaign ID, update it there too
-    if (campaignData.meta_data && campaignData.meta_data.campaign_id) {
+    const metaData = campaignData.meta_data as CampaignMetaData | null;
+    if (metaData && metaData.campaign_id) {
       const accessToken = await getUserAccessToken();
       if (accessToken) {
         try {
@@ -757,7 +769,7 @@ export async function updateCampaignStatus(campaignId: string, status: string): 
           
           // Update the campaign status on Facebook
           await makeMetaApiCall(
-            `/${campaignData.meta_data.campaign_id}`,
+            `/${metaData.campaign_id}`,
             'POST',
             { status: fbStatus },
             accessToken
