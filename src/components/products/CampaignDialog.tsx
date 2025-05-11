@@ -16,8 +16,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { 
   checkFacebookConnection, 
   createFacebookCampaign,
-  getFacebookAdAccounts
-} from "@/services/platforms/facebookService";
+  getFacebookAdAccounts 
+} from "@/services/platforms/facebook";
 import { toast } from "sonner";
 import { AlertCircle, ChevronDown, Loader2, Users, Target, Globe } from "lucide-react";
 import { fetchProducts } from "@/services/products/productService";

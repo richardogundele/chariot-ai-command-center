@@ -21,7 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { saveFacebookCredentials, checkFacebookConnection, disconnectFacebook } from "@/services/platforms/facebookService";
+import { saveFacebookCredentials, checkFacebookConnection, disconnectFacebook } from "@/services/platforms/facebook/auth";
 import { useEffect } from "react";
 import { Check, ExternalLink, Facebook, Loader2, X } from "lucide-react";
 import { toast } from "sonner";

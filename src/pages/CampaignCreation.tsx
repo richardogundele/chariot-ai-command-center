@@ -19,7 +19,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Check, HelpCircle, Loader2 } from "lucide-react";
 import { fetchProducts } from "@/services/products/productService";
-import { checkFacebookConnection } from "@/services/platforms/facebookService";
+import { checkFacebookConnection } from "@/services/platforms/facebook";
 import { Product } from "@/services/products/types";
 
 const CampaignCreation = () => {

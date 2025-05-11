@@ -46,4 +46,4 @@ export interface CampaignStatus {
 }
 
 // Re-export the CampaignData interface from the parent
-export { CampaignData } from '../types';
+export type { CampaignData } from '../types';
