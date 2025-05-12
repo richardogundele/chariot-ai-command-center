@@ -21,6 +21,13 @@ export async function getUserAccessToken(): Promise<string | null> {
   if (error || !data) return null;
   
   const credentials = data.credentials as CredentialsData;
+  
+  // Check if token is expired
+  if (credentials?.expires_at && credentials.expires_at < Date.now()) {
+    console.warn("Facebook token has expired. User needs to reconnect their Facebook account.");
+    return null;
+  }
+  
   return credentials?.access_token || null;
 }
 
@@ -32,21 +39,49 @@ export async function saveFacebookCredentials(credentials: FacebookCredentials):
       throw new Error("User not authenticated");
     }
     
-    const { error } = await supabase
+    // Check for existing connection first
+    const { data: existingData } = await supabase
       .from('platform_connections')
-      .upsert({
-        user_id: userData.user.id,
-        platform: 'facebook',
-        credentials: {
-          access_token: credentials.accessToken,
-          user_id: credentials.userId,
-          expires_at: credentials.expiresAt
-        },
-        connected: true,
-        last_updated: new Date().toISOString()
-      });
+      .select('id')
+      .eq('user_id', userData.user.id)
+      .eq('platform', 'facebook')
+      .single();
+      
+    if (existingData) {
+      // Update existing record instead of inserting new one
+      const { error } = await supabase
+        .from('platform_connections')
+        .update({
+          credentials: {
+            access_token: credentials.accessToken,
+            user_id: credentials.userId,
+            expires_at: credentials.expiresAt
+          },
+          connected: true,
+          last_updated: new Date().toISOString()
+        })
+        .eq('id', existingData.id);
 
-    if (error) throw error;
+      if (error) throw error;
+    } else {
+      // Insert new record
+      const { error } = await supabase
+        .from('platform_connections')
+        .insert({
+          user_id: userData.user.id,
+          platform: 'facebook',
+          credentials: {
+            access_token: credentials.accessToken,
+            user_id: credentials.userId,
+            expires_at: credentials.expiresAt
+          },
+          connected: true,
+          last_updated: new Date().toISOString()
+        });
+
+      if (error) throw error;
+    }
+    
     return true;
   } catch (error) {
     console.error('Error saving Facebook credentials:', error);
@@ -54,6 +89,19 @@ export async function saveFacebookCredentials(credentials: FacebookCredentials):
   }
 }
 
+/**
+ * Checks if the user has a valid Facebook connection
+ * 
+ * Facebook access tokens typically expire after a set period (usually 60 days).
+ * When this happens, users need to reconnect their Facebook account.
+ * This function validates if:
+ * 1. The user has connected their Facebook account
+ * 2. The token has not expired
+ * 3. The token is still valid by making a test API call
+ * 
+ * In the error logs, we often see: "Error validating access token: Session has expired"
+ * which indicates the token needs to be refreshed through the Facebook OAuth flow.
+ */
 export async function checkFacebookConnection(): Promise<boolean> {
   try {
     const { data: userData, error: userError } = await supabase.auth.getUser();

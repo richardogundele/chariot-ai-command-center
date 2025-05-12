@@ -33,7 +33,8 @@ export async function generateAdCopy(productName: string, productDescription: st
      The tone should be energetic, engaging, and direct—using storytelling, 
      bold statements, emotional triggers, and a clear call to action. Use short,
       punchy sentences, occasional capital letters, and relevant emojis to make 
-      the message pop. The copy should focus on the product ${productName},
+      the message pop. DO NOT use markdown formatting like asterisks (**).
+      The copy should focus on the product ${productName},
       highlight key pain points, and position the solution as a must-have. End with 
       a strong sense of urgency and a compelling CTA.
       
@@ -70,7 +71,10 @@ export async function generateAdCopy(productName: string, productDescription: st
     const data = await response.json();
 
     if (data.choices && data.choices[0]) {
-      return data.choices[0].message.content.trim();
+      // Remove any asterisks from the response text
+      let adCopy = data.choices[0].message.content.trim();
+      adCopy = adCopy.replace(/\*\*/g, '');
+      return adCopy;
     }
     
     throw new Error("No content in the OpenAI response");
