@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,9 +22,13 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { saveFacebookCredentials, checkFacebookConnection, disconnectFacebook } from "@/services/platforms/facebook/auth";
-import { useEffect } from "react";
-import { Check, ExternalLink, Facebook, Loader2, X } from "lucide-react";
+import { Check, ExternalLink, Facebook, Info, Loader2, RefreshCw, X } from "lucide-react";
 import { toast } from "sonner";
+import { 
+  Alert,
+  AlertDescription,
+  AlertTitle
+} from "@/components/ui/alert";
 
 export const FacebookConnect = () => {
   const [isConnected, setIsConnected] = useState(false);
@@ -32,11 +36,31 @@ export const FacebookConnect = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [simulateDemo, setSimulateDemo] = useState(false);
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [isCheckingConnection, setIsCheckingConnection] = useState(true);
 
   useEffect(() => {
     async function checkConnection() {
-      const connected = await checkFacebookConnection();
-      setIsConnected(connected);
+      setIsCheckingConnection(true);
+      try {
+        const connected = await checkFacebookConnection();
+        setIsConnected(connected);
+        
+        // Clear any previous errors if connection is successful
+        if (connected) {
+          setTokenError(null);
+        }
+      } catch (error: any) {
+        // Check if error message contains token expiration info
+        const errorMsg = error?.message || '';
+        if (errorMsg.includes('expired') || errorMsg.includes('invalid')) {
+          setTokenError(errorMsg);
+          setIsConnected(false);
+        }
+        console.error("Error checking Facebook connection:", error);
+      } finally {
+        setIsCheckingConnection(false);
+      }
     }
     
     checkConnection();
@@ -49,11 +73,13 @@ export const FacebookConnect = () => {
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     try {
+      // Create a demo token that will be valid for 7 days
+      const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
       const demoToken = `DEMO_MVP_TOKEN_${Date.now()}`;
       const success = await saveFacebookCredentials({ 
         accessToken: demoToken,
         userId: "demo_user_123456789",
-        expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
+        expiresAt
       });
       
       if (success) {
@@ -62,6 +88,7 @@ export const FacebookConnect = () => {
         });
         setIsConnected(true);
         setIsDialogOpen(false);
+        setTokenError(null);
       } else {
         toast.error("Connection failed", {
           description: "There was an issue connecting to Facebook"
@@ -91,9 +118,16 @@ export const FacebookConnect = () => {
     }
 
     setIsLoading(true);
+    setTokenError(null);
     
     try {
-      const success = await saveFacebookCredentials({ accessToken });
+      // This can be edited to also include an expiration time from the token if available
+      // For now, we'll just save the token and let the backend handle expiration checks
+      const success = await saveFacebookCredentials({ 
+        accessToken,
+        userId: "", // This will be populated from the token on the server
+        expiresAt: Date.now() + 60 * 24 * 60 * 60 * 1000 // Assume 60 days validity
+      });
       
       if (success) {
         toast.success("Connection successful", {
@@ -106,11 +140,21 @@ export const FacebookConnect = () => {
           description: "Failed to connect to Facebook. Please try again."
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Facebook connection error:", error);
-      toast.error("Connection error", {
-        description: "An error occurred while connecting to Facebook"
-      });
+      
+      // Check if the error is related to token expiration
+      const errorMsg = error?.message || '';
+      if (errorMsg.includes('expired') || errorMsg.includes('invalid')) {
+        setTokenError(errorMsg);
+        toast.error("Invalid token", {
+          description: "The access token provided is expired or invalid. Please generate a new token."
+        });
+      } else {
+        toast.error("Connection error", {
+          description: error?.message || "An error occurred while connecting to Facebook"
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -127,6 +171,7 @@ export const FacebookConnect = () => {
           description: "Your Facebook account has been disconnected"
         });
         setIsConnected(false);
+        setTokenError(null);
       } else {
         toast.error("Disconnect failed", {
           description: "Failed to disconnect from Facebook. Please try again."
@@ -156,29 +201,80 @@ export const FacebookConnect = () => {
         </div>
       </CardHeader>
       <CardContent>
+        {tokenError && (
+          <Alert variant="destructive" className="mb-4">
+            <Info className="h-4 w-4" />
+            <AlertTitle>Token Error</AlertTitle>
+            <AlertDescription className="text-xs">
+              {tokenError.includes('expired') 
+                ? "Your Facebook access token has expired. Please reconnect with a new token."
+                : "There is an issue with your Facebook token. Please try reconnecting."}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className={`p-1 rounded-full ${isConnected ? 'bg-green-100' : 'bg-red-100'}`}>
-              {isConnected ? (
-                <Check className="h-4 w-4 text-green-600" />
-              ) : (
-                <X className="h-4 w-4 text-red-600" />
-              )}
-            </div>
-            <span>{isConnected ? 'Connected' : 'Not connected'}</span>
+            {isCheckingConnection ? (
+              <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+            ) : (
+              <div className={`p-1 rounded-full ${isConnected ? 'bg-green-100' : 'bg-red-100'}`}>
+                {isConnected ? (
+                  <Check className="h-4 w-4 text-green-600" />
+                ) : (
+                  <X className="h-4 w-4 text-red-600" />
+                )}
+              </div>
+            )}
+            <span>{isCheckingConnection ? 'Checking connection...' : isConnected ? 'Connected' : 'Not connected'}</span>
           </div>
           
           {isConnected ? (
-            <Button variant="outline" disabled={isLoading} onClick={handleDisconnect}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                "Disconnect"
-              )}
-            </Button>
+            <div className="space-x-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-1"
+                disabled={isCheckingConnection || isLoading}
+                onClick={async () => {
+                  setIsCheckingConnection(true);
+                  try {
+                    const connected = await checkFacebookConnection();
+                    setIsConnected(connected);
+                    if (connected) {
+                      toast.success("Connection verified", {
+                        description: "Your Facebook connection is active"
+                      });
+                    } else {
+                      toast.error("Connection lost", {
+                        description: "Your Facebook connection is no longer valid. Please reconnect."
+                      });
+                    }
+                  } catch (error) {
+                    console.error("Error refreshing connection status:", error);
+                    toast.error("Verification failed", {
+                      description: "Could not verify connection status"
+                    });
+                  } finally {
+                    setIsCheckingConnection(false);
+                  }
+                }}
+              >
+                <RefreshCw className="h-3.5 w-3.5" />
+                <span className="text-xs">Verify</span>
+              </Button>
+              
+              <Button variant="outline" disabled={isCheckingConnection || isLoading} onClick={handleDisconnect}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  "Disconnect"
+                )}
+              </Button>
+            </div>
           ) : (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
@@ -228,6 +324,18 @@ export const FacebookConnect = () => {
                           <span className="text-xs">Get Token</span>
                         </Button>
                       </div>
+                      
+                      <Alert className="mt-2">
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>Access Token Tips</AlertTitle>
+                        <AlertDescription className="text-xs space-y-1">
+                          <p>• Make sure to request a <strong>User Token</strong> with the following permissions:</p>
+                          <p className="pl-2">- ads_management</p>
+                          <p className="pl-2">- ads_read</p>
+                          <p className="pl-2">- business_management</p>
+                          <p>• Facebook tokens expire after ~60 days and will need to be refreshed</p>
+                        </AlertDescription>
+                      </Alert>
                     </div>
                   )}
                   

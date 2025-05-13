@@ -10,11 +10,16 @@ export async function makeMetaApiCall(
   accessToken?: string
 ): Promise<any> {
   if (!accessToken) {
-    const storedToken = await getUserAccessToken();
-    if (!storedToken) {
-      throw new Error("Facebook access token is required");
+    try {
+      const storedToken = await getUserAccessToken();
+      if (!storedToken) {
+        throw new Error("Facebook access token is required");
+      }
+      accessToken = storedToken;
+    } catch (error) {
+      // Pass through token validation errors
+      throw error;
     }
-    accessToken = storedToken;
   }
   
   const baseUrl = `https://graph.facebook.com/${META_API_VERSION}`;
@@ -33,6 +38,14 @@ export async function makeMetaApiCall(
     const data = await response.json();
     
     if (!response.ok) {
+      // Enhanced error handling for token-related issues
+      if (data.error && data.error.message) {
+        if (data.error.message.includes("access token") || 
+            data.error.message.includes("expired") || 
+            data.error.message.includes("Session")) {
+          throw new Error(data.error.message);
+        }
+      }
       throw new Error(data.error?.message || "Facebook API error");
     }
     

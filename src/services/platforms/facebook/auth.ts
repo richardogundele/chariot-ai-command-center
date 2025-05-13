@@ -25,6 +25,7 @@ export async function getUserAccessToken(): Promise<string | null> {
   // Check if token is expired
   if (credentials?.expires_at && credentials.expires_at < Date.now()) {
     console.warn("Facebook token has expired. User needs to reconnect their Facebook account.");
+    throw new Error("Error validating access token: Session has expired. The token expiration date has passed.");
     return null;
   }
   
@@ -85,7 +86,7 @@ export async function saveFacebookCredentials(credentials: FacebookCredentials):
     return true;
   } catch (error) {
     console.error('Error saving Facebook credentials:', error);
-    return false;
+    throw error;
   }
 }
 
@@ -123,6 +124,7 @@ export async function checkFacebookConnection(): Promise<boolean> {
     const credentials = data.credentials as CredentialsData;
     if (credentials?.expires_at && credentials.expires_at < Date.now()) {
       console.warn("Facebook token expired");
+      throw new Error("Error validating access token: Session has expired. The token expiration date has passed.");
       return false;
     }
     
@@ -136,11 +138,12 @@ export async function checkFacebookConnection(): Promise<boolean> {
       return !!response.id;
     } catch (error) {
       console.error("Facebook token validation failed:", error);
-      return false;
+      // Pass through the original error from the Facebook API
+      throw error;
     }
   } catch (error) {
     console.error('Error checking Facebook connection:', error);
-    return false;
+    throw error;
   }
 }
 
@@ -162,6 +165,6 @@ export async function disconnectFacebook(): Promise<boolean> {
     return true;
   } catch (error) {
     console.error('Error disconnecting Facebook:', error);
-    return false;
+    throw error;
   }
 }
