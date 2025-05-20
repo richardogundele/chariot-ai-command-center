@@ -24,9 +24,7 @@ export async function getUserAccessToken(): Promise<string | null> {
   
   // Check if token is expired
   if (credentials?.expires_at && credentials.expires_at < Date.now()) {
-    console.warn("Facebook token has expired. User needs to reconnect their Facebook account.");
-    throw new Error("Error validating access token: Session has expired. The token expiration date has passed.");
-    return null;
+    throw new Error("Facebook token has expired. Please reconnect your Facebook account.");
   }
   
   return credentials?.access_token || null;
@@ -91,6 +89,28 @@ export async function saveFacebookCredentials(credentials: FacebookCredentials):
 }
 
 /**
+ * Validates a Facebook access token directly against the Facebook Graph API
+ * This is useful to detect if a token is still valid or has been revoked
+ */
+export async function validateFacebookToken(accessToken: string): Promise<boolean> {
+  try {
+    const response = await fetch(`https://graph.facebook.com/v19.0/debug_token?input_token=${accessToken}&access_token=${accessToken}`);
+    const data = await response.json();
+    
+    if (!response.ok || data.error) {
+      console.error("Token validation failed:", data.error?.message || "Unknown error");
+      return false;
+    }
+    
+    // Check if token is valid and not expired
+    return data.data?.is_valid === true;
+  } catch (error) {
+    console.error("Error validating Facebook token:", error);
+    return false;
+  }
+}
+
+/**
  * Checks if the user has a valid Facebook connection
  * 
  * Facebook access tokens typically expire after a set period (usually 60 days).
@@ -99,9 +119,6 @@ export async function saveFacebookCredentials(credentials: FacebookCredentials):
  * 1. The user has connected their Facebook account
  * 2. The token has not expired
  * 3. The token is still valid by making a test API call
- * 
- * In the error logs, we often see: "Error validating access token: Session has expired"
- * which indicates the token needs to be refreshed through the Facebook OAuth flow.
  */
 export async function checkFacebookConnection(): Promise<boolean> {
   try {
@@ -118,27 +135,26 @@ export async function checkFacebookConnection(): Promise<boolean> {
       .eq('platform', 'facebook')
       .single();
 
-    if (error || !data) return false;
+    if (error || !data || !data.connected) return false;
     
     // Check if token is expired
     const credentials = data.credentials as CredentialsData;
+    if (!credentials?.access_token) return false;
+    
     if (credentials?.expires_at && credentials.expires_at < Date.now()) {
-      console.warn("Facebook token expired");
-      throw new Error("Error validating access token: Session has expired. The token expiration date has passed.");
-      return false;
+      throw new Error("Facebook token has expired. Please reconnect your Facebook account.");
     }
     
     // Validate token by making a simple API call
     try {
-      const accessToken = credentials?.access_token;
-      if (!accessToken) return false;
-      
-      const { makeMetaApiCall } = await import('./apiClient');
-      const response = await makeMetaApiCall('/me', 'GET', undefined, accessToken);
-      return !!response.id;
+      const isValid = await validateFacebookToken(credentials.access_token);
+      if (!isValid) {
+        throw new Error("Facebook token is no longer valid. Please reconnect your account.");
+      }
+      return true;
     } catch (error) {
       console.error("Facebook token validation failed:", error);
-      // Pass through the original error from the Facebook API
+      // Pass through the original error
       throw error;
     }
   } catch (error) {

@@ -21,8 +21,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { saveFacebookCredentials, checkFacebookConnection, disconnectFacebook } from "@/services/platforms/facebook/auth";
-import { Check, ExternalLink, Facebook, Info, Loader2, RefreshCw, X } from "lucide-react";
+import { saveFacebookCredentials, checkFacebookConnection, disconnectFacebook, validateFacebookToken } from "@/services/platforms/facebook/auth";
+import { getFacebookUserInfo } from "@/services/platforms/facebook/apiClient";
+import { Check, ExternalLink, Facebook, Info, Loader2, RefreshCw, X, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { 
   Alert,
@@ -38,6 +39,8 @@ export const FacebookConnect = () => {
   const [simulateDemo, setSimulateDemo] = useState(false);
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [isCheckingConnection, setIsCheckingConnection] = useState(true);
+  const [userName, setUserName] = useState<string | null>(null);
+  const [validationActive, setValidationActive] = useState(false);
 
   useEffect(() => {
     async function checkConnection() {
@@ -65,6 +68,35 @@ export const FacebookConnect = () => {
     
     checkConnection();
   }, []);
+
+  // Pre-validate token as user types
+  useEffect(() => {
+    const validateToken = async () => {
+      if (!accessToken || accessToken.length < 50 || !validationActive) return;
+      
+      try {
+        const userInfo = await getFacebookUserInfo(accessToken);
+        if (userInfo) {
+          setUserName(userInfo.name);
+          toast.success("Token looks valid!", { 
+            description: `Connected to ${userInfo.name}'s Facebook account` 
+          });
+        } else {
+          setUserName(null);
+          toast.error("Token validation failed", { 
+            description: "Could not verify this token. It might be expired or invalid." 
+          });
+        }
+      } catch (error) {
+        console.error("Token pre-validation error:", error);
+        setUserName(null);
+      }
+      
+      setValidationActive(false);
+    };
+
+    validateToken();
+  }, [accessToken, validationActive]);
 
   const handleSimulateConnect = async () => {
     setIsLoading(true);
@@ -104,6 +136,17 @@ export const FacebookConnect = () => {
     }
   };
 
+  const handleValidateToken = async () => {
+    if (!accessToken.trim()) {
+      toast.error("Missing token", {
+        description: "Please enter a Facebook access token"
+      });
+      return;
+    }
+
+    setValidationActive(true);
+  };
+
   const handleConnect = async () => {
     if (simulateDemo) {
       handleSimulateConnect();
@@ -121,20 +164,44 @@ export const FacebookConnect = () => {
     setTokenError(null);
     
     try {
-      // This can be edited to also include an expiration time from the token if available
-      // For now, we'll just save the token and let the backend handle expiration checks
+      // First validate the token
+      const isValid = await validateFacebookToken(accessToken);
+      
+      if (!isValid) {
+        toast.error("Invalid token", {
+          description: "This token appears to be invalid or expired. Please generate a new one."
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // Get user info to store with the token
+      const userInfo = await getFacebookUserInfo(accessToken);
+      
+      if (!userInfo) {
+        toast.error("Couldn't retrieve account info", {
+          description: "We were unable to get your Facebook account information with this token."
+        });
+        setIsLoading(false);
+        return;
+      }
+      
+      // Default token expiration to 60 days if we can't determine it
+      const expiresAt = Date.now() + 60 * 24 * 60 * 60 * 1000;
+      
       const success = await saveFacebookCredentials({ 
         accessToken,
-        userId: "", // This will be populated from the token on the server
-        expiresAt: Date.now() + 60 * 24 * 60 * 60 * 1000 // Assume 60 days validity
+        userId: userInfo.id,
+        expiresAt
       });
       
       if (success) {
         toast.success("Connection successful", {
-          description: "Your Facebook account has been connected"
+          description: `Connected to ${userInfo.name}'s Facebook account`
         });
         setIsConnected(true);
         setIsDialogOpen(false);
+        setUserName(userInfo.name);
       } else {
         toast.error("Connection failed", {
           description: "Failed to connect to Facebook. Please try again."
@@ -172,6 +239,7 @@ export const FacebookConnect = () => {
         });
         setIsConnected(false);
         setTokenError(null);
+        setUserName(null);
       } else {
         toast.error("Disconnect failed", {
           description: "Failed to disconnect from Facebook. Please try again."
@@ -203,12 +271,12 @@ export const FacebookConnect = () => {
       <CardContent>
         {tokenError && (
           <Alert variant="destructive" className="mb-4">
-            <Info className="h-4 w-4" />
-            <AlertTitle>Token Error</AlertTitle>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Connection Error</AlertTitle>
             <AlertDescription className="text-xs">
               {tokenError.includes('expired') 
                 ? "Your Facebook access token has expired. Please reconnect with a new token."
-                : "There is an issue with your Facebook token. Please try reconnecting."}
+                : tokenError}
             </AlertDescription>
           </Alert>
         )}
@@ -226,7 +294,12 @@ export const FacebookConnect = () => {
                 )}
               </div>
             )}
-            <span>{isCheckingConnection ? 'Checking connection...' : isConnected ? 'Connected' : 'Not connected'}</span>
+            <div>
+              <span>{isCheckingConnection ? 'Checking connection...' : isConnected ? 'Connected' : 'Not connected'}</span>
+              {isConnected && userName && (
+                <p className="text-xs text-muted-foreground">Account: {userName}</p>
+              )}
+            </div>
           </div>
           
           {isConnected ? (
@@ -250,10 +323,12 @@ export const FacebookConnect = () => {
                         description: "Your Facebook connection is no longer valid. Please reconnect."
                       });
                     }
-                  } catch (error) {
+                  } catch (error: any) {
                     console.error("Error refreshing connection status:", error);
+                    setTokenError(error?.message || "Could not verify connection status");
+                    setIsConnected(false);
                     toast.error("Verification failed", {
-                      description: "Could not verify connection status"
+                      description: error?.message || "Could not verify connection status"
                     });
                   } finally {
                     setIsCheckingConnection(false);
@@ -280,7 +355,7 @@ export const FacebookConnect = () => {
               <DialogTrigger asChild>
                 <Button variant="outline">Connect</Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-lg">
                 <DialogHeader>
                   <DialogTitle>Connect to Facebook</DialogTitle>
                   <DialogDescription>
@@ -304,12 +379,38 @@ export const FacebookConnect = () => {
                   {!simulateDemo && (
                     <div className="space-y-2">
                       <Label htmlFor="fb-token">Access Token</Label>
-                      <Input 
-                        id="fb-token" 
-                        value={accessToken} 
-                        onChange={(e) => setAccessToken(e.target.value)}
-                        placeholder="Enter your Facebook access token" 
-                      />
+                      <div className="flex space-x-2">
+                        <Input 
+                          id="fb-token" 
+                          value={accessToken} 
+                          onChange={(e) => {
+                            setAccessToken(e.target.value);
+                            setUserName(null); // Reset user name when token changes
+                          }}
+                          placeholder="Enter your Facebook access token" 
+                          className="flex-1"
+                        />
+                        <Button 
+                          variant="secondary" 
+                          size="sm"
+                          onClick={handleValidateToken}
+                          disabled={!accessToken || accessToken.length < 20}
+                        >
+                          Validate
+                        </Button>
+                      </div>
+                      
+                      {userName && (
+                        <div className="rounded-md bg-green-50 p-3 mt-2">
+                          <div className="flex">
+                            <Check className="h-5 w-5 text-green-400 mr-2" />
+                            <p className="text-sm text-green-700">
+                              Token validated successfully for {userName}'s account
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                      
                       <div className="flex items-center justify-between pt-2">
                         <p className="text-xs text-muted-foreground">
                           Get your access token from the Facebook Developer Portal
@@ -325,15 +426,22 @@ export const FacebookConnect = () => {
                         </Button>
                       </div>
                       
-                      <Alert className="mt-2">
+                      <Alert className="mt-4">
                         <Info className="h-4 w-4" />
-                        <AlertTitle>Access Token Tips</AlertTitle>
-                        <AlertDescription className="text-xs space-y-1">
-                          <p>• Make sure to request a <strong>User Token</strong> with the following permissions:</p>
-                          <p className="pl-2">- ads_management</p>
-                          <p className="pl-2">- ads_read</p>
-                          <p className="pl-2">- business_management</p>
-                          <p>• Facebook tokens expire after ~60 days and will need to be refreshed</p>
+                        <AlertTitle>Getting a Valid Access Token</AlertTitle>
+                        <AlertDescription className="text-xs space-y-2">
+                          <p>1. Go to the <a href="https://developers.facebook.com/tools/explorer/" className="text-blue-500 underline" target="_blank" rel="noopener noreferrer">Graph API Explorer</a>.</p>
+                          <p>2. Select your app from the dropdown (or create one if needed).</p>
+                          <p>3. Click on "Generate Access Token" and log in with your Facebook account.</p>
+                          <p>4. In the permissions dialog, make sure to select these permissions:</p>
+                          <ul className="list-disc list-inside pl-2">
+                            <li>ads_management</li>
+                            <li>ads_read</li>
+                            <li>business_management</li>
+                            <li>public_profile</li>
+                          </ul>
+                          <p>5. Click "Generate Token" and copy the resulting token.</p>
+                          <p className="font-semibold mt-2">Note: Facebook tokens expire after approximately 60 days.</p>
                         </AlertDescription>
                       </Alert>
                     </div>
@@ -343,11 +451,11 @@ export const FacebookConnect = () => {
                     <div className="rounded-md bg-blue-50 p-4">
                       <div className="flex">
                         <div className="flex-shrink-0">
-                          <Check className="h-5 w-5 text-blue-400" />
+                          <Info className="h-5 w-5 text-blue-400" />
                         </div>
                         <div className="ml-3">
                           <p className="text-sm text-blue-700">
-                            Demo mode will create a simulated connection for your MVP presentation
+                            Demo mode will create a simulated connection for your MVP presentation. No real Facebook connection will be established.
                           </p>
                         </div>
                       </div>
@@ -362,7 +470,7 @@ export const FacebookConnect = () => {
                   >
                     Cancel
                   </Button>
-                  <Button onClick={handleConnect} disabled={isLoading}>
+                  <Button onClick={handleConnect} disabled={isLoading || (!simulateDemo && !accessToken)}>
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />

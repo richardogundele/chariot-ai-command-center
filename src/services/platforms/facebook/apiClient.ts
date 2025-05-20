@@ -13,7 +13,7 @@ export async function makeMetaApiCall(
     try {
       const storedToken = await getUserAccessToken();
       if (!storedToken) {
-        throw new Error("Facebook access token is required");
+        throw new Error("Facebook access token is required. Please connect your Facebook account.");
       }
       accessToken = storedToken;
     } catch (error) {
@@ -53,5 +53,26 @@ export async function makeMetaApiCall(
   } catch (error) {
     console.error("Meta API call failed:", error);
     throw error;
+  }
+}
+
+// Get basic information about the user associated with the token
+export async function getFacebookUserInfo(accessToken: string): Promise<{id: string, name: string} | null> {
+  try {
+    const response = await fetch(`https://graph.facebook.com/${META_API_VERSION}/me?fields=id,name&access_token=${accessToken}`);
+    const data = await response.json();
+    
+    if (!response.ok || data.error) {
+      console.error("Failed to get user info:", data.error?.message || "Unknown error");
+      return null;
+    }
+    
+    return {
+      id: data.id,
+      name: data.name
+    };
+  } catch (error) {
+    console.error("Error fetching Facebook user info:", error);
+    return null;
   }
 }
