@@ -88,11 +88,14 @@ export async function createFacebookCampaign(campaignData: CampaignData): Promis
     // Create campaign on Facebook
     try {
       const adAccountId = campaignData.advanced?.adAccountId || 'act_' + credentials.user_id;
+      const facebookObjective = mapObjectiveToFacebook(campaignData.objective);
+      
+      console.log("Creating Facebook campaign with objective:", facebookObjective);
       
       // 1. Create the campaign
       const campaignResponse = await makeMetaApiCall(`/${adAccountId}/campaigns`, 'POST', {
         name: campaignData.name,
-        objective: mapObjectiveToFacebook(campaignData.objective),
+        objective: facebookObjective,
         status: campaignData.advanced?.launchImmediately ? 'ACTIVE' : 'PAUSED',
         special_ad_categories: [],
         daily_budget: campaignData.budget * 100 // Convert to cents

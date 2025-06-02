@@ -3,9 +3,9 @@
 export function mapObjectiveToFacebook(objective: string): string {
   const mapping: Record<string, string> = {
     'conversion': 'CONVERSIONS',
-    'awareness': 'BRAND_AWARENESS',
-    'traffic': 'TRAFFIC',
-    'engagement': 'ENGAGEMENT',
+    'awareness': 'BRAND_AWARENESS', 
+    'traffic': 'LINK_CLICKS',
+    'engagement': 'POST_ENGAGEMENT',
     'app_installs': 'APP_INSTALLS',
     'video_views': 'VIDEO_VIEWS',
     'lead_generation': 'LEAD_GENERATION',
