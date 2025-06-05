@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CampaignData, CampaignMetaData } from './types';
 import { makeMetaApiCall } from './apiClient';
 import { getUserAccessToken } from './auth';
+import { getFacebookAdAccounts } from './adAccountsService';
 import { 
   mapObjectiveToFacebook, 
   getOptimizationGoal, 
@@ -87,10 +88,33 @@ export async function createFacebookCampaign(campaignData: CampaignData): Promis
     
     // Create campaign on Facebook
     try {
-      const adAccountId = campaignData.advanced?.adAccountId || 'act_' + credentials.user_id;
+      // First, get available ad accounts to find a valid one
+      console.log("Getting Facebook ad accounts...");
+      const adAccountsResult = await getFacebookAdAccounts();
+      
+      if (!adAccountsResult.success || !adAccountsResult.accounts || adAccountsResult.accounts.length === 0) {
+        await supabase
+          .from('campaigns')
+          .update({ status: 'Failed' })
+          .eq('id', campaignRecord.id);
+        return { 
+          success: false, 
+          error: "No accessible Facebook ad accounts found. Please ensure your Facebook account has proper ad account permissions." 
+        };
+      }
+      
+      // Use the provided ad account ID if valid, otherwise use the first available one
+      let adAccountId = campaignData.advanced?.adAccountId;
+      
+      if (!adAccountId || !adAccountsResult.accounts.find(acc => acc.id === adAccountId)) {
+        adAccountId = adAccountsResult.accounts[0].id;
+        console.log("Using first available ad account:", adAccountId);
+      }
+      
       const facebookObjective = mapObjectiveToFacebook(campaignData.objective);
       
       console.log("Creating Facebook campaign with objective:", facebookObjective);
+      console.log("Using ad account:", adAccountId);
       
       // 1. Create the campaign
       const campaignResponse = await makeMetaApiCall(`/${adAccountId}/campaigns`, 'POST', {
@@ -162,7 +186,8 @@ export async function createFacebookCampaign(campaignData: CampaignData): Promis
         campaign_id: metaCampaignId,
         ad_set_id: adSetId,
         ad_creative_id: adCreativeId,
-        ad_id: adResponse.id
+        ad_id: adResponse.id,
+        ad_account_id: adAccountId
       };
       
       // Update our record with the Facebook IDs
@@ -193,9 +218,19 @@ export async function createFacebookCampaign(campaignData: CampaignData): Promis
         .eq('id', campaignRecord.id);
         
       console.error("Facebook campaign creation error:", fbError);
+      
+      // Provide more specific error messages
+      let errorMessage = fbError.message || 'Facebook API error';
+      
+      if (errorMessage.includes('does not exist, cannot be loaded due to missing permissions')) {
+        errorMessage = "Your Facebook account doesn't have access to the selected ad account. Please ensure you have proper permissions or try connecting a different Facebook account.";
+      } else if (errorMessage.includes('Unsupported post request')) {
+        errorMessage = "The selected ad account is not accessible. Please check your Facebook account permissions.";
+      }
+      
       return { 
         success: false,
-        error: fbError.message || 'Facebook API error',
+        error: errorMessage,
       };
     }
   } catch (error: any) {
