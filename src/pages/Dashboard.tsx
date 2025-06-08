@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -79,7 +78,7 @@ const Dashboard = () => {
             <div className="flex justify-between items-start mb-2">
               <div>
                 <p className="text-sm font-medium text-primary">Revenue</p>
-                <h2 className="text-3xl font-bold">$14,560,500</h2>
+                <h2 className="text-3xl font-bold">$150,030,400</h2>
               </div>
               <div className="p-2 bg-primary/10 rounded-full">
                 <DollarSign className="h-5 w-5 text-primary" />
