@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 /**
@@ -110,7 +109,7 @@ export async function generateProductImage(productName: string, productDescripti
       return "/placeholder.svg";
     }
 
-    const prompt = `A futuristic, eye-catching digital advertisement scene showing a sleek, modern ${productName} in action. Vibrant colors, clean design, minimalistic UI elements glowing subtly. The background should be dynamic and visually striking—like a city at dusk, a digital interface, or abstract tech waves. Include bold typography space for a headline. Style should be premium, cinematic, and optimized for social media. ${productDescription}`;
+    const prompt = `A professional product photography shot of ${productName} on a clean pure white background. The product should be centered, well-lit with soft lighting, and optimized for advertising use. Clean, minimal, commercial photography style. No shadows, no textures, just a crisp white background. Studio lighting setup. ${productDescription}. The image should look professional and ready for e-commerce or social media ads.`;
 
     console.log("Sending image generation request with prompt:", prompt.substring(0, 50) + "...");
 
