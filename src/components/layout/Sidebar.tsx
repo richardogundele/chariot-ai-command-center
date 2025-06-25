@@ -27,12 +27,12 @@ export const Sidebar = () => {
   return (
     <div 
       className={cn(
-        "min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800 border-r border-gray-700/50 transition-all duration-300 flex flex-col backdrop-blur-xl",
+        "min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900 border-r border-gray-700/50 dark:border-gray-800/50 transition-all duration-300 flex flex-col backdrop-blur-xl",
         collapsed ? "w-20" : "w-72"
       )}
     >
       {/* Header */}
-      <div className="p-6 flex items-center justify-between border-b border-gray-700/50">
+      <div className="p-6 flex items-center justify-between border-b border-gray-700/50 dark:border-gray-800/50">
         {!collapsed && (
           <div className="flex items-center space-x-3">
             <div className="glow-effect">
@@ -44,7 +44,7 @@ export const Sidebar = () => {
               <h1 className="text-xl font-bold text-white">
                 Chariot<span className="chariot-gradient-text">AI</span>
               </h1>
-              <p className="text-xs text-gray-400">Marketing Platform</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Marketing Platform</p>
             </div>
           </div>
         )}
@@ -61,7 +61,7 @@ export const Sidebar = () => {
           variant="ghost" 
           size="icon" 
           onClick={() => setCollapsed(!collapsed)}
-          className="text-gray-400 hover:text-white hover:bg-gray-800/50 transition-colors"
+          className="text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50 transition-colors"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </Button>
@@ -80,7 +80,7 @@ export const Sidebar = () => {
                   "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden",
                   isActive
                     ? "bg-gradient-to-r from-chariot-purple/20 to-chariot-accent/20 text-white border border-chariot-purple/30"
-                    : "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                    : "text-gray-300 dark:text-gray-400 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50"
                 )}
               >
                 {/* Icon with gradient background */}
@@ -88,11 +88,11 @@ export const Sidebar = () => {
                   "flex items-center justify-center w-8 h-8 rounded-lg mr-3 transition-all duration-300",
                   isActive 
                     ? `bg-gradient-to-br ${item.color} shadow-lg` 
-                    : "bg-gray-700/50 group-hover:bg-gray-600/50"
+                    : "bg-gray-700/50 dark:bg-gray-800/50 group-hover:bg-gray-600/50 dark:group-hover:bg-gray-700/50"
                 )}>
                   <item.icon className={cn(
                     "h-4 w-4 transition-colors duration-300",
-                    isActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                    isActive ? "text-white" : "text-gray-400 dark:text-gray-500 group-hover:text-white"
                   )} />
                 </div>
                 
@@ -117,16 +117,16 @@ export const Sidebar = () => {
       </div>
 
       {/* User Section & Logout */}
-      <div className="p-4 border-t border-gray-700/50 space-y-4">
+      <div className="p-4 border-t border-gray-700/50 dark:border-gray-800/50 space-y-4">
         {/* User Info (when expanded) */}
         {!collapsed && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800/50">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800/50 dark:bg-gray-900/50">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
               <span className="text-white font-semibold text-sm">AI</span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white font-medium text-sm truncate">AI Marketing</p>
-              <p className="text-gray-400 text-xs truncate">Active Campaign</p>
+              <p className="text-gray-400 dark:text-gray-500 text-xs truncate">Active Campaign</p>
             </div>
           </div>
         )}
@@ -134,7 +134,7 @@ export const Sidebar = () => {
         <Button 
           variant="ghost" 
           className={cn(
-            "w-full justify-start text-gray-300 hover:text-white hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-300",
+            "w-full justify-start text-gray-300 dark:text-gray-400 hover:text-white hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-300",
             collapsed && "justify-center px-0"
           )}
           onClick={handleLogout}
