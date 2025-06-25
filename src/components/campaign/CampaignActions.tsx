@@ -9,7 +9,8 @@ import {
   Pause,
   Play,
   RefreshCw,
-  X
+  X,
+  Settings
 } from "lucide-react";
 import {
   AlertDialog,
@@ -66,13 +67,13 @@ export const CampaignActions: React.FC<CampaignActionsProps> = ({
   const renderStatusBadge = () => {
     switch (status) {
       case 'Active':
-        return <Badge className="bg-green-500">Active</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600">Active</Badge>;
       case 'Paused':
-        return <Badge variant="outline" className="text-amber-500 border-amber-500">Paused</Badge>;
+        return <Badge variant="outline" className="text-amber-500 border-amber-500 hover:bg-amber-50">Paused</Badge>;
       case 'Stopped':
-        return <Badge variant="outline" className="text-red-500 border-red-500">Stopped</Badge>;
+        return <Badge variant="outline" className="text-red-500 border-red-500 hover:bg-red-50">Stopped</Badge>;
       case 'Pending':
-        return <Badge variant="outline" className="text-blue-500 border-blue-500">Pending</Badge>;
+        return <Badge variant="outline" className="text-blue-500 border-blue-500 hover:bg-blue-50">Pending</Badge>;
       case 'Failed':
         return <Badge variant="destructive">Failed</Badge>;
       default:
@@ -83,14 +84,14 @@ export const CampaignActions: React.FC<CampaignActionsProps> = ({
   return (
     <div className="flex flex-col space-y-4">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium">Status:</span>
+        <div className="flex items-center space-x-3">
+          <span className="text-sm font-medium text-muted-foreground">Status:</span>
           {renderStatusBadge()}
         </div>
         
         <div className="flex items-center space-x-2">
           {isLoading ? (
-            <Button disabled size="sm">
+            <Button disabled size="sm" className="min-w-[100px]">
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               Processing
             </Button>
@@ -101,6 +102,7 @@ export const CampaignActions: React.FC<CampaignActionsProps> = ({
                   variant="outline" 
                   size="sm"
                   onClick={() => handleStatusChange('Paused')}
+                  className="hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300"
                 >
                   <Pause className="h-4 w-4 mr-2" />
                   Pause
@@ -112,6 +114,7 @@ export const CampaignActions: React.FC<CampaignActionsProps> = ({
                   variant="outline" 
                   size="sm"
                   onClick={() => handleStatusChange('Active')}
+                  className="hover:bg-green-50 hover:text-green-700 hover:border-green-300"
                 >
                   <Play className="h-4 w-4 mr-2" />
                   Resume
@@ -121,7 +124,11 @@ export const CampaignActions: React.FC<CampaignActionsProps> = ({
               {(status === 'Active' || status === 'Paused') && (
                 <AlertDialog open={showStopDialog} onOpenChange={setShowStopDialog}>
                   <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm">
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      className="hover:bg-red-600"
+                    >
                       <X className="h-4 w-4 mr-2" />
                       Stop
                     </Button>
@@ -152,27 +159,32 @@ export const CampaignActions: React.FC<CampaignActionsProps> = ({
                   variant="outline" 
                   size="sm"
                   onClick={() => handleStatusChange('Pending')}
+                  className="hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Retry
                 </Button>
               )}
+              
+              <Button variant="ghost" size="sm" className="hover:bg-gray-100">
+                <Settings className="h-4 w-4" />
+              </Button>
             </>
           )}
         </div>
       </div>
       
       {status === 'Pending' && (
-        <div className="rounded-md bg-blue-50 p-3">
+        <div className="rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <Loader2 className="h-5 w-5 text-blue-400 animate-spin" />
+              <Loader2 className="h-5 w-5 text-blue-500 animate-spin" />
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-blue-800">
+              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
                 Campaign is being processed
               </h3>
-              <div className="mt-2 text-sm text-blue-700">
+              <div className="mt-2 text-sm text-blue-700 dark:text-blue-300">
                 <p>
                   Your campaign is currently being set up on Facebook. This might take a few moments.
                 </p>
@@ -183,16 +195,16 @@ export const CampaignActions: React.FC<CampaignActionsProps> = ({
       )}
       
       {status === 'Failed' && (
-        <div className="rounded-md bg-red-50 p-3">
+        <div className="rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <AlertCircle className="h-5 w-5 text-red-400" />
+              <AlertCircle className="h-5 w-5 text-red-500" />
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
                 Campaign setup failed
               </h3>
-              <div className="mt-2 text-sm text-red-700">
+              <div className="mt-2 text-sm text-red-700 dark:text-red-300">
                 <p>
                   There was an issue creating your campaign on Facebook. You can try again by clicking "Retry".
                 </p>

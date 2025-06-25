@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -139,17 +138,20 @@ const Campaign = () => {
               </Button>
               <div className="flex items-center space-x-3">
                 <h2 className="text-2xl font-bold">{campaignData.name}</h2>
-                <Badge>{campaignData.platform}</Badge>
+                <Badge variant="outline" className="text-sm">
+                  {campaignData.platform}
+                </Badge>
               </div>
             </div>
-            
-            <div>
-              <CampaignActions 
-                campaignId={campaignId} 
-                status={campaignStatus}
-                onStatusChange={handleStatusChange}
-              />
-            </div>
+          </div>
+          
+          {/* Campaign Actions - Always show for active campaigns */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg border p-6">
+            <CampaignActions 
+              campaignId={campaignId} 
+              status={campaignStatus}
+              onStatusChange={handleStatusChange}
+            />
           </div>
           
           {(campaignStatus === 'Active' || campaignStatus === 'Paused') && (
