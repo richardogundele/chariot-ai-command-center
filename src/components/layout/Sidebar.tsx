@@ -1,5 +1,5 @@
 
-import { Home, PieChart, AlertOctagon, LogOut, ChevronLeft, ChevronRight, BarChart, Settings as SettingsIcon, Package } from "lucide-react";
+import { Home, PieChart, AlertOctagon, LogOut, ChevronLeft, ChevronRight, BarChart, Settings as SettingsIcon, Package, Zap } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,12 +11,12 @@ export const Sidebar = () => {
   const navigate = useNavigate();
 
   const navItems = [
-    { icon: Home, label: "Dashboard", path: "/dashboard" },
-    { icon: Package, label: "Products", path: "/saved-products" },
-    { icon: PieChart, label: "Campaign", path: "/campaign" },
-    { icon: AlertOctagon, label: "Alerts", path: "/alerts" },
-    { icon: BarChart, label: "Reports & Analytics", path: "/reports" },
-    { icon: SettingsIcon, label: "Settings", path: "/settings" },
+    { icon: Home, label: "Dashboard", path: "/dashboard", color: "from-blue-500 to-blue-600" },
+    { icon: Package, label: "Products", path: "/saved-products", color: "from-green-500 to-green-600" },
+    { icon: PieChart, label: "Campaign", path: "/campaign", color: "from-purple-500 to-purple-600" },
+    { icon: AlertOctagon, label: "Alerts", path: "/alerts", color: "from-red-500 to-red-600" },
+    { icon: BarChart, label: "Reports & Analytics", path: "/reports", color: "from-orange-500 to-orange-600" },
+    { icon: SettingsIcon, label: "Settings", path: "/settings", color: "from-gray-500 to-gray-600" },
   ];
 
   const handleLogout = () => {
@@ -27,58 +27,122 @@ export const Sidebar = () => {
   return (
     <div 
       className={cn(
-        "min-h-screen bg-sidebar border-r border-border transition-all duration-300 flex flex-col",
-        collapsed ? "w-20" : "w-64"
+        "min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800 border-r border-gray-700/50 transition-all duration-300 flex flex-col backdrop-blur-xl",
+        collapsed ? "w-20" : "w-72"
       )}
     >
-      <div className="p-4 flex items-center justify-between border-b border-sidebar-border">
+      {/* Header */}
+      <div className="p-6 flex items-center justify-between border-b border-gray-700/50">
         {!collapsed && (
-          <div className="flex items-center space-x-2">
-            <span className="text-xl font-bold text-sidebar-foreground">Chariot<span className="text-sidebar-primary">AI</span></span>
+          <div className="flex items-center space-x-3">
+            <div className="glow-effect">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
+                <Zap className="h-6 w-6 text-white" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-white">
+                Chariot<span className="chariot-gradient-text">AI</span>
+              </h1>
+              <p className="text-xs text-gray-400">Marketing Platform</p>
+            </div>
           </div>
         )}
-        {collapsed && <div className="mx-auto text-xl font-bold text-sidebar-primary">C</div>}
+        {collapsed && (
+          <div className="mx-auto">
+            <div className="glow-effect">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
+                <Zap className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </div>
+        )}
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={() => setCollapsed(!collapsed)}
-          className="text-sidebar-foreground hover:text-sidebar-primary hover:bg-sidebar-accent"
+          className="text-gray-400 hover:text-white hover:bg-gray-800/50 transition-colors"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </Button>
       </div>
 
+      {/* Navigation */}
       <div className="flex-1 py-6">
-        <nav className="space-y-1 px-2">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                "flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors",
-                location.pathname === item.path
-                  ? "bg-sidebar-accent text-sidebar-primary"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary-foreground"
-              )}
-            >
-              <item.icon className={cn("h-5 w-5", collapsed ? "mx-auto" : "mr-3")} />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          ))}
+        <nav className="space-y-2 px-4">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden",
+                  isActive
+                    ? "bg-gradient-to-r from-chariot-purple/20 to-chariot-accent/20 text-white border border-chariot-purple/30"
+                    : "text-gray-300 hover:text-white hover:bg-gray-800/50"
+                )}
+              >
+                {/* Icon with gradient background */}
+                <div className={cn(
+                  "flex items-center justify-center w-8 h-8 rounded-lg mr-3 transition-all duration-300",
+                  isActive 
+                    ? `bg-gradient-to-br ${item.color} shadow-lg` 
+                    : "bg-gray-700/50 group-hover:bg-gray-600/50"
+                )}>
+                  <item.icon className={cn(
+                    "h-4 w-4 transition-colors duration-300",
+                    isActive ? "text-white" : "text-gray-400 group-hover:text-white"
+                  )} />
+                </div>
+                
+                {!collapsed && (
+                  <span className="transition-all duration-300">{item.label}</span>
+                )}
+                
+                {/* Active indicator */}
+                {isActive && (
+                  <div className="absolute right-2 w-2 h-2 rounded-full bg-chariot-accent"></div>
+                )}
+                
+                {/* Hover effect */}
+                <div className={cn(
+                  "absolute inset-0 bg-gradient-to-r from-chariot-purple/10 to-chariot-accent/10 rounded-xl opacity-0 transition-opacity duration-300",
+                  !isActive && "group-hover:opacity-100"
+                )}></div>
+              </Link>
+            );
+          })}
         </nav>
       </div>
 
-      <div className="p-4 border-t border-sidebar-border">
+      {/* User Section & Logout */}
+      <div className="p-4 border-t border-gray-700/50 space-y-4">
+        {/* User Info (when expanded) */}
+        {!collapsed && (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800/50">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
+              <span className="text-white font-semibold text-sm">AI</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-medium text-sm truncate">AI Marketing</p>
+              <p className="text-gray-400 text-xs truncate">Active Campaign</p>
+            </div>
+          </div>
+        )}
+        
         <Button 
           variant="ghost" 
           className={cn(
-            "w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-primary-foreground",
-            collapsed && "justify-center"
+            "w-full justify-start text-gray-300 hover:text-white hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-300",
+            collapsed && "justify-center px-0"
           )}
           onClick={handleLogout}
         >
-          <LogOut className="h-5 w-5 min-w-5" />
-          {!collapsed && <span className="ml-3">Logout</span>}
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10 mr-3 group-hover:bg-red-500/20 transition-colors duration-300">
+            <LogOut className="h-4 w-4" />
+          </div>
+          {!collapsed && <span>Logout</span>}
         </Button>
       </div>
     </div>
