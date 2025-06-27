@@ -2,14 +2,17 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CampaignDetails } from "@/components/campaign/CampaignDetails";
 import { CampaignPerformanceTabs } from "@/components/campaign/CampaignPerformanceTabs";
 import { CampaignSummaryCards } from "@/components/campaign/CampaignSummaryCards";
 import { CampaignRealTimeMetrics } from "@/components/campaign/CampaignRealTimeMetrics";
 import { CampaignActions } from "@/components/campaign/CampaignActions";
+import { CampaignScheduler } from "@/components/campaign/CampaignScheduler";
+import { PerformanceAlerts } from "@/components/campaign/PerformanceAlerts";
 import { toast } from "sonner";
 import { getCampaignStatus, getFacebookCampaignAnalytics } from "@/services/platforms/facebook";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Calendar, Bell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface CampaignDetailViewProps {
@@ -96,6 +99,12 @@ export const CampaignDetailView = ({ campaignId, onBackToList }: CampaignDetailV
     setCampaignStatus(newStatus);
   };
 
+  const handleScheduleUpdate = (schedule: any) => {
+    console.log('Schedule updated:', schedule);
+    // This would save the schedule to the database
+    toast.success("Campaign schedule updated");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -140,36 +149,75 @@ export const CampaignDetailView = ({ campaignId, onBackToList }: CampaignDetailV
           onStatusChange={handleStatusChange}
         />
       </div>
-      
-      {(campaignStatus === 'Active' || campaignStatus === 'Paused') && (
-        <>
-          <CampaignSummaryCards 
-            impressions={analytics?.impressions || 0}
-            clicks={analytics?.clicks || 0}
-            ctr={analytics?.ctr || 0}
-            spend={analytics?.spend || 0}
-          />
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <CampaignRealTimeMetrics campaignId={campaignId} />
-            </div>
-            <div>
-              <CampaignDetails 
-                campaign={campaignData} 
-                product={campaignData.products} 
+
+      {/* Enhanced Tabs with Scheduling and Alerts */}
+      <Tabs defaultValue="overview" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="schedule">
+            <Calendar className="mr-2 h-4 w-4" />
+            Schedule
+          </TabsTrigger>
+          <TabsTrigger value="alerts">
+            <Bell className="mr-2 h-4 w-4" />
+            Alerts
+          </TabsTrigger>
+          <TabsTrigger value="details">Details</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {(campaignStatus === 'Active' || campaignStatus === 'Paused') && (
+            <>
+              <CampaignSummaryCards 
+                impressions={analytics?.impressions || 0}
+                clicks={analytics?.clicks || 0}
+                ctr={analytics?.ctr || 0}
+                spend={analytics?.spend || 0}
               />
-            </div>
-          </div>
-          
+              
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <CampaignRealTimeMetrics campaignId={campaignId} />
+                </div>
+                <div>
+                  <CampaignDetails 
+                    campaign={campaignData} 
+                    product={campaignData.products} 
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-6">
           <CampaignPerformanceTabs 
             campaignId={campaignId}
             conversions={analytics?.conversions || 0}
             cpa={analytics?.cpa || 0}
             roas={analytics?.roas || 0}
           />
-        </>
-      )}
+        </TabsContent>
+
+        <TabsContent value="schedule" className="space-y-6">
+          <CampaignScheduler 
+            campaignId={campaignId}
+            onScheduleUpdate={handleScheduleUpdate}
+          />
+        </TabsContent>
+
+        <TabsContent value="alerts" className="space-y-6">
+          <PerformanceAlerts campaignId={campaignId} />
+        </TabsContent>
+
+        <TabsContent value="details" className="space-y-6">
+          <CampaignDetails 
+            campaign={campaignData} 
+            product={campaignData.products} 
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
