@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,7 +7,7 @@ import { CampaignFilters } from "@/components/campaign/CampaignFilters";
 import { CampaignTemplates } from "@/components/campaign/CampaignTemplates";
 import { PerformanceAlerts } from "@/components/campaign/PerformanceAlerts";
 import CampaignDialog from "@/components/products/CampaignDialog";
-import { Plus, Filter, Template, Bell } from "lucide-react";
+import { Plus, Filter, FileTemplate, Bell } from "lucide-react";
 
 interface CampaignListViewProps {
   onSelectCampaign: (campaignId: string) => void;
@@ -83,7 +82,7 @@ export const CampaignListView = ({ onSelectCampaign }: CampaignListViewProps) =>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
           <TabsTrigger value="templates">
-            <Template className="mr-2 h-4 w-4" />
+            <FileTemplate className="mr-2 h-4 w-4" />
             Templates
           </TabsTrigger>
           <TabsTrigger value="bulk">Bulk Actions</TabsTrigger>

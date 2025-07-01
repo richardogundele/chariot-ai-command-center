@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Copy, Save, Template } from "lucide-react";
+import { Copy, Save, FileTemplate } from "lucide-react";
 import { toast } from "sonner";
 
 interface CampaignTemplate {
@@ -105,7 +105,7 @@ export const CampaignTemplates = ({ onTemplateSelect, onTemplateSave }: Campaign
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Template className="h-5 w-5" />
+              <FileTemplate className="h-5 w-5" />
               Campaign Templates
             </CardTitle>
             <CardDescription>Use pre-built templates to quickly create campaigns</CardDescription>
