@@ -1,4 +1,4 @@
-# Welcome to your Lovable project
+# Welcome to Chariot Project - a digital marketing platform (RESULT AS A SERVICE)
 
 ## Project info
 
@@ -65,8 +65,6 @@ This project is built with:
 Simply open [Lovable](https://lovable.dev/projects/39111ac5-5cff-49bc-902d-4dd9f47c86b3) and click on Share -> Publish.
 
 ## Can I connect a custom domain to my Lovable project?
-
-Yes it is!
 
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
