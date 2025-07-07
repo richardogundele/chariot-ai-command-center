@@ -85,7 +85,7 @@ export async function generateAdCopy(productName: string, productDescription: st
 }
 
 /**
- * Generates product image using DALL-E API
+ * Generates product image using DALL-E API with enhanced 3D rendering prompt
  */
 export async function generateProductImage(productName: string, productDescription: string): Promise<string> {
   try {
@@ -109,9 +109,22 @@ export async function generateProductImage(productName: string, productDescripti
       return "/placeholder.svg";
     }
 
-    const prompt = `A professional product photography shot of ${productName} on a clean pure white background. The product should be centered, well-lit with soft lighting, and optimized for advertising use. Clean, minimal, commercial photography style. No shadows, no textures, just a crisp white background. Studio lighting setup. ${productDescription}. The image should look professional and ready for e-commerce or social media ads.`;
+    const prompt = `Create a stunning 3D product render of ${productName} with professional studio lighting and a clean white background. The image should be:
 
-    console.log("Sending image generation request with prompt:", prompt.substring(0, 50) + "...");
+- A high-quality 3D render with realistic materials, textures, and lighting
+- Positioned at a 45-degree angle to show depth and dimensionality
+- Illuminated with soft, even studio lighting that eliminates harsh shadows
+- Set against a pure white seamless background for e-commerce use
+- Rendered with photorealistic detail and premium finish
+- Optimized for advertising and marketing materials
+- Sharp focus with subtle depth of field
+- Professional product photography style
+
+Product details: ${productDescription}
+
+Style: Ultra-realistic 3D product visualization, commercial photography quality, cinema 4D render, octane render, studio lighting setup, premium product showcase, marketing ready.`;
+
+    console.log("Sending 3D render generation request with enhanced prompt");
 
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
@@ -124,6 +137,7 @@ export async function generateProductImage(productName: string, productDescripti
         prompt: prompt,
         n: 1,
         size: "1024x1024",
+        quality: "hd",
         response_format: "b64_json" // Request base64 encoded image instead of URL
       }),
     });
@@ -135,7 +149,7 @@ export async function generateProductImage(productName: string, productDescripti
     }
 
     const data = await response.json();
-    console.log("DALL-E API response received");
+    console.log("DALL-E API response received for 3D render");
     
     if (data.data && data.data[0] && data.data[0].b64_json) {
       // Return data URL to display the image directly
@@ -144,7 +158,7 @@ export async function generateProductImage(productName: string, productDescripti
     
     throw new Error("No image data in the DALL-E response");
   } catch (error) {
-    console.error("Error generating product image:", error);
+    console.error("Error generating 3D product render:", error);
     return "/placeholder.svg";
   }
 }
