@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { AlertCard } from "@/components/dashboard/AlertCard";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
 import { useToast } from "@/hooks/use-toast";
 import { WeeklyProfitChart } from "@/components/reports/WeeklyProfitChart";
+import { fetchDashboardMetrics, DashboardMetrics } from "@/services/dashboard/dashboardService";
 import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
 import { ConversionFunnel } from "@/components/dashboard/ConversionFunnel";
 import { PlatformBreakdown } from "@/components/dashboard/PlatformBreakdown";
@@ -27,21 +28,51 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, []);
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const dashboardMetrics = await fetchDashboardMetrics();
+      setMetrics(dashboardMetrics);
+    } catch (error) {
+      console.error("Error loading dashboard data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load dashboard data",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddProduct = () => {
     navigate("/add-product");
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
-    // Simulate data refresh
-    setTimeout(() => {
-      setRefreshing(false);
+    try {
+      await loadDashboardData();
       toast({
         title: "Dashboard updated",
         description: "Latest campaign data loaded successfully",
       });
-    }, 1500);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh data",
+        variant: "destructive",
+      });
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (
@@ -83,7 +114,9 @@ const Dashboard = () => {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-sm font-medium text-primary mb-1">Total Revenue</p>
-                <h2 className="text-3xl font-bold text-foreground">$150,030,400</h2>
+                <h2 className="text-3xl font-bold text-foreground">
+                  {loading ? "..." : `$${metrics?.totalRevenue.toLocaleString() || "0"}`}
+                </h2>
               </div>
               <div className="glow-effect">
                 <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -92,9 +125,9 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center text-green-600 text-sm font-semibold bg-green-50 px-2 py-1 rounded-full">
+                <div className="flex items-center text-green-600 text-sm font-semibold bg-green-50 px-2 py-1 rounded-full">
                 <ArrowUp className="h-3 w-3 mr-1" />
-                12.5%
+                {loading ? "..." : `${metrics?.revenueChange.toFixed(1) || "0"}%`}
               </div>
               <span className="text-xs text-muted-foreground">vs. last month</span>
             </div>
@@ -107,7 +140,9 @@ const Dashboard = () => {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">ROAS</p>
-                <h2 className="text-3xl font-bold text-foreground">3.2x</h2>
+                <h2 className="text-3xl font-bold text-foreground">
+                  {loading ? "..." : `${metrics?.averageRoas.toFixed(1) || "0"}x`}
+                </h2>
               </div>
               <div className="glow-effect">
                 <div className="p-3 bg-gradient-to-br from-chariot-purple to-chariot-accent rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -131,7 +166,9 @@ const Dashboard = () => {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Conversions</p>
-                <h2 className="text-3xl font-bold text-foreground">342</h2>
+                <h2 className="text-3xl font-bold text-foreground">
+                  {loading ? "..." : `${metrics?.conversionCount || "0"}`}
+                </h2>
               </div>
               <div className="glow-effect">
                 <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
@@ -155,7 +192,9 @@ const Dashboard = () => {
             <div className="flex justify-between items-start mb-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">CTR</p>
-                <h2 className="text-3xl font-bold text-foreground">2.8%</h2>
+                <h2 className="text-3xl font-bold text-foreground">
+                  {loading ? "..." : `${metrics?.clickThroughRate.toFixed(1) || "0"}%`}
+                </h2>
               </div>
               <div className="glow-effect">
                 <div className="p-3 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
