@@ -101,18 +101,18 @@ const Products = () => {
 
   return (
     <DashboardLayout>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-muted-foreground">Add your products to create campaigns</p>
+          <h1 className="text-xl sm:text-2xl font-bold">Products</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Add your products to create campaigns</p>
         </div>
-        <Button onClick={handleAddProduct}>
+        <Button onClick={handleAddProduct} className="self-start sm:self-auto">
           <Plus className="mr-2 h-4 w-4" />
           Add Product
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <ProductForm 
           onSubmit={handleSubmit} 
           loading={loading} 

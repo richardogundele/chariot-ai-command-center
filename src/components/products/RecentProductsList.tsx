@@ -37,9 +37,9 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold">Recently Added Products</h2>
-        <Button variant="outline" size="sm" onClick={() => navigate("/saved-products")}>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h2 className="text-lg sm:text-xl font-bold">Recently Added Products</h2>
+        <Button variant="outline" size="sm" onClick={() => navigate("/saved-products")} className="self-start sm:self-auto">
           View All Products
         </Button>
       </div>
@@ -49,7 +49,7 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {recentProducts.length > 0 ? (
             recentProducts.map((product) => (
               <Card key={product.id} className="overflow-hidden shadow-sm hover:shadow transition-all">
@@ -68,28 +68,28 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
                   </div>
                 </div>
                 
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{product.name}</CardTitle>
-                  <CardDescription className="line-clamp-2">{product.description}</CardDescription>
+                <CardHeader className="p-3 sm:p-4 pb-2">
+                  <CardTitle className="text-base sm:text-lg">{product.name}</CardTitle>
+                  <CardDescription className="line-clamp-2 text-xs sm:text-sm">{product.description}</CardDescription>
                 </CardHeader>
                 
-                <CardContent className="pb-2">
+                <CardContent className="p-3 sm:p-4 pb-2">
                   <div className="space-y-2">
-                    <div className="text-sm font-medium">AI-Generated Ad Copy</div>
-                    <p className="text-sm text-muted-foreground line-clamp-3">{product.adCopy}</p>
+                    <div className="text-xs sm:text-sm font-medium">AI-Generated Ad Copy</div>
+                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3">{product.adCopy}</p>
                   </div>
                 </CardContent>
                 
-                <CardFooter className="flex justify-between pt-2 border-t">
-                  <div className="flex items-center text-xs text-muted-foreground">
+                <CardFooter className="flex flex-col sm:flex-row sm:justify-between gap-2 p-3 sm:p-4 pt-2 border-t">
+                  <div className="flex items-center text-xs text-muted-foreground self-start">
                     <Clock className="h-3 w-3 mr-1" />
                     Added {product.lastUpdated}
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 self-end sm:self-auto">
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="h-8 px-2"
+                      className="h-8 px-2 text-xs"
                       onClick={() => {
                         navigator.clipboard.writeText(product.adCopy);
                         toast({
@@ -104,7 +104,7 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      className="h-8 px-2"
+                      className="h-8 px-2 text-xs"
                       onClick={() => onViewProduct(product)}
                     >
                       <Eye className="h-3 w-3 mr-1" />
@@ -115,8 +115,8 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
               </Card>
             ))
           ) : (
-            <div className="col-span-3 text-center py-12">
-              <p className="text-muted-foreground mb-4">No products found. Add your first product to get started.</p>
+            <div className="col-span-full text-center py-12">
+              <p className="text-sm sm:text-base text-muted-foreground mb-4">No products found. Add your first product to get started.</p>
             </div>
           )}
         </div>

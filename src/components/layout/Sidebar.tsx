@@ -1,5 +1,5 @@
 
-import { Home, PieChart, AlertOctagon, LogOut, ChevronLeft, ChevronRight, BarChart, Settings as SettingsIcon, Package, Zap } from "lucide-react";
+import { Home, PieChart, AlertOctagon, LogOut, ChevronLeft, ChevronRight, BarChart, Settings as SettingsIcon, Package, Zap, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 export const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -25,47 +26,81 @@ export const Sidebar = () => {
   };
 
   return (
-    <div 
-      className={cn(
-        "min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900 border-r border-gray-700/50 dark:border-gray-800/50 transition-all duration-300 flex flex-col backdrop-blur-xl",
-        collapsed ? "w-20" : "w-72"
-      )}
-    >
-      {/* Header */}
-      <div className="p-6 flex items-center justify-between border-b border-gray-700/50 dark:border-gray-800/50">
-        {!collapsed && (
-          <div className="flex items-center space-x-3">
-            <div className="glow-effect">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
-                <Zap className="h-6 w-6 text-white" />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">
-                Chariot<span className="chariot-gradient-text">AI</span>
-              </h1>
-              <p className="text-xs text-gray-400 dark:text-gray-500">Marketing Platform</p>
-            </div>
-          </div>
-        )}
-        {collapsed && (
-          <div className="mx-auto">
-            <div className="glow-effect">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
-                <Zap className="h-6 w-6 text-white" />
-              </div>
-            </div>
-          </div>
-        )}
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50 transition-colors"
+    <>
+      {/* Mobile menu button */}
+      <div className="lg:hidden fixed top-4 left-4 z-50">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm"
         >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          <Menu className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black/50 z-40"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <div 
+        className={cn(
+          "fixed lg:static inset-y-0 left-0 z-40 min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900 border-r border-gray-700/50 dark:border-gray-800/50 transition-all duration-300 flex flex-col backdrop-blur-xl",
+          "transform lg:transform-none",
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+          collapsed ? "w-20" : "w-72"
+        )}
+      >
+        {/* Header */}
+        <div className="p-4 sm:p-6 flex items-center justify-between border-b border-gray-700/50 dark:border-gray-800/50">
+          {!collapsed && (
+            <div className="flex items-center space-x-3">
+              <div className="glow-effect">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
+                  <Zap className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-lg sm:text-xl font-bold text-white">
+                  Chariot<span className="chariot-gradient-text">AI</span>
+                </h1>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Marketing Platform</p>
+              </div>
+            </div>
+          )}
+          {collapsed && (
+            <div className="mx-auto">
+              <div className="glow-effect">
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
+                  <Zap className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => setCollapsed(!collapsed)}
+              className="hidden lg:flex text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50 transition-colors"
+            >
+              {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50 transition-colors"
+              onClick={() => setMobileOpen(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
 
       {/* Navigation */}
       <div className="flex-1 py-6">
@@ -73,11 +108,12 @@ export const Sidebar = () => {
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
-              <Link
+                <Link
                 key={item.path}
                 to={item.path}
+                onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden",
+                  "group flex items-center px-3 sm:px-4 py-2 sm:py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden",
                   isActive
                     ? "bg-gradient-to-r from-chariot-purple/20 to-chariot-accent/20 text-white border border-chariot-purple/30"
                     : "text-gray-300 dark:text-gray-400 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50"
@@ -144,7 +180,8 @@ export const Sidebar = () => {
           </div>
           {!collapsed && <span>Logout</span>}
         </Button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
