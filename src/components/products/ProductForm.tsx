@@ -36,48 +36,53 @@ const ProductForm = ({ onSubmit, loading, generating }: ProductFormProps) => {
 
   return (
     <Card className="shadow-sm h-fit">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg sm:text-xl">Add New Product</CardTitle>
-        <CardDescription className="text-sm">Get started by adding your product</CardDescription>
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl font-semibold">Add New Product</CardTitle>
+        <CardDescription>Get started by adding your product details</CardDescription>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="product-name" className="text-sm font-medium">Product Name</Label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-3">
+            <Label htmlFor="product-name" className="text-base font-medium">Product Name</Label>
             <Input 
               id="product-name"
               placeholder="e.g., Wireless Headphones"
               value={productName}
               onChange={(e) => setProductName(e.target.value)}
-              className="w-full"
+              className="w-full h-12 text-base"
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="product-details" className="text-sm font-medium">Product Description</Label>
+          <div className="space-y-3">
+            <Label htmlFor="product-details" className="text-base font-medium">Product Description</Label>
             <Textarea 
               id="product-details"
               placeholder="Describe your product's features and benefits"
               value={productDetails}
               onChange={(e) => setProductDetails(e.target.value)}
-              rows={3}
-              className="w-full resize-none"
+              rows={4}
+              className="w-full resize-none text-base leading-relaxed"
             />
-            <p className="text-xs text-muted-foreground">Our AI will analyze this to create targeted ads in Kenny Nwokoye's style</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">Our AI will analyze this to create targeted ads in Kenny Nwokoye's style</p>
           </div>
           
-          <Button type="submit" className="w-full min-h-[44px]" disabled={loading || generating}>
+          <Button 
+            type="submit" 
+            className="w-full h-12 text-base font-medium" 
+            disabled={loading || generating}
+            size="lg"
+          >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                <span className="text-sm sm:text-base">Adding Product...</span>
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <span>Adding Product...</span>
               </>
             ) : generating ? (
               <>
-                <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
-                <span className="text-sm sm:text-base">Generating Ad Content...</span>
+                <Sparkles className="mr-2 h-5 w-5 animate-pulse" />
+                <span>Generating Ad Content...</span>
               </>
-            ) : <span className="text-sm sm:text-base">Add Product</span>}
+            ) : <span>Add Product</span>}
           </Button>
         </form>
       </CardContent>

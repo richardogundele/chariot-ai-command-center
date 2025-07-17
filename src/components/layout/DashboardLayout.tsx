@@ -23,7 +23,7 @@ export const DashboardLayout = ({ children, className = "" }: DashboardLayoutPro
         </header>
         
         {/* Main Content */}
-        <main className={`flex-1 p-4 sm:p-6 overflow-auto ${className}`}>
+        <main className={`flex-1 p-4 lg:p-6 overflow-auto ${className}`}>
           {children}
         </main>
       </div>

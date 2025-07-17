@@ -37,9 +37,13 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h2 className="text-lg sm:text-xl font-bold">Recently Added Products</h2>
-        <Button variant="outline" size="sm" onClick={() => navigate("/saved-products")} className="self-start sm:self-auto">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-6">
+        <h2 className="text-xl font-semibold">Recently Added Products</h2>
+        <Button 
+          variant="outline" 
+          onClick={() => navigate("/saved-products")} 
+          className="self-start sm:self-auto h-10 px-4 text-base font-medium"
+        >
           View All Products
         </Button>
       </div>
@@ -49,10 +53,10 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {recentProducts.length > 0 ? (
             recentProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden shadow-sm hover:shadow transition-all">
+              <Card key={product.id} className="overflow-hidden shadow-sm hover:shadow-md transition-all duration-200">
                 <div className="relative">
                   <div className="aspect-video bg-muted overflow-hidden">
                     <Avatar className="w-full h-full rounded-none">
@@ -61,35 +65,34 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
                         alt={product.name} 
                         className="w-full h-full object-cover"
                       />
-                      <AvatarFallback className="w-full h-full rounded-none flex items-center justify-center text-muted-foreground bg-muted">
+                      <AvatarFallback className="w-full h-full rounded-none flex items-center justify-center text-muted-foreground bg-muted text-2xl font-semibold">
                         {product.name.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                   </div>
                 </div>
                 
-                <CardHeader className="p-3 sm:p-4 pb-2">
-                  <CardTitle className="text-base sm:text-lg">{product.name}</CardTitle>
-                  <CardDescription className="line-clamp-2 text-xs sm:text-sm">{product.description}</CardDescription>
+                <CardHeader className="p-4 pb-3">
+                  <CardTitle className="text-lg font-semibold leading-tight">{product.name}</CardTitle>
+                  <CardDescription className="line-clamp-2 text-sm leading-relaxed">{product.description}</CardDescription>
                 </CardHeader>
                 
-                <CardContent className="p-3 sm:p-4 pb-2">
-                  <div className="space-y-2">
-                    <div className="text-xs sm:text-sm font-medium">AI-Generated Ad Copy</div>
-                    <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3">{product.adCopy}</p>
+                <CardContent className="p-4 pb-3">
+                  <div className="space-y-3">
+                    <div className="text-sm font-medium">AI-Generated Ad Copy</div>
+                    <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">{product.adCopy}</p>
                   </div>
                 </CardContent>
                 
-                <CardFooter className="flex flex-col sm:flex-row sm:justify-between gap-2 p-3 sm:p-4 pt-2 border-t">
-                  <div className="flex items-center text-xs text-muted-foreground self-start">
-                    <Clock className="h-3 w-3 mr-1" />
+                <CardFooter className="flex flex-col gap-3 p-4 pt-3 border-t">
+                  <div className="flex items-center text-xs text-muted-foreground w-full">
+                    <Clock className="h-4 w-4 mr-2" />
                     Added {product.lastUpdated}
                   </div>
-                  <div className="flex gap-2 self-end sm:self-auto">
+                  <div className="flex gap-2 w-full">
                     <Button 
                       variant="ghost" 
-                      size="sm" 
-                      className="h-8 px-2 text-xs"
+                      className="flex-1 h-10 text-sm font-medium"
                       onClick={() => {
                         navigator.clipboard.writeText(product.adCopy);
                         toast({
@@ -98,16 +101,15 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
                         });
                       }}
                     >
-                      <Copy className="h-3 w-3 mr-1" />
+                      <Copy className="h-4 w-4 mr-2" />
                       Copy
                     </Button>
                     <Button 
                       variant="ghost" 
-                      size="sm" 
-                      className="h-8 px-2 text-xs"
+                      className="flex-1 h-10 text-sm font-medium"
                       onClick={() => onViewProduct(product)}
                     >
-                      <Eye className="h-3 w-3 mr-1" />
+                      <Eye className="h-4 w-4 mr-2" />
                       View
                     </Button>
                   </div>
@@ -115,8 +117,8 @@ const RecentProductsList = ({ onViewProduct }: RecentProductsListProps) => {
               </Card>
             ))
           ) : (
-            <div className="col-span-full text-center py-12">
-              <p className="text-sm sm:text-base text-muted-foreground mb-4">No products found. Add your first product to get started.</p>
+            <div className="col-span-full text-center py-16">
+              <p className="text-base text-muted-foreground mb-4 leading-relaxed">No products found. Add your first product to get started.</p>
             </div>
           )}
         </div>
