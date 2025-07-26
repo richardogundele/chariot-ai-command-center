@@ -1,64 +1,48 @@
 # Welcome to Chariot Project - a digital marketing platform (RESULT AS A SERVICE)
 
-## Project info
+## What is Chariot?
+Chariot is an AI-powered Result-as-a-Service platform that automates the full lifecycle of Facebook and Instagram ad campaigns. It generates ad creatives, launches campaigns, tracks performance, and delivers real marketing results with minimal input—so users can focus on outcomes, not the process.
 
-**URL**: https://lovable.dev/projects/39111ac5-5cff-49bc-902d-4dd9f47c86b3
+⚙️ How It Works
+User connects their Facebook ad account
 
-## How can I edit this code?
+Chariot generates ad copy and images using AI
 
-There are several ways of editing your application.
+The platform launches ads via the Meta Ads API
 
-**Use Lovable**
+Chariot monitors campaign performance in real time
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/39111ac5-5cff-49bc-902d-4dd9f47c86b3) and start prompting.
+Users receive alerts for results, budget status, and insights
 
-Changes made via Lovable will be committed automatically to this repo.
+🛠️ Setup Instructions
+Clone the repository:
 
-**Use your preferred IDE**
+bash
+Copy
+Edit
+git clone https://github.com/your-username/chariot-ai.git
+cd chariot-ai
+Install dependencies:
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+bash
+Copy
+Edit
+npm install
+Create a .env file and add the following:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+env
+Copy
+Edit
+OPENAI_API_KEY=your_openai_key
+FACEBOOK_ACCESS_TOKEN=your_user_access_token
+FACEBOOK_AD_ACCOUNT_ID=act_xxxxxxxxxxxxxx
+Start the development server:
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+bash
+Copy
+Edit
 npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Open your browser at http://localhost:3000 and test the flow!
 
 ## How can I deploy this project?
 
