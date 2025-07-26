@@ -1,4 +1,4 @@
-# Welcome to Chariot Project - a digital marketing platform (RESULT AS A SERVICE)
+# Chariot Project - a digital marketing platform (RESULT AS A SERVICE)
 
 ## What is Chariot?
 Chariot is an AI-powered Result-as-a-Service platform that automates the full lifecycle of Facebook and Instagram ad campaigns. It generates ad creatives, launches campaigns, tracks performance, and delivers real marketing results with minimal input—so users can focus on outcomes, not the process.
