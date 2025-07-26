@@ -30,26 +30,12 @@ Edit
 npm install
 Create a .env file and add the following:
 
-env
-Copy
-Edit
+
 OPENAI_API_KEY=your_openai_key
 FACEBOOK_ACCESS_TOKEN=your_user_access_token
 FACEBOOK_AD_ACCOUNT_ID=act_xxxxxxxxxxxxxx
-Start the development server:
 
-bash
-Copy
-Edit
+Start the development server:
 npm run dev
 Open your browser at http://localhost:3000 and test the flow!
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/39111ac5-5cff-49bc-902d-4dd9f47c86b3) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
