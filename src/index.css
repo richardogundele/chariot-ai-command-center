@@ -21,7 +21,7 @@
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted-foreground: 215.4 16.3% 44.9%; /* Improved contrast */
 
     --accent: 263 80% 75%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -62,7 +62,7 @@
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted-foreground: 215 20.2% 70.1%; /* Improved contrast for dark mode */
 
     --accent: 263 80% 75%;
     --accent-foreground: 210 40% 98%;
@@ -88,7 +88,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
+    @apply font-semibold text-foreground;
     line-height: 1.2;
   }
 
@@ -98,6 +98,24 @@
   h4 { @apply text-xl lg:text-2xl; }
   h5 { @apply text-lg lg:text-xl; }
   h6 { @apply text-base lg:text-lg; }
+
+  /* Ensure proper text contrast */
+  p, span, div {
+    @apply text-foreground;
+  }
+
+  /* Override any potential low-contrast text */
+  .text-gray-500 {
+    @apply text-muted-foreground;
+  }
+  
+  .text-gray-600 {
+    @apply text-muted-foreground;
+  }
+  
+  .text-gray-400 {
+    @apply text-muted-foreground;
+  }
 }
 
 @layer components {
@@ -112,97 +130,28 @@
   .chariot-pulse {
     @apply animate-pulse-slow;
   }
-
-  .chariot-fade-in {
-    @apply animate-fade-in;
+  
+  /* High contrast text utilities */
+  .text-high-contrast {
+    @apply text-foreground;
   }
   
-  .premium-gradient-bg {
-    background: linear-gradient(135deg, 
-      hsl(var(--primary)) 0%, 
-      hsl(var(--accent)) 25%, 
-      hsl(186, 100%, 50%) 50%, 
-      hsl(var(--accent)) 75%, 
-      hsl(var(--primary)) 100%);
-    background-size: 400% 400%;
-    animation: gradientShift 8s ease infinite;
+  .text-medium-contrast {
+    @apply text-muted-foreground;
   }
   
-  .glass-morphism {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20 shadow-2xl;
+  /* Fixed navbar specific styles */
+  .dashboard-header {
+    @apply fixed top-0 z-30 bg-background/90 backdrop-blur-xl border-b border-border shadow-sm;
   }
   
-  .neo-card {
-    @apply bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50;
-    box-shadow: 
-      0 25px 50px -12px rgba(0, 0, 0, 0.15),
-      0 0 0 1px rgba(255, 255, 255, 0.1) inset,
-      0 1px 0 rgba(255, 255, 255, 0.2) inset;
+  /* Ensure sidebar text is readable */
+  .sidebar-text {
+    @apply text-sidebar-foreground;
   }
   
-  .premium-button {
-    @apply relative overflow-hidden bg-gradient-to-r from-chariot-purple to-chariot-accent text-white font-semibold px-8 py-4 rounded-xl transition-all duration-300 hover:shadow-2xl hover:scale-105 active:scale-95;
-  }
-  
-  .premium-button::before {
-    content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-700;
-  }
-  
-  .premium-button:hover::before {
-    @apply translate-x-full;
-  }
-  
-  .metric-card {
-    @apply relative p-6 rounded-2xl border border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-br from-white via-white to-gray-50/50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800/50 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2;
-  }
-  
-  .metric-card::before {
-    content: '';
-    @apply absolute inset-0 rounded-2xl bg-gradient-to-br from-chariot-purple/5 to-chariot-accent/5 opacity-0 transition-opacity duration-500;
-  }
-  
-  .metric-card:hover::before {
-    @apply opacity-100;
-  }
-
-  .floating-animation {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .glow-effect {
-    @apply relative;
-  }
-
-  .glow-effect::before {
-    content: '';
-    @apply absolute -inset-1 bg-gradient-to-r from-chariot-purple to-chariot-accent rounded-xl blur-xl opacity-30 transition-opacity duration-500;
-  }
-
-  .glow-effect:hover::before {
-    @apply opacity-60;
-  }
-
-  .text-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.4) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
-  }
-
-  .aurora-bg {
-    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-    background-size: 400% 400%;
-    animation: aurora 15s ease infinite;
-  }
-
-  .sidebar-modern {
-    @apply bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800 border-r border-gray-700/50;
-    backdrop-filter: blur(20px);
+  .sidebar-text-muted {
+    @apply text-sidebar-foreground/70;
   }
 }
 

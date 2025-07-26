@@ -149,7 +149,7 @@ export const NotificationCenter: React.FC = () => {
       case 'performance_alert':
         return <TrendingUp className="h-4 w-4 text-orange-500" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-500" />;
+        return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 

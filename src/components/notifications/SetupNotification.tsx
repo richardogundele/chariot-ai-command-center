@@ -50,12 +50,12 @@ export function SetupNotification() {
     <div className="fixed bottom-4 right-4 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-4 z-50">
       <div className="flex justify-between items-start mb-2">
         <h3 className="font-semibold text-lg">Complete Your Setup</h3>
-        <button onClick={handleDismiss} className="text-gray-500 hover:text-gray-700">
+        <button onClick={handleDismiss} className="text-muted-foreground hover:text-foreground">
           <X className="h-5 w-5" />
         </button>
       </div>
       
-      <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+      <p className="text-sm text-muted-foreground mb-4">
         To get started with our AI-powered marketing tools, please complete your profile and add your API keys in the settings.
       </p>
       

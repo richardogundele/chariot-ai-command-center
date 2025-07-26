@@ -24,7 +24,7 @@ const PlatformConnections = () => {
             <CardHeader>
               <div className="flex items-center space-x-2">
                 <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
-                  <AlertTriangle className="h-5 w-5 text-gray-500" />
+                  <AlertTriangle className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
                   <CardTitle>Instagram</CardTitle>

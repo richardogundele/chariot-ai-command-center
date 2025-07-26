@@ -1,15 +1,24 @@
 
 import { Home, PieChart, AlertOctagon, LogOut, ChevronLeft, ChevronRight, BarChart, Settings as SettingsIcon, Package, Zap, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-export const Sidebar = () => {
+interface SidebarProps {
+  onCollapseChange?: (collapsed: boolean) => void;
+}
+
+export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+
+  // Notify parent component when collapse state changes
+  useEffect(() => {
+    onCollapseChange?.(collapsed);
+  }, [collapsed, onCollapseChange]);
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard", color: "from-blue-500 to-blue-600" },
