@@ -4,7 +4,8 @@
 Chariot is an AI-powered Result-as-a-Service platform that automates the full lifecycle of Facebook and Instagram ad campaigns. It generates ad creatives, launches campaigns, tracks performance, and delivers real marketing results with minimal input—so users can focus on outcomes, not the process.
 
 ⚙️ How It Works
-User connects their Facebook ad account
+
+User connects their Facebook/Instagram ad account
 
 Chariot generates ad copy and images using AI
 
