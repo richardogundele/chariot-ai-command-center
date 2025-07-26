@@ -15,15 +15,19 @@ Chariot monitors campaign performance in real time
 
 Users receive alerts for results, budget status, and insights
 
+
 🛠️ Setup Instructions
 Clone the repository:
 
 
 git clone https://github.com/your-username/chariot-ai.git
+
 cd chariot-ai
 
 Install dependencies:
+
 npm install
+
 Create a .env file and add the following:
 
 
@@ -32,6 +36,8 @@ FACEBOOK_ACCESS_TOKEN=your_user_access_token
 FACEBOOK_AD_ACCOUNT_ID=act_xxxxxxxxxxxxxx
 
 Start the development server:
+
 npm run dev
+
 Open your browser at http://localhost:3000 and test the flow!
 
