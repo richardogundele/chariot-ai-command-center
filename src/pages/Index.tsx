@@ -1,18 +1,45 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight, Zap, Target, TrendingUp, Star, Shield, Globe, Users, CheckCircle, Play, Quote, ChevronRight } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { ArrowRight, Zap, Target, TrendingUp, Star, Shield, Globe, Users, CheckCircle, Quote, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import Autoplay from "embla-carousel-autoplay";
+import heroImage1 from "@/assets/hero-carousel-1.jpg";
+import heroImage2 from "@/assets/hero-carousel-2.jpg";
+import heroImage3 from "@/assets/hero-carousel-3.jpg";
+import heroImage4 from "@/assets/hero-carousel-4.jpg";
+import heroImage5 from "@/assets/hero-carousel-5.jpg";
 
 const Index = () => {
+  const heroImages = [heroImage1, heroImage2, heroImage3, heroImage4, heroImage5];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Carousel Background */}
+        <Carousel
+          plugins={[Autoplay({ delay: 4000 })]}
+          className="absolute inset-0"
+          opts={{ loop: true }}
+        >
+          <CarouselContent>
+            {heroImages.map((image, index) => (
+              <CarouselItem key={index}>
+                <div 
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                  style={{ backgroundImage: `url(${image})` }}
+                >
+                  <div className="absolute inset-0 bg-black/60"></div>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </Carousel>
+        
         {/* Background Elements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-accent/5"></div>
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl floating-animation"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent/10 rounded-full blur-3xl floating-animation" style={{ animationDelay: '-3s' }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10"></div>
         
         <div className="relative z-10 container mx-auto px-4 text-center">
           <div className="mb-6">
@@ -35,17 +62,13 @@ const Index = () => {
             real business results without the complexity.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <div className="flex justify-center items-center mb-12">
             <Link to="/login">
               <Button size="lg" className="text-lg px-8 py-6 bg-primary text-primary-foreground hover:bg-primary/90">
                 Try it Free
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6">
-              <Play className="h-5 w-5 mr-2" />
-              Watch Demo
-            </Button>
           </div>
           
           <div className="flex flex-wrap justify-center gap-8 text-sm text-muted-foreground">
@@ -197,11 +220,11 @@ const Index = () => {
                 </p>
                 <div className="flex items-center">
                   <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
-                    SM
+                    KN
                   </div>
                   <div className="ml-4">
-                    <div className="font-semibold">Sarah Miller</div>
-                    <div className="text-sm text-muted-foreground">CEO, TechStart</div>
+                    <div className="font-semibold">Kenny Nwokoye</div>
+                    <div className="text-sm text-muted-foreground">Dubai Online Entrepreneur</div>
                   </div>
                 </div>
               </CardContent>
@@ -220,11 +243,11 @@ const Index = () => {
                 </p>
                 <div className="flex items-center">
                   <div className="h-12 w-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
-                    MJ
+                    OO
                   </div>
                   <div className="ml-4">
-                    <div className="font-semibold">Michael Johnson</div>
-                    <div className="text-sm text-muted-foreground">Marketing Director, GrowthCorp</div>
+                    <div className="font-semibold">Opeyemi Olutayo</div>
+                    <div className="text-sm text-muted-foreground">Senior Sales Coach</div>
                   </div>
                 </div>
               </CardContent>
@@ -243,11 +266,11 @@ const Index = () => {
                 </p>
                 <div className="flex items-center">
                   <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
-                    ER
+                    SA
                   </div>
                   <div className="ml-4">
-                    <div className="font-semibold">Emily Rodriguez</div>
-                    <div className="text-sm text-muted-foreground">Founder, EcomSuccess</div>
+                    <div className="font-semibold">Solomon Adebayo</div>
+                    <div className="text-sm text-muted-foreground">Marketing Data Analyst</div>
                   </div>
                 </div>
               </CardContent>
