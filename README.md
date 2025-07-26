@@ -17,16 +17,11 @@ Users receive alerts for results, budget status, and insights
 🛠️ Setup Instructions
 Clone the repository:
 
-bash
-Copy
-Edit
+
 git clone https://github.com/your-username/chariot-ai.git
 cd chariot-ai
-Install dependencies:
 
-bash
-Copy
-Edit
+Install dependencies:
 npm install
 Create a .env file and add the following:
 
