@@ -1,7 +1,7 @@
 # Chariot Project - a digital marketing platform (RESULT AS A SERVICE)
 
 ## What is Chariot?
-Chariot is an AI-powered Result-as-a-Service platform that automates the full lifecycle of Facebook and Instagram ad campaigns. It generates ad creatives, launches campaigns, tracks performance, and delivers real marketing results with minimal input—so users can focus on outcomes, not the process.
+Chariot is an AI-powered Result-as-a-Service platform that automates the full lifecycle of Facebook and Instagram ad campaigns. It generates ad creatives, launches campaigns, tracks performance, and delivers real marketing results with minimal input so users can focus on outcomes, not the process.
 
 ⚙️ How It Works
 
@@ -32,7 +32,9 @@ Create a .env file and add the following:
 
 
 OPENAI_API_KEY=your_openai_key
+
 FACEBOOK_ACCESS_TOKEN=your_user_access_token
+
 FACEBOOK_AD_ACCOUNT_ID=act_xxxxxxxxxxxxxx
 
 Start the development server:
