@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { AtSign, Github, KeyRound, Loader2, Lock, LogIn } from "lucide-react";
 import { signIn, signUp } from "@/services/supabaseService";
+import loginBg1 from "@/assets/login-bg-1.jpg";
+import loginBg2 from "@/assets/login-bg-2.jpg";
+import loginBg3 from "@/assets/login-bg-3.jpg";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,6 +21,18 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [currentBgIndex, setCurrentBgIndex] = useState(0);
+
+  const backgroundImages = [loginBg1, loginBg2, loginBg3];
+
+  // Change background every 4 minutes (240,000ms)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentBgIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
+    }, 240000);
+
+    return () => clearInterval(interval);
+  }, [backgroundImages.length]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,20 +109,31 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-background to-secondary p-4">
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold mb-2">
-          <span className="chariot-gradient-text">ChariotAI</span>
-        </h1>
-        <p className="text-muted-foreground">Your elite AI marketing team</p>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 blur-sm"
+          style={{ backgroundImage: `url(${backgroundImages[currentBgIndex]})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/60" />
       </div>
       
-      <Card className="w-full max-w-md animate-fade-in">
-        <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid grid-cols-2 w-full">
-            <TabsTrigger value="login">Login</TabsTrigger>
-            <TabsTrigger value="signup">Sign up</TabsTrigger>
-          </TabsList>
+      {/* Content */}
+      <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold mb-2">
+            <span className="bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">ChariotAI</span>
+          </h1>
+          <p className="text-gray-200">Your elite AI marketing team</p>
+        </div>
+        
+        <Card className="w-full max-w-md animate-fade-in bg-white/95 backdrop-blur-sm border-white/20">
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid grid-cols-2 w-full">
+              <TabsTrigger value="login">Login</TabsTrigger>
+              <TabsTrigger value="signup">Sign up</TabsTrigger>
+            </TabsList>
           
           <TabsContent value="login">
             <form onSubmit={handleLogin}>
@@ -305,6 +331,7 @@ const Login = () => {
           </TabsContent>
         </Tabs>
       </Card>
+      </div>
     </div>
   );
 };

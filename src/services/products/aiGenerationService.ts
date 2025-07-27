@@ -5,19 +5,32 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export async function generateAdCopy(productName: string, productDescription: string): Promise<string> {
   try {
-    // First, try to get the API key from the database
-    const { data: apiKeyData, error: apiKeyError } = await supabase
-      .from('api_keys')
-      .select('key_value')
-      .eq('key_name', 'openai_api_key')
-      .maybeSingle();
-
-    if (apiKeyError) {
-      console.error("Error fetching API key:", apiKeyError);
+    // Try to get the API key from Supabase secrets first (most secure)
+    let apiKey: string | null = null;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('get-openai-key');
+      if (!error && data?.apiKey) {
+        apiKey = data.apiKey;
+      }
+    } catch (error) {
+      console.log('Supabase secrets not available, trying database...');
     }
 
-    // If there's no API key in the database, try to get it from localStorage or env
-    const apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || import.meta.env.VITE_OPENAI_API_KEY;
+    // Fallback to database storage
+    if (!apiKey) {
+      const { data: apiKeyData, error: apiKeyError } = await supabase
+        .from('api_keys')
+        .select('key_value')
+        .eq('key_name', 'openai_api_key')
+        .maybeSingle();
+
+      if (apiKeyError) {
+        console.error("Error fetching API key:", apiKeyError);
+      }
+
+      apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || null;
+    }
 
     if (!apiKey) {
       console.warn("No OpenAI API key found");
@@ -89,19 +102,32 @@ export async function generateAdCopy(productName: string, productDescription: st
  */
 export async function generateProductImage(productName: string, productDescription: string): Promise<string> {
   try {
-    // First, try to get the API key from the database
-    const { data: apiKeyData, error: apiKeyError } = await supabase
-      .from('api_keys')
-      .select('key_value')
-      .eq('key_name', 'openai_api_key')
-      .maybeSingle();
-
-    if (apiKeyError) {
-      console.error("Error fetching API key:", apiKeyError);
+    // Try to get the API key from Supabase secrets first (most secure)
+    let apiKey: string | null = null;
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('get-openai-key');
+      if (!error && data?.apiKey) {
+        apiKey = data.apiKey;
+      }
+    } catch (error) {
+      console.log('Supabase secrets not available, trying database...');
     }
 
-    // If there's no API key in the database, try to get it from localStorage or env
-    const apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || import.meta.env.VITE_OPENAI_API_KEY;
+    // Fallback to database storage
+    if (!apiKey) {
+      const { data: apiKeyData, error: apiKeyError } = await supabase
+        .from('api_keys')
+        .select('key_value')
+        .eq('key_name', 'openai_api_key')
+        .maybeSingle();
+
+      if (apiKeyError) {
+        console.error("Error fetching API key:", apiKeyError);
+      }
+
+      apiKey = apiKeyData?.key_value || localStorage.getItem('openai_api_key') || null;
+    }
 
     if (!apiKey) {
       console.warn("No OpenAI API key found");

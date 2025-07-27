@@ -16,7 +16,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-black text-white dark">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/20">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -40,9 +40,11 @@ const Index = () => {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Carousel Background */}
         <Carousel
-          plugins={[Autoplay({ delay: 5000 })]}
           className="absolute inset-0"
-          opts={{ loop: true }}
+          opts={{ 
+            loop: true,
+            duration: 5000
+          }}
         >
           <CarouselContent>
             {heroImages.map((image, index) => (
@@ -96,10 +98,6 @@ const Index = () => {
                 <ArrowRight className="h-6 w-6 ml-3" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="text-xl px-10 py-8 border-2 border-white/30 text-white hover:bg-white/10 rounded-full backdrop-blur-sm">
-              <Play className="h-6 w-6 mr-3" />
-              Watch Demo
-            </Button>
           </div>
           
           <div className="flex flex-wrap justify-center gap-8 text-lg text-gray-300 animate-fade-in" style={{ animationDelay: '0.8s' }}>
@@ -404,11 +402,6 @@ const Index = () => {
                   <ArrowRight className="h-6 w-6 ml-3" />
                 </Button>
               </Link>
-              <Button variant="outline" size="lg" className="text-xl px-12 py-8 border-2 border-white/50 text-white hover:bg-white/10 rounded-full backdrop-blur-sm">
-                <Play className="h-6 w-6 mr-3" />
-                Watch Live Demo
-                <ChevronRight className="h-6 w-6 ml-3" />
-              </Button>
             </div>
             
             <div className="flex items-center justify-center gap-3 text-lg text-blue-100">
