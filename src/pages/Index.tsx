@@ -71,7 +71,7 @@ const Index = () => {
           <div className="mb-8 animate-fade-in">
             <span className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary/20 to-accent/20 border border-primary/30 text-sm font-medium text-white mb-8 backdrop-blur-sm">
               <Sparkles className="h-4 w-4" />
-              Result-as-a-Service AI Platform
+              Result-as-a-Service Agentic AI Platform
               <Award className="h-4 w-4" />
             </span>
           </div>
