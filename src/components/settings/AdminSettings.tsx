@@ -91,12 +91,31 @@ const MOCK_EMAILS = [
 const generateMockUsers = (): UserProfile[] => {
   const companies = ["TechCorp", "StartupLab", "MediaFlow", "DevStudio", "DataMine", "CloudServ", "AppForge", "WebCraft"];
   const jobTitles = ["Marketing Manager", "Founder", "CEO", "CMO", "Digital Marketer", "Growth Hacker", "Product Manager", "Business Owner"];
-  const names = ["John Smith", "Sarah Johnson", "Michael Brown", "Emma Davis", "James Wilson", "Olivia Garcia", "William Martinez", "Sophia Anderson"];
+  
+  // Actual names provided by the user
+  const actualNames = [
+    "Eniola Mustapha", "Anietebong Imoh", "Ebenezer Tomoye", "ADEOYE Mofeoluwa", "Richard Abiola Masika",
+    "Great Ibewuike", "Kayode Adewole", "Adeyemi Itunuoluwa", "Victor Aderibigbe", "GLORIA ONUGBO",
+    "Jeremiah Oluwasanmi", "Emeka Christabel", "Dolapo Adebo", "Daniel Joseph", "Adeleye Mercy",
+    "Baloges Yusuf", "Oluwatunmise Adenuyiwa", "Oyebakin Moyosola", "Olamoyegun Oluwakayode", "Queen Adaobi Nweze",
+    "Kelly Owoju", "Phiny Nona", "Remilekun Fasanya", "Abdussamad Ibrahim", "Adejare Adeyemiwa Oloru",
+    "Nectun Olaosalumi", "Oluwafunmi Daramola", "Blessing Egbenoma Edion", "Ajima", "Moshood Suleiman",
+    "Stanislaus Reuben-Dim", "Afolabi Emmanuel", "Abdulhafiz Ibrahim Adam", "Mac Sophia", "Wuraola Aliyu",
+    "Toluwalope Ogundele", "Ambrose Oladokun", "Favour", "Gloria Dove", "Muhammad Masud",
+    "Magdalene", "Florence Peter-Chigbata", "Priscilla Adewumi", "Sandra Ibili", "Osunmowese Okwun",
+    "Chioma Onioba", "Daniel Oladimeji", "Sunday Chinonso Ukwu", "Idris Sulaiman", "Suliyat Yetunde Olayiwola",
+    "Aliyu Olamide", "Doshy Steve", "Sam", "Daniel Francis", "Ubon Sonaya",
+    "Temitope Abisolaaeni", "Emmanuel Uzoma", "Emmanuel Gabriel", "Bunmi", "Goodness Ayodele",
+    "Alao Christianah Aanuola", "Tracy Landu", "Uwaila Sunday", "Ogbelade Olayinka", "ADESUYAN Oluwaloye Davi",
+    "Oladiran Abdulaualafi", "Samson", "Olaniyan Oluwapelumi", "Samson Sanni", "Damitare Olasinide",
+    "Akanimo Goodness Udoh", "Richie Diamond", "Ekene Paul", "ATILOLA ISRAEL WEALTH", "Richius Attah",
+    "Ronwa", "Dorcas Samuel Dikko", "Chincnya Vivian", "Olanrewaju Oke"
+  ];
   
   return MOCK_EMAILS.map((email, index) => ({
     user_id: `user_${index + 1}`,
     email,
-    full_name: names[index % names.length] + ` ${index + 1}`,
+    full_name: actualNames[index] || `User ${index + 1}`, // Use actual names or fallback
     company: companies[index % companies.length],
     job_title: jobTitles[index % jobTitles.length],
     phone: `+1${Math.floor(1000000000 + Math.random() * 9000000000)}`,
@@ -241,7 +260,6 @@ export const AdminSettings = () => {
     // Calculate metrics with more realistic numbers
     const newUsersThisWeek = users.filter(u => new Date(u.created_at) >= lastWeek).length;
     const activeCampaigns = campaigns.filter(c => c.status === 'active').length;
-    const totalSpend = campaigns.reduce((sum, c) => sum + (c.spent || 0), 0);
     const totalConversions = campaigns.reduce((sum, c) => sum + (c.conversions || 0), 0);
 
     const activity: ActivityData[] = [
@@ -259,7 +277,7 @@ export const AdminSettings = () => {
       },
       {
         metric: 'Total Ad Spend',
-        value: totalSpend,
+        value: 500,
         change: '+31.7%',
         color: 'hsl(var(--destructive))'
       },
@@ -388,15 +406,15 @@ export const AdminSettings = () => {
 
         <Card className="border-l-4 border-l-green-500">
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Total Ad Spend</CardTitle>
             <DollarSign className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(campaigns.reduce((sum, c) => sum + (c.spent || 0), 0))}
+              $500
             </div>
             <div className="text-xs text-green-600">
-              Ad spend tracked
+              Platform ad spend
             </div>
           </CardContent>
         </Card>

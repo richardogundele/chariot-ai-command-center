@@ -205,15 +205,6 @@ chariot-ai-command-center/
 3. Configure ad account permissions
 4. Add credentials to `.env` file
 
-### Supabase Configuration
-
-The project includes a pre-configured Supabase instance. For your own setup:
-
-1. Create project at [Supabase](https://supabase.com/)
-2. Update `src/integrations/supabase/client.ts`
-3. Run migrations: `npx supabase db push`
-
----
 
 ## 🎨 Features in Detail
 
@@ -235,33 +226,6 @@ The project includes a pre-configured Supabase instance. For your own setup:
 
 ---
 
-## 🚨 Troubleshooting
-
-### Common Issues
-
-**1. Development server won't start**
-```bash
-# Clear dependencies and reinstall
-rm -rf node_modules package-lock.json
-npm install
-npm run dev
-```
-
-**2. OpenAI API errors**
-- Verify API key is correct in `.env`
-- Check API usage limits and billing
-- Restart development server after adding keys
-
-**3. Supabase connection issues**
-- Check internet connection
-- Verify project URL and keys
-- Check Supabase service status
-
-**4. Facebook API errors**
-- Verify access token permissions
-- Check ad account access
-- Ensure app is not in development mode
-
 ### Getting Help
 
 - 📧 **Email**: support@chariot-ai.com
@@ -269,24 +233,6 @@ npm run dev
 - 📖 **Documentation**: [Full docs](https://docs.chariot-ai.com)
 
 ---
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Development Guidelines
-
-- Use TypeScript for all new code
-- Follow existing code style and conventions
-- Add tests for new features
-- Update documentation as needed
-
 ---
 
 ## 📄 License
@@ -301,7 +247,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Meta** for Ads API integration
 - **Supabase** for backend infrastructure
 - **Shadcn/ui** for beautiful components
-- **Kenny Nwokoye** for copywriting methodology
 
 ---
 
