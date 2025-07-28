@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getUserProfile } from "@/services/auth/userProfileService";
 
 interface SidebarProps {
   onCollapseChange?: (collapsed: boolean) => void;
@@ -12,6 +13,7 @@ interface SidebarProps {
 export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userFirstName, setUserFirstName] = useState<string>("User"); // Default fallback to "User"
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -19,6 +21,25 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
   useEffect(() => {
     onCollapseChange?.(collapsed);
   }, [collapsed, onCollapseChange]);
+
+  // Fetch user profile and extract first name
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const profile = await getUserProfile();
+        if (profile?.fullName) {
+          // Extract first name from full name (everything before the first space)
+          const firstName = profile.fullName.split(' ')[0];
+          setUserFirstName(firstName);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+        // Keep default "User" if there's an error
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const navItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard", color: "from-blue-500 to-blue-600" },
@@ -170,7 +191,7 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
               <span className="text-white font-semibold text-sm">U</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-medium text-sm truncate">Hi User</p>
+              <p className="text-white font-medium text-sm truncate">Hi {userFirstName}</p>
               <p className="text-gray-400 dark:text-gray-500 text-xs truncate">Welcome back</p>
             </div>
           </div>
