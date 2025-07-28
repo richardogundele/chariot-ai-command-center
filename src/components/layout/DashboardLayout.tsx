@@ -66,7 +66,7 @@ export const DashboardLayout = ({ children, className = "" }: DashboardLayoutPro
       
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${getMainContentMargin()}`}>
         {/* Fixed Header with dynamic positioning */}
-        <header className={`fixed top-0 right-0 ${getHeaderLeftPosition()} z-30 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 shadow-sm`}>
+        <header className={`fixed top-0 right-0 ${getHeaderLeftPosition()} z-40 bg-background/90 backdrop-blur-xl border-b border-border px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 shadow-sm`}>
           <div className="flex items-center justify-end gap-2 sm:gap-4">
             <NotificationCenter />
             <ThemeToggle />
@@ -84,13 +84,13 @@ export const DashboardLayout = ({ children, className = "" }: DashboardLayoutPro
         <Button
           onClick={scrollToTop}
           className={`
-            fixed bottom-6 right-6 z-40 
+            fixed bottom-6 right-6 z-50 
             h-12 w-12 rounded-full p-0 
-            bg-chariot-purple hover:bg-chariot-purple/90 
-            text-white shadow-lg hover:shadow-xl 
+            bg-primary hover:bg-primary/90 
+            text-primary-foreground shadow-lg hover:shadow-xl 
             transition-all duration-300 ease-in-out
             transform hover:scale-110
-            border-2 border-white/20
+            border-2 border-background/20
           `}
           aria-label="Scroll to top"
         >
