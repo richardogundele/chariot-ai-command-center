@@ -3,8 +3,21 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ApiKeySettings from "@/components/settings/ApiKeySettings";
 import AccountSettings from "@/components/settings/AccountSettings";
+import { AdminSettings } from "@/components/settings/AdminSettings";
+import { useEffect, useState } from "react";
+import { getCurrentUser } from "@/services/auth/authService";
 
 const Settings = () => {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminAccess = async () => {
+      const { user } = await getCurrentUser();
+      setIsAdmin(user?.email === "ogundelerichard27@gmail.com");
+    };
+    checkAdminAccess();
+  }, []);
+
   return (
     <DashboardLayout>
       <div className="mb-8">
@@ -17,6 +30,7 @@ const Settings = () => {
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="api-keys">API Keys</TabsTrigger>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          {isAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="account">
@@ -40,6 +54,12 @@ const Settings = () => {
             </div>
           </div>
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="admin">
+            <AdminSettings />
+          </TabsContent>
+        )}
       </Tabs>
     </DashboardLayout>
   );
