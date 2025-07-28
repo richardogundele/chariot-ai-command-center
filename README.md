@@ -29,7 +29,7 @@ Chariot is a **Result-as-a-Service** digital marketing platform that completely 
 ## ✨ Key Features
 
 ### 🤖 **AI-Powered Content Generation**
-- **Smart Ad Copy**: Kenny Nwokoye-style persuasive copywriting
+- **Smart Ad Copy**: persuasive copywriting
 - **3D Product Renders**: Professional product images using DALL-E 3
 - **Creative Optimization**: Automatic A/B testing and performance enhancement
 
