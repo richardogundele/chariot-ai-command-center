@@ -167,11 +167,11 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         {!collapsed && (
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800/50 dark:bg-gray-900/50">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">AI</span>
+              <span className="text-white font-semibold text-sm">U</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-medium text-sm truncate">AI Marketing</p>
-              <p className="text-gray-400 dark:text-gray-500 text-xs truncate">Active Campaign</p>
+              <p className="text-white font-medium text-sm truncate">Hi User</p>
+              <p className="text-gray-400 dark:text-gray-500 text-xs truncate">Welcome back</p>
             </div>
           </div>
         )}

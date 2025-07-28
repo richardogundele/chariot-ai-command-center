@@ -78,7 +78,7 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       {/* Enhanced Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 relative z-10">
         <div className="space-y-2">
           <h1 className="text-4xl font-bold chariot-gradient-text flex items-center gap-3">
             <Activity className="h-8 w-8 text-chariot-purple" />
@@ -87,7 +87,7 @@ const Dashboard = () => {
           <p className="text-muted-foreground text-lg">Real-time insights and performance analytics</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" onClick={handleRefresh} disabled={refreshing} className="premium-button bg-white border-2 border-chariot-purple/20 text-chariot-purple hover:bg-chariot-purple hover:text-white">
+          <Button variant="outline" onClick={handleRefresh} disabled={refreshing} className="premium-button bg-white border-2 border-chariot-purple/20 text-chariot-purple hover:bg-chariot-purple hover:text-white shadow-lg z-20 relative">
             {refreshing ? (
               <>
                 <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
@@ -100,7 +100,7 @@ const Dashboard = () => {
               </>
             )}
           </Button>
-          <Button onClick={handleAddProduct} className="premium-button">
+          <Button onClick={handleAddProduct} className="premium-button shadow-lg z-20 relative">
             <Plus className="h-4 w-4 mr-2" />
             Add Product
           </Button>
