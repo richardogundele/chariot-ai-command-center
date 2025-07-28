@@ -86,8 +86,8 @@ const Dashboard = () => {
           </h1>
           <p className="text-muted-foreground text-lg">Real-time insights and performance analytics</p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={handleRefresh} disabled={refreshing} className="premium-button bg-white border-2 border-chariot-purple/20 text-chariot-purple hover:bg-chariot-purple hover:text-white shadow-lg z-20 relative">
+        <div className="flex gap-3 relative z-50">
+          <Button variant="outline" onClick={handleRefresh} disabled={refreshing} className="premium-button bg-white border-2 border-chariot-purple/20 text-chariot-purple hover:bg-chariot-purple hover:text-white shadow-lg">
             {refreshing ? (
               <>
                 <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
@@ -100,7 +100,7 @@ const Dashboard = () => {
               </>
             )}
           </Button>
-          <Button onClick={handleAddProduct} className="premium-button shadow-lg z-20 relative">
+          <Button onClick={handleAddProduct} className="premium-button shadow-lg">
             <Plus className="h-4 w-4 mr-2" />
             Add Product
           </Button>
