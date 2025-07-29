@@ -2,10 +2,18 @@
 import { supabase } from "@/integrations/supabase/client";
 
 // Authentication functions
-export async function signUp(email: string, password: string): Promise<{ user: any; error: any }> {
+export async function signUp(email: string, password: string, fullName?: string): Promise<{ user: any; error: any }> {
+  const redirectUrl = `${window.location.origin}/dashboard`;
+  
   const { data, error } = await supabase.auth.signUp({ 
     email, 
-    password 
+    password,
+    options: {
+      emailRedirectTo: redirectUrl,
+      data: {
+        full_name: fullName || ''
+      }
+    }
   });
   
   return { 

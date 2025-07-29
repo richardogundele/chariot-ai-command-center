@@ -79,16 +79,14 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const { user, error } = await signUp(email, password);
+      const fullName = `${firstName} ${lastName}`;
+      const { user, error } = await signUp(email, password, fullName);
       
       if (error) {
         throw error;
       }
       
       if (user) {
-        // Store name for profile setup
-        localStorage.setItem("userName", `${firstName} ${lastName}`);
-        
         toast({
           title: "Account created",
           description: "Your account has been created successfully.",
