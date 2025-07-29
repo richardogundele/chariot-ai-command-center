@@ -120,15 +120,11 @@
 
 @layer components {
   .chariot-gradient-text {
-    @apply bg-gradient-to-r from-chariot-purple via-chariot-accent to-chariot-teal bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-purple-600 via-blue-500 to-teal-400 bg-clip-text text-transparent;
   }
   
   .chariot-card {
-    @apply bg-white/90 dark:bg-chariot-navy/90 backdrop-blur-sm border border-white/20 dark:border-white/10 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1;
-  }
-
-  .chariot-pulse {
-    @apply animate-pulse-slow;
+    @apply bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm border border-white/20 dark:border-white/10 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-1;
   }
   
   /* Enhanced metric cards */
@@ -140,8 +136,16 @@
   /* Premium button styles */
   .premium-button {
     @apply relative overflow-hidden;
-    @apply before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent;
-    @apply before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700;
+  }
+  
+  .premium-button::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent;
+    @apply translate-x-[-100%] transition-transform duration-700;
+  }
+  
+  .premium-button:hover::before {
+    @apply translate-x-[100%];
   }
   
   /* Neo-morphic card style */
@@ -160,8 +164,8 @@
   }
   
   .glow-effect::before {
-    @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300;
     content: '';
+    @apply absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300;
     background: radial-gradient(circle at center, rgba(167, 139, 250, 0.3), transparent 70%);
     filter: blur(10px);
     z-index: -1;
@@ -173,19 +177,14 @@
   
   /* Focus styles for better accessibility */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-chariot-purple/50 focus:ring-offset-2 focus:ring-offset-background;
+    @apply focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:ring-offset-2 focus:ring-offset-background;
   }
   
   /* Loading skeleton improvements */
   .skeleton {
-    @apply bg-gradient-to-r from-muted via-muted/50 to-muted animate-pulse;
+    @apply bg-gradient-to-r from-muted via-muted/50 to-muted;
     background-size: 200% 100%;
     animation: skeleton-loading 1.5s ease-in-out infinite;
-  }
-  
-  @keyframes skeleton-loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
   }
   
   /* High contrast text utilities */
@@ -222,7 +221,7 @@
   
   .form-input {
     @apply w-full px-3 py-2 border border-input bg-background rounded-md;
-    @apply focus:outline-none focus:ring-2 focus:ring-chariot-purple/50 focus:border-chariot-purple/50;
+    @apply focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50;
     @apply transition-colors duration-200;
   }
   
@@ -251,19 +250,12 @@
   .heading-sm {
     @apply text-lg sm:text-xl font-medium;
   }
-  
-  /* Animation utilities */
-  .fade-in {
-    @apply animate-in fade-in duration-500;
-  }
-  
-  .slide-up {
-    @apply animate-in slide-in-from-bottom-4 duration-700;
-  }
-  
-  .scale-in {
-    @apply animate-in zoom-in-95 duration-300;
-  }
+}
+
+/* Custom keyframes - only define ones not in Tailwind config */
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes gradientShift {
@@ -286,16 +278,6 @@
   25% { background-position: 100% 0%; }
   50% { background-position: 100% 100%; }
   75% { background-position: 0% 100%; }
-}
-
-@keyframes pulse-slow {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.02); }
-}
-
-@keyframes fade-in {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slide-up {
