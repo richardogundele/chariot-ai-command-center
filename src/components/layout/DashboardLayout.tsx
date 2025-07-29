@@ -66,8 +66,8 @@ export const DashboardLayout = ({ children, className = "" }: DashboardLayoutPro
       
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${getMainContentMargin()}`}>
         {/* Fixed Header with dynamic positioning */}
-        <header className={`fixed top-0 right-0 ${getHeaderLeftPosition()} z-40 bg-background/90 backdrop-blur-xl border-b border-border px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 shadow-sm`}>
-          <div className="flex items-center justify-end gap-2 sm:gap-4">
+        <header className={`fixed top-0 right-0 ${getHeaderLeftPosition()} z-40 bg-background/90 backdrop-blur-xl border-b border-border px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 shadow-sm pointer-events-none`}>
+          <div className="flex items-center justify-end gap-2 sm:gap-4 pointer-events-auto">
             <NotificationCenter />
             <ThemeToggle />
           </div>

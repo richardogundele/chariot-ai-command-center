@@ -27,7 +27,16 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        // First try to get user from Supabase auth
+        // First priority: Get from user_profiles table (most reliable - contains actual registration data)
+        const profile = await getUserProfile();
+        if (profile?.fullName && profile.fullName.trim()) {
+          // Extract first name from full name (everything before the first space)
+          const firstName = profile.fullName.split(' ')[0];
+          setUserFirstName(firstName);
+          return; // Exit early if we found the name
+        }
+
+        // Second priority: Try to get user from Supabase auth metadata
         const { user } = await getCurrentUser();
         
         if (user && user.user_metadata && user.user_metadata.full_name) {
@@ -36,17 +45,10 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
           const firstName = fullName.split(' ')[0];
           setUserFirstName(firstName);
         } else if (user && user.email) {
-          // Fallback to email username if no full name in metadata
+          // Final fallback: email username (only if no other data available)
           const emailUsername = user.email.split('@')[0];
-          setUserFirstName(emailUsername);
-        } else {
-          // Try to get from user_profiles table as final fallback
-          const profile = await getUserProfile();
-          if (profile?.fullName) {
-            // Extract first name from full name (everything before the first space)
-            const firstName = profile.fullName.split(' ')[0];
-            setUserFirstName(firstName);
-          }
+          const capitalizedName = emailUsername.charAt(0).toUpperCase() + emailUsername.slice(1);
+          setUserFirstName(capitalizedName);
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);

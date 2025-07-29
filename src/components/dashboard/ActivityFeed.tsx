@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "@/services/auth/authService";
 import { fetchRecentActivity } from "@/services/dashboard/dashboardService";
+import { getUserProfile } from "@/services/auth/userProfileService";
 
 interface ActivityItem {
   id: number;
@@ -29,27 +30,51 @@ export const ActivityFeed = () => {
           fetchRecentActivity()
         ]);
 
-        // Set user name with improved fallback logic
-        const { user } = userResponse;
-        if (user && user.user_metadata && user.user_metadata.full_name) {
-          // First priority: full name from user metadata
-          const fullName = user.user_metadata.full_name as string;
-          const firstName = fullName.split(' ')[0];
-          setUserFirstName(firstName);
-        } else if (user && user.user_metadata && user.user_metadata.name) {
-          // Second priority: name field from user metadata
-          const name = user.user_metadata.name as string;
-          const firstName = name.split(' ')[0];
-          setUserFirstName(firstName);
-        } else if (user && user.email) {
-          // Third priority: extract from email
-          const emailUsername = user.email.split('@')[0];
-          // Capitalize first letter for better presentation
-          const capitalizedName = emailUsername.charAt(0).toUpperCase() + emailUsername.slice(1);
-          setUserFirstName(capitalizedName);
-        } else {
-          // Fallback to generic name
-          setUserFirstName("User");
+        // Set user name with corrected priority order
+        // First priority: Get from user_profiles table (contains actual registration data)
+        try {
+          const profile = await getUserProfile();
+          if (profile?.fullName && profile.fullName.trim()) {
+            const firstName = profile.fullName.split(' ')[0];
+            setUserFirstName(firstName);
+          } else {
+            // Fallback to auth metadata if profile data not available
+            const { user } = userResponse;
+            if (user && user.user_metadata && user.user_metadata.full_name) {
+              // Second priority: full name from user metadata
+              const fullName = user.user_metadata.full_name as string;
+              const firstName = fullName.split(' ')[0];
+              setUserFirstName(firstName);
+            } else if (user && user.user_metadata && user.user_metadata.name) {
+              // Third priority: name field from user metadata
+              const name = user.user_metadata.name as string;
+              const firstName = name.split(' ')[0];
+              setUserFirstName(firstName);
+            } else if (user && user.email) {
+              // Final fallback: extract from email
+              const emailUsername = user.email.split('@')[0];
+              // Capitalize first letter for better presentation
+              const capitalizedName = emailUsername.charAt(0).toUpperCase() + emailUsername.slice(1);
+              setUserFirstName(capitalizedName);
+            } else {
+              // Ultimate fallback
+              setUserFirstName("User");
+            }
+          }
+        } catch (profileError) {
+          // If profile fetch fails, fall back to auth metadata
+          const { user } = userResponse;
+          if (user && user.user_metadata && user.user_metadata.full_name) {
+            const fullName = user.user_metadata.full_name as string;
+            const firstName = fullName.split(' ')[0];
+            setUserFirstName(firstName);
+          } else if (user && user.email) {
+            const emailUsername = user.email.split('@')[0];
+            const capitalizedName = emailUsername.charAt(0).toUpperCase() + emailUsername.slice(1);
+            setUserFirstName(capitalizedName);
+          } else {
+            setUserFirstName("User");
+          }
         }
 
         // Generate activities from real data
