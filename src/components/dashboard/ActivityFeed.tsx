@@ -29,14 +29,27 @@ export const ActivityFeed = () => {
           fetchRecentActivity()
         ]);
 
-        // Set user name
+        // Set user name with improved fallback logic
         const { user } = userResponse;
         if (user && user.user_metadata && user.user_metadata.full_name) {
+          // First priority: full name from user metadata
           const fullName = user.user_metadata.full_name as string;
           const firstName = fullName.split(' ')[0];
           setUserFirstName(firstName);
+        } else if (user && user.user_metadata && user.user_metadata.name) {
+          // Second priority: name field from user metadata
+          const name = user.user_metadata.name as string;
+          const firstName = name.split(' ')[0];
+          setUserFirstName(firstName);
         } else if (user && user.email) {
-          setUserFirstName(user.email.split('@')[0]);
+          // Third priority: extract from email
+          const emailUsername = user.email.split('@')[0];
+          // Capitalize first letter for better presentation
+          const capitalizedName = emailUsername.charAt(0).toUpperCase() + emailUsername.slice(1);
+          setUserFirstName(capitalizedName);
+        } else {
+          // Fallback to generic name
+          setUserFirstName("User");
         }
 
         // Generate activities from real data

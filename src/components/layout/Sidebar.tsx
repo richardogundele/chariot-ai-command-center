@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getUserProfile } from "@/services/auth/userProfileService";
+import { getCurrentUser } from "@/services/auth/authService";
 
 interface SidebarProps {
   onCollapseChange?: (collapsed: boolean) => void;
@@ -26,11 +27,26 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const profile = await getUserProfile();
-        if (profile?.fullName) {
-          // Extract first name from full name (everything before the first space)
-          const firstName = profile.fullName.split(' ')[0];
+        // First try to get user from Supabase auth
+        const { user } = await getCurrentUser();
+        
+        if (user && user.user_metadata && user.user_metadata.full_name) {
+          // Extract first name from full name in user metadata
+          const fullName = user.user_metadata.full_name as string;
+          const firstName = fullName.split(' ')[0];
           setUserFirstName(firstName);
+        } else if (user && user.email) {
+          // Fallback to email username if no full name in metadata
+          const emailUsername = user.email.split('@')[0];
+          setUserFirstName(emailUsername);
+        } else {
+          // Try to get from user_profiles table as final fallback
+          const profile = await getUserProfile();
+          if (profile?.fullName) {
+            // Extract first name from full name (everything before the first space)
+            const firstName = profile.fullName.split(' ')[0];
+            setUserFirstName(firstName);
+          }
         }
       } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -188,7 +204,7 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         {!collapsed && (
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800/50 dark:bg-gray-900/50">
             <div className="h-10 w-10 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
-              <span className="text-white font-semibold text-sm">U</span>
+              <span className="text-white font-semibold text-sm">{userFirstName.charAt(0).toUpperCase()}</span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-white font-medium text-sm truncate">Hi {userFirstName}</p>
