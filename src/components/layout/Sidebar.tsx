@@ -27,29 +27,53 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        // First priority: Get from user_profiles table (most reliable - contains actual registration data)
-        const profile = await getUserProfile();
-        if (profile?.fullName && profile.fullName.trim()) {
-          // Extract first name from full name (everything before the first space)
-          const firstName = profile.fullName.split(' ')[0];
-          setUserFirstName(firstName);
-          return; // Exit early if we found the name
-        }
-
-        // Second priority: Try to get user from Supabase auth metadata
+        // Get current user first to check all available data
         const { user } = await getCurrentUser();
         
-        if (user && user.user_metadata && user.user_metadata.full_name) {
-          // Extract first name from full name in user metadata
-          const fullName = user.user_metadata.full_name as string;
-          const firstName = fullName.split(' ')[0];
-          setUserFirstName(firstName);
-        } else if (user && user.email) {
-          // Final fallback: email username (only if no other data available)
-          const emailUsername = user.email.split('@')[0];
-          const capitalizedName = emailUsername.charAt(0).toUpperCase() + emailUsername.slice(1);
-          setUserFirstName(capitalizedName);
+        if (!user) {
+          return;
         }
+
+        let firstName = null;
+
+        // Strategy 1: Check user_profiles table (created by database trigger)
+        try {
+          const profile = await getUserProfile();
+          
+          if (profile?.fullName && profile.fullName.trim()) {
+            firstName = profile.fullName.split(' ')[0];
+          }
+        } catch (profileError) {
+          console.warn("Profile fetch failed:", profileError);
+        }
+
+        // Strategy 2: Check user_metadata.full_name (from registration)
+        if (!firstName && user.user_metadata?.full_name) {
+          firstName = String(user.user_metadata.full_name).split(' ')[0];
+        }
+
+        // Strategy 3: Check user_metadata.name (alternative field)  
+        if (!firstName && user.user_metadata?.name) {
+          firstName = String(user.user_metadata.name).split(' ')[0];
+        }
+
+        // Strategy 4: Check user_metadata.first_name (if it exists)
+        if (!firstName && user.user_metadata?.first_name) {
+          firstName = String(user.user_metadata.first_name);
+        }
+
+        // Strategy 5: Extract from email as last resort
+        if (!firstName && user.email) {
+          const emailPart = user.email.split('@')[0];
+          // Clean up email username and capitalize
+          firstName = emailPart.charAt(0).toUpperCase() + emailPart.slice(1);
+        }
+
+        // Apply the name if we found one
+        if (firstName && firstName.trim()) {
+          setUserFirstName(firstName.trim());
+        }
+
       } catch (error) {
         console.error("Error fetching user profile:", error);
         // Keep default "User" if there's an error
@@ -152,7 +176,7 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
 
       {/* Navigation */}
       <div className="flex-1 py-6">
-        <nav className="space-y-2 px-4">
+        <nav className="space-y-3 px-4" role="navigation" aria-label="Main navigation">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
@@ -161,18 +185,20 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 to={item.path}
                 onClick={() => setMobileOpen(false)}
                 className={cn(
-                  "group flex items-center px-3 sm:px-4 py-2 sm:py-3 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden",
+                  "group flex items-center px-4 py-3.5 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden border border-transparent",
+                  "focus:outline-none focus:ring-2 focus:ring-chariot-purple/50 focus:border-chariot-purple/30 focus-visible:ring-2",
                   isActive
-                    ? "bg-gradient-to-r from-chariot-purple/20 to-chariot-accent/20 text-white border border-chariot-purple/30"
-                    : "text-gray-300 dark:text-gray-400 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50"
+                    ? "bg-gradient-to-r from-chariot-purple/20 to-chariot-accent/20 text-white border-chariot-purple/30 shadow-lg"
+                    : "text-gray-300 dark:text-gray-400 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50 hover:border-gray-700/50"
                 )}
+                aria-current={isActive ? "page" : undefined}
               >
                 {/* Icon with gradient background */}
                 <div className={cn(
-                  "flex items-center justify-center w-8 h-8 rounded-lg mr-3 transition-all duration-300",
+                  "flex items-center justify-center w-9 h-9 rounded-lg mr-4 transition-all duration-300 flex-shrink-0",
                   isActive 
-                    ? `bg-gradient-to-br ${item.color} shadow-lg` 
-                    : "bg-gray-700/50 dark:bg-gray-800/50 group-hover:bg-gray-600/50 dark:group-hover:bg-gray-700/50"
+                    ? `bg-gradient-to-br ${item.color} shadow-lg scale-105` 
+                    : "bg-gray-700/50 dark:bg-gray-800/50 group-hover:bg-gray-600/50 dark:group-hover:bg-gray-700/50 group-hover:scale-105"
                 )}>
                   <item.icon className={cn(
                     "h-4 w-4 transition-colors duration-300",
@@ -181,12 +207,12 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 </div>
                 
                 {!collapsed && (
-                  <span className="transition-all duration-300">{item.label}</span>
+                  <span className="transition-all duration-300 flex-1 min-w-0 truncate">{item.label}</span>
                 )}
                 
                 {/* Active indicator */}
-                {isActive && (
-                  <div className="absolute right-2 w-2 h-2 rounded-full bg-chariot-accent"></div>
+                {isActive && !collapsed && (
+                  <div className="w-2 h-2 rounded-full bg-chariot-accent shadow-sm animate-pulse flex-shrink-0"></div>
                 )}
                 
                 {/* Hover effect */}
@@ -204,13 +230,23 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
       <div className="p-4 border-t border-gray-700/50 dark:border-gray-800/50 space-y-4">
         {/* User Info (when expanded) */}
         {!collapsed && (
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-800/50 dark:bg-gray-900/50">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
+          <div className="flex items-center gap-3 px-4 py-4 rounded-xl bg-gradient-to-r from-gray-800/60 to-gray-800/40 dark:from-gray-900/60 dark:to-gray-900/40 border border-gray-700/30 backdrop-blur-sm">
+            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-chariot-purple/20">
               <span className="text-white font-semibold text-sm">{userFirstName.charAt(0).toUpperCase()}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-medium text-sm truncate">Hi {userFirstName}</p>
+              <p className="text-white font-medium text-sm truncate">Hi {userFirstName} 👋</p>
               <p className="text-gray-400 dark:text-gray-500 text-xs truncate">Welcome back</p>
+            </div>
+            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" title="Online"></div>
+          </div>
+        )}
+        
+        {/* Collapsed user avatar */}
+        {collapsed && (
+          <div className="flex justify-center">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center shadow-lg ring-2 ring-chariot-purple/20">
+              <span className="text-white font-semibold text-sm">{userFirstName.charAt(0).toUpperCase()}</span>
             </div>
           </div>
         )}
@@ -218,15 +254,17 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         <Button 
           variant="ghost" 
           className={cn(
-            "w-full justify-start text-gray-300 dark:text-gray-400 hover:text-white hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-300",
+            "w-full justify-start text-gray-300 dark:text-gray-400 hover:text-white hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-300 min-h-[44px] rounded-xl",
+            "focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/30",
             collapsed && "justify-center px-0"
           )}
           onClick={handleLogout}
+          aria-label="Logout"
         >
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10 mr-3 group-hover:bg-red-500/20 transition-colors duration-300">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10 mr-3 group-hover:bg-red-500/20 transition-colors duration-300 flex-shrink-0">
             <LogOut className="h-4 w-4" />
           </div>
-          {!collapsed && <span>Logout</span>}
+          {!collapsed && <span className="font-medium">Logout</span>}
         </Button>
         </div>
       </div>

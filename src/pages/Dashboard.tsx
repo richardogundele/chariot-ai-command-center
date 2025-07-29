@@ -78,16 +78,21 @@ const Dashboard = () => {
   return (
     <DashboardLayout>
       {/* Enhanced Header */}
-      <div className="flex items-center justify-between mb-8 relative z-10">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-8 relative z-10">
         <div className="space-y-2">
-          <h1 className="text-4xl font-bold chariot-gradient-text flex items-center gap-3">
-            <Activity className="h-8 w-8 text-chariot-purple" />
-            Campaign Dashboard
+          <h1 className="text-3xl sm:text-4xl font-bold chariot-gradient-text flex items-center gap-3">
+            <Activity className="h-7 w-7 sm:h-8 sm:w-8 text-chariot-purple" />
+            <span className="leading-tight">Campaign Dashboard</span>
           </h1>
-          <p className="text-muted-foreground text-lg">Real-time insights and performance analytics</p>
+          <p className="text-muted-foreground text-base sm:text-lg">Real-time insights and performance analytics</p>
         </div>
-        <div className="flex gap-3 relative z-50">
-          <Button variant="outline" onClick={handleRefresh} disabled={refreshing} className="premium-button bg-white border-2 border-chariot-purple/20 text-chariot-purple hover:bg-chariot-purple hover:text-white shadow-lg">
+        <div className="flex flex-col sm:flex-row gap-3 relative z-50 w-full sm:w-auto">
+          <Button 
+            variant="outline" 
+            onClick={handleRefresh} 
+            disabled={refreshing} 
+            className="premium-button bg-white border-2 border-chariot-purple/20 text-chariot-purple hover:bg-chariot-purple hover:text-white shadow-lg w-full sm:w-auto min-h-[44px] text-sm font-medium"
+          >
             {refreshing ? (
               <>
                 <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
@@ -96,11 +101,14 @@ const Dashboard = () => {
             ) : (
               <>
                 <RefreshCcw className="h-4 w-4 mr-2" />
-                Refresh
+                Refresh Data
               </>
             )}
           </Button>
-          <Button onClick={handleAddProduct} className="premium-button shadow-lg">
+          <Button 
+            onClick={handleAddProduct} 
+            className="premium-button shadow-lg w-full sm:w-auto min-h-[44px] text-sm font-medium"
+          >
             <Plus className="h-4 w-4 mr-2" />
             Add Product
           </Button>
@@ -108,40 +116,52 @@ const Dashboard = () => {
       </div>
 
       {/* Enhanced KPI Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="metric-card overflow-hidden group">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8" role="region" aria-labelledby="metrics-heading">
+        <h2 id="metrics-heading" className="sr-only">Key Performance Metrics</h2>
+        
+        <Card className="metric-card overflow-hidden group hover:shadow-xl transition-all duration-300" role="article" aria-labelledby="revenue-metric">
           <CardContent className="p-6 relative">
             <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-sm font-medium text-primary mb-1">Total Revenue</p>
-                <h2 className="text-3xl font-bold text-foreground">
-                  {loading ? "..." : `$${metrics?.totalRevenue.toLocaleString() || "123,000"}`}
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-2" id="revenue-metric">Total Revenue</p>
+                <h2 className="text-3xl font-bold text-foreground leading-none" aria-describedby="revenue-metric">
+                  {loading ? (
+                    <div className="h-9 bg-muted animate-pulse rounded-md w-24" aria-label="Loading revenue data"></div>
+                  ) : (
+                    <span aria-label={`Total revenue: ${metrics?.totalRevenue ? `$${metrics.totalRevenue.toLocaleString()}` : "$0"}`}>
+                      ${metrics?.totalRevenue.toLocaleString() || "0"}
+                    </span>
+                  )}
                 </h2>
               </div>
-              <div className="glow-effect">
+              <div className="glow-effect" aria-hidden="true">
                 <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <DollarSign className="h-6 w-6 text-white" />
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
-                <div className="flex items-center text-green-600 text-sm font-semibold bg-green-50 px-2 py-1 rounded-full">
-                <ArrowUp className="h-3 w-3 mr-1" />
+              <div className="flex items-center text-green-600 text-sm font-semibold bg-green-50 dark:bg-green-950/30 px-2 py-1 rounded-full" aria-label={`Revenue increased by ${metrics?.revenueChange?.toFixed(1) || "0"}% compared to last month`}>
+                <ArrowUp className="h-3 w-3 mr-1" aria-hidden="true" />
                 {loading ? "..." : `${metrics?.revenueChange.toFixed(1) || "0"}%`}
               </div>
-              <span className="text-xs text-muted-foreground">vs. last month</span>
+              <span className="text-xs text-muted-foreground" aria-hidden="true">vs. last month</span>
             </div>
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500" aria-hidden="true"></div>
           </CardContent>
         </Card>
 
-        <Card className="metric-card overflow-hidden group">
+        <Card className="metric-card overflow-hidden group hover:shadow-xl transition-all duration-300">
           <CardContent className="p-6 relative">
             <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">ROAS</p>
-                <h2 className="text-3xl font-bold text-foreground">
-                  {loading ? "..." : `${metrics?.averageRoas.toFixed(1) || "0"}x`}
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-2">ROAS</p>
+                <h2 className="text-3xl font-bold text-foreground leading-none">
+                  {loading ? (
+                    <div className="h-9 bg-muted animate-pulse rounded-md w-16"></div>
+                  ) : (
+                    `${metrics?.averageRoas.toFixed(1) || "0.0"}x`
+                  )}
                 </h2>
               </div>
               <div className="glow-effect">
@@ -151,7 +171,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center text-green-600 text-sm font-semibold bg-green-50 px-2 py-1 rounded-full">
+              <div className="flex items-center text-green-600 text-sm font-semibold bg-green-50 dark:bg-green-950/30 px-2 py-1 rounded-full">
                 <ArrowUp className="h-3 w-3 mr-1" />
                 0.4x
               </div>
@@ -161,13 +181,17 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="metric-card overflow-hidden group">
+        <Card className="metric-card overflow-hidden group hover:shadow-xl transition-all duration-300">
           <CardContent className="p-6 relative">
             <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Conversions</p>
-                <h2 className="text-3xl font-bold text-foreground">
-                  {loading ? "..." : `${metrics?.conversionCount || "0"}`}
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Conversions</p>
+                <h2 className="text-3xl font-bold text-foreground leading-none">
+                  {loading ? (
+                    <div className="h-9 bg-muted animate-pulse rounded-md w-12"></div>
+                  ) : (
+                    `${metrics?.conversionCount || "0"}`
+                  )}
                 </h2>
               </div>
               <div className="glow-effect">
@@ -177,7 +201,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center text-green-600 text-sm font-semibold bg-green-50 px-2 py-1 rounded-full">
+              <div className="flex items-center text-green-600 text-sm font-semibold bg-green-50 dark:bg-green-950/30 px-2 py-1 rounded-full">
                 <ArrowUp className="h-3 w-3 mr-1" />
                 18.2%
               </div>
@@ -187,13 +211,17 @@ const Dashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="metric-card overflow-hidden group">
+        <Card className="metric-card overflow-hidden group hover:shadow-xl transition-all duration-300">
           <CardContent className="p-6 relative">
             <div className="flex justify-between items-start mb-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">CTR</p>
-                <h2 className="text-3xl font-bold text-foreground">
-                  {loading ? "..." : `${metrics?.clickThroughRate.toFixed(1) || "0"}%`}
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-2">Click-Through Rate</p>
+                <h2 className="text-3xl font-bold text-foreground leading-none">
+                  {loading ? (
+                    <div className="h-9 bg-muted animate-pulse rounded-md w-16"></div>
+                  ) : (
+                    `${metrics?.clickThroughRate.toFixed(1) || "0.0"}%`
+                  )}
                 </h2>
               </div>
               <div className="glow-effect">
@@ -203,7 +231,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="flex items-center text-red-600 text-sm font-semibold bg-red-50 px-2 py-1 rounded-full">
+              <div className="flex items-center text-red-600 text-sm font-semibold bg-red-50 dark:bg-red-950/30 px-2 py-1 rounded-full">
                 <ArrowDown className="h-3 w-3 mr-1" />
                 0.5%
               </div>
@@ -214,14 +242,41 @@ const Dashboard = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="overview" className="mb-6" onValueChange={setActiveTab}>
+      <Tabs defaultValue="overview" className="mb-6" onValueChange={setActiveTab} role="tablist" aria-label="Dashboard views">
         <TabsList className="bg-white/50 backdrop-blur-sm border border-gray-200/50 rounded-xl p-1">
-          <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-lg">Overview</TabsTrigger>
-          <TabsTrigger value="performance" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-lg">Performance</TabsTrigger>
-          <TabsTrigger value="audience" className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-lg">Audience</TabsTrigger>
+          <TabsTrigger 
+            value="overview" 
+            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-lg"
+            role="tab"
+            aria-controls="overview-panel"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="performance" 
+            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-lg"
+            role="tab"
+            aria-controls="performance-panel"
+          >
+            Performance
+          </TabsTrigger>
+          <TabsTrigger 
+            value="audience" 
+            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-lg"
+            role="tab"
+            aria-controls="audience-panel"
+          >
+            Audience
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="overview" className="space-y-8 mt-8">
+        <TabsContent 
+          value="overview" 
+          className="space-y-8 mt-8" 
+          role="tabpanel" 
+          id="overview-panel"
+          aria-labelledby="overview-tab"
+        >
           {/* Revenue & Conversion Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             <Card className="neo-card hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
@@ -233,7 +288,7 @@ const Dashboard = () => {
                   </span>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted">
                         <HelpCircle className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </PopoverTrigger>
@@ -245,7 +300,14 @@ const Dashboard = () => {
                 <CardDescription>Revenue, costs and profit this week</CardDescription>
               </CardHeader>
               <CardContent className="pt-4">
-                <WeeklyProfitChart />
+                {loading ? (
+                  <div className="space-y-4">
+                    <div className="h-6 bg-muted animate-pulse rounded w-1/3"></div>
+                    <div className="h-64 bg-muted animate-pulse rounded-lg"></div>
+                  </div>
+                ) : (
+                  <WeeklyProfitChart />
+                )}
               </CardContent>
             </Card>
             
@@ -258,7 +320,7 @@ const Dashboard = () => {
                   </span>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted">
                         <HelpCircle className="h-4 w-4 text-muted-foreground" />
                       </Button>
                     </PopoverTrigger>
@@ -270,7 +332,19 @@ const Dashboard = () => {
                 <CardDescription>Visitor journey to conversion</CardDescription>
               </CardHeader>
               <CardContent className="pt-4">
-                <ConversionFunnel />
+                {loading ? (
+                  <div className="space-y-4">
+                    <div className="h-6 bg-muted animate-pulse rounded w-1/2"></div>
+                    <div className="space-y-3">
+                      <div className="h-8 bg-muted animate-pulse rounded"></div>
+                      <div className="h-6 bg-muted animate-pulse rounded w-4/5"></div>
+                      <div className="h-5 bg-muted animate-pulse rounded w-3/5"></div>
+                      <div className="h-4 bg-muted animate-pulse rounded w-2/5"></div>
+                    </div>
+                  </div>
+                ) : (
+                  <ConversionFunnel />
+                )}
               </CardContent>
             </Card>
           </div>
@@ -284,12 +358,21 @@ const Dashboard = () => {
                     <Activity className="h-5 w-5 text-blue-500" />
                     Campaign Performance
                   </span>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted">
+                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  </Button>
                 </CardTitle>
                 <CardDescription>Key metrics over time</CardDescription>
               </CardHeader>
               <CardContent className="pt-4">
-                <PerformanceChart />
+                {loading ? (
+                  <div className="space-y-4">
+                    <div className="h-6 bg-muted animate-pulse rounded w-2/5"></div>
+                    <div className="h-48 bg-muted animate-pulse rounded-lg"></div>
+                  </div>
+                ) : (
+                  <PerformanceChart />
+                )}
               </CardContent>
             </Card>
             
@@ -300,12 +383,21 @@ const Dashboard = () => {
                     <BarChart3 className="h-5 w-5 text-purple-500" />
                     Platform Breakdown
                   </span>
-                  <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted">
+                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                  </Button>
                 </CardTitle>
                 <CardDescription>Performance across platforms</CardDescription>
               </CardHeader>
               <CardContent className="pt-4">
-                <PlatformBreakdown />
+                {loading ? (
+                  <div className="space-y-4">
+                    <div className="h-6 bg-muted animate-pulse rounded w-3/5"></div>
+                    <div className="h-40 bg-muted animate-pulse rounded-lg"></div>
+                  </div>
+                ) : (
+                  <PlatformBreakdown />
+                )}
               </CardContent>
             </Card>
           </div>
@@ -340,7 +432,13 @@ const Dashboard = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="performance">
+        <TabsContent 
+          value="performance" 
+          className="space-y-8 mt-8" 
+          role="tabpanel" 
+          id="performance-panel"
+          aria-labelledby="performance-tab"
+        >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="neo-card hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
               <CardHeader>
@@ -376,7 +474,13 @@ const Dashboard = () => {
           </div>
         </TabsContent>
         
-        <TabsContent value="audience">
+        <TabsContent 
+          value="audience" 
+          className="space-y-8 mt-8" 
+          role="tabpanel" 
+          id="audience-panel"
+          aria-labelledby="audience-tab"
+        >
           <Card className="neo-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

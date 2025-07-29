@@ -11,7 +11,7 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
-      console.error("No authenticated user found");
+      console.warn("No authenticated user found");
       return null;
     }
     
@@ -23,18 +23,20 @@ export async function getUserProfile(): Promise<UserProfile | null> {
     
     if (error) {
       if (error.code !== 'PGRST116') { // PGRST116 is the error code for no rows returned
-        console.error("Error fetching user profile:", error);
+        console.warn("Error fetching user profile:", error.message);
       }
       return null;
     }
     
     // Map database column names to our interface property names
-    return {
+    const mappedProfile = {
       fullName: data?.full_name || '',
       company: data?.company || '',
       jobTitle: data?.job_title || '',
       phone: data?.phone || ''
     };
+    
+    return mappedProfile;
   } catch (error) {
     console.error("Error in getUserProfile:", error);
     return null;
