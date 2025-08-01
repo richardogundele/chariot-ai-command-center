@@ -153,7 +153,7 @@ export async function createMetaCampaign(
     const campaignId = campaignData.id;
 
     // Step 2: Create Ad Set
-    const adSetPayload = {
+    const adSetPayload: any = {
       name: `${config.name} - Ad Set`,
       campaign_id: campaignId,
       billing_event: 'IMPRESSIONS',
@@ -463,7 +463,10 @@ export async function syncCampaignMetrics(): Promise<void> {
 
     // Extract Meta campaign IDs
     const metaCampaignIds = campaigns
-      .map(c => c.meta_data?.campaignId)
+      .map(c => {
+        const metaData = c.meta_data as any;
+        return metaData?.campaignId;
+      })
       .filter(Boolean);
 
     if (metaCampaignIds.length === 0) return;
@@ -473,13 +476,17 @@ export async function syncCampaignMetrics(): Promise<void> {
 
     // Update database with latest metrics
     for (const metric of metrics) {
-      const campaign = campaigns.find(c => c.meta_data?.campaignId === metric.campaignId);
+      const campaign = campaigns.find(c => {
+        const metaData = c.meta_data as any;
+        return metaData?.campaignId === metric.campaignId;
+      });
       if (campaign) {
+        const existingMetaData = campaign.meta_data as any || {};
         await supabase
           .from('campaigns')
           .update({
             meta_data: {
-              ...campaign.meta_data,
+              ...existingMetaData,
               metrics: metric
             },
             updated_at: new Date().toISOString()
