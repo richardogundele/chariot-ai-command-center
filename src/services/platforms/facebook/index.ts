@@ -6,8 +6,14 @@ export {
   saveFacebookCredentials,
   checkFacebookConnection, 
   disconnectFacebook,
-  getUserAccessToken
+  getUserAccessToken,
+  validateFacebookToken
 } from './auth';
+
+// API client functions
+export { 
+  getFacebookUserInfo 
+} from './apiClient';
 
 // Campaign related functions
 export { 
