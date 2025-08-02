@@ -4,10 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Grid, List } from "lucide-react";
 
 // Import refactored components
 import ProductsHeader from "@/components/products/ProductsHeader";
 import ProductsTabContent from "@/components/products/ProductsTabContent";
+import ProductCatalogue from "@/components/products/ProductCatalogue";
 import ProductsLoading from "@/components/products/ProductsLoading";
 import SalesLetterDialog from "@/components/products/SalesLetterDialog";
 import RecommendationsDialog from "@/components/products/RecommendationsDialog";
@@ -31,6 +34,7 @@ const SavedProducts = () => {
   const [campaignDialog, setCampaignDialog] = useState(false);
   const [viewDialog, setViewDialog] = useState(false);
   const [previewContent, setPreviewContent] = useState<{adCopy?: string, image?: string} | null>(null);
+  const [viewMode, setViewMode] = useState<'grid' | 'catalogue'>('grid');
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -166,71 +170,144 @@ const SavedProducts = () => {
         <ProductsLoading />
       ) : (
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="mb-6">
-            <TabsTrigger value="all">All Products</TabsTrigger>
-            <TabsTrigger value="Active">Active</TabsTrigger>
-            <TabsTrigger value="Paused">Paused</TabsTrigger>
-            <TabsTrigger value="Draft">Ready for Ads</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center justify-between mb-6">
+            <TabsList>
+              <TabsTrigger value="all">All Products</TabsTrigger>
+              <TabsTrigger value="Active">Active</TabsTrigger>
+              <TabsTrigger value="Paused">Paused</TabsTrigger>
+              <TabsTrigger value="Draft">Ready for Ads</TabsTrigger>
+            </TabsList>
+            
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid className="w-4 h-4 mr-2" />
+                Grid
+              </Button>
+              <Button
+                variant={viewMode === 'catalogue' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('catalogue')}
+              >
+                <List className="w-4 h-4 mr-2" />
+                Catalogue
+              </Button>
+            </div>
+          </div>
 
           <TabsContent value="all" className="mt-0">
-            <ProductsTabContent 
-              products={products}
-              tabValue="all"
-              onDeleteProduct={handleDeleteProduct}
-              onCreateCampaign={handleCreateCampaign}
-              onRegenerateContent={handleRegenerateContent}
-              onSalesLetterGeneration={handleSalesLetterGeneration}
-              onAIRecommendations={handleAIRecommendations}
-              onViewAdContent={handleViewAdContent}
-              regeneratingId={regeneratingId}
-              regenerationType={regenerationType}
-            />
+            {viewMode === 'grid' ? (
+              <ProductsTabContent 
+                products={products}
+                tabValue="all"
+                onDeleteProduct={handleDeleteProduct}
+                onCreateCampaign={handleCreateCampaign}
+                onRegenerateContent={handleRegenerateContent}
+                onSalesLetterGeneration={handleSalesLetterGeneration}
+                onAIRecommendations={handleAIRecommendations}
+                onViewAdContent={handleViewAdContent}
+                regeneratingId={regeneratingId}
+                regenerationType={regenerationType}
+              />
+            ) : (
+              <ProductCatalogue
+                products={products}
+                onDeleteProduct={handleDeleteProduct}
+                onCreateCampaign={handleCreateCampaign}
+                onRegenerateContent={handleRegenerateContent}
+                onSalesLetterGeneration={handleSalesLetterGeneration}
+                onViewAdContent={handleViewAdContent}
+                regeneratingId={regeneratingId}
+                regenerationType={regenerationType}
+              />
+            )}
           </TabsContent>
           
           <TabsContent value="Active" className="mt-0">
-            <ProductsTabContent 
-              products={products}
-              tabValue="Active"
-              onDeleteProduct={handleDeleteProduct}
-              onCreateCampaign={handleCreateCampaign}
-              onRegenerateContent={handleRegenerateContent}
-              onSalesLetterGeneration={handleSalesLetterGeneration}
-              onAIRecommendations={handleAIRecommendations}
-              onViewAdContent={handleViewAdContent}
-              regeneratingId={regeneratingId}
-              regenerationType={regenerationType}
-            />
+            {viewMode === 'grid' ? (
+              <ProductsTabContent 
+                products={products}
+                tabValue="Active"
+                onDeleteProduct={handleDeleteProduct}
+                onCreateCampaign={handleCreateCampaign}
+                onRegenerateContent={handleRegenerateContent}
+                onSalesLetterGeneration={handleSalesLetterGeneration}
+                onAIRecommendations={handleAIRecommendations}
+                onViewAdContent={handleViewAdContent}
+                regeneratingId={regeneratingId}
+                regenerationType={regenerationType}
+              />
+            ) : (
+              <ProductCatalogue
+                products={products.filter(p => p.status === 'Active')}
+                onDeleteProduct={handleDeleteProduct}
+                onCreateCampaign={handleCreateCampaign}
+                onRegenerateContent={handleRegenerateContent}
+                onSalesLetterGeneration={handleSalesLetterGeneration}
+                onViewAdContent={handleViewAdContent}
+                regeneratingId={regeneratingId}
+                regenerationType={regenerationType}
+              />
+            )}
           </TabsContent>
           
           <TabsContent value="Paused" className="mt-0">
-            <ProductsTabContent 
-              products={products}
-              tabValue="Paused"
-              onDeleteProduct={handleDeleteProduct}
-              onCreateCampaign={handleCreateCampaign}
-              onRegenerateContent={handleRegenerateContent}
-              onSalesLetterGeneration={handleSalesLetterGeneration}
-              onAIRecommendations={handleAIRecommendations}
-              onViewAdContent={handleViewAdContent}
-              regeneratingId={regeneratingId}
-              regenerationType={regenerationType}
-            />
+            {viewMode === 'grid' ? (
+              <ProductsTabContent 
+                products={products}
+                tabValue="Paused"
+                onDeleteProduct={handleDeleteProduct}
+                onCreateCampaign={handleCreateCampaign}
+                onRegenerateContent={handleRegenerateContent}
+                onSalesLetterGeneration={handleSalesLetterGeneration}
+                onAIRecommendations={handleAIRecommendations}
+                onViewAdContent={handleViewAdContent}
+                regeneratingId={regeneratingId}
+                regenerationType={regenerationType}
+              />
+            ) : (
+              <ProductCatalogue
+                products={products.filter(p => p.status === 'Paused')}
+                onDeleteProduct={handleDeleteProduct}
+                onCreateCampaign={handleCreateCampaign}
+                onRegenerateContent={handleRegenerateContent}
+                onSalesLetterGeneration={handleSalesLetterGeneration}
+                onViewAdContent={handleViewAdContent}
+                regeneratingId={regeneratingId}
+                regenerationType={regenerationType}
+              />
+            )}
           </TabsContent>
           
           <TabsContent value="Draft" className="mt-0">
-            <ProductsTabContent 
-              products={products}
-              tabValue="Draft"
-              onDeleteProduct={handleDeleteProduct}
-              onCreateCampaign={handleCreateCampaign}
-              onRegenerateContent={handleRegenerateContent}
-              onSalesLetterGeneration={handleSalesLetterGeneration}
-              onAIRecommendations={handleAIRecommendations}
-              onViewAdContent={handleViewAdContent}
-              regeneratingId={regeneratingId}
-              regenerationType={regenerationType}
-            />
+            {viewMode === 'grid' ? (
+              <ProductsTabContent 
+                products={products}
+                tabValue="Draft"
+                onDeleteProduct={handleDeleteProduct}
+                onCreateCampaign={handleCreateCampaign}
+                onRegenerateContent={handleRegenerateContent}
+                onSalesLetterGeneration={handleSalesLetterGeneration}
+                onAIRecommendations={handleAIRecommendations}
+                onViewAdContent={handleViewAdContent}
+                regeneratingId={regeneratingId}
+                regenerationType={regenerationType}
+              />
+            ) : (
+              <ProductCatalogue
+                products={products.filter(p => p.status === 'Draft')}
+                onDeleteProduct={handleDeleteProduct}
+                onCreateCampaign={handleCreateCampaign}
+                onRegenerateContent={handleRegenerateContent}
+                onSalesLetterGeneration={handleSalesLetterGeneration}
+                onViewAdContent={handleViewAdContent}
+                regeneratingId={regeneratingId}
+                regenerationType={regenerationType}
+              />
+            )}
           </TabsContent>
         </Tabs>
       )}
