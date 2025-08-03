@@ -204,6 +204,7 @@ const SavedProducts = () => {
             <ProductGrid
               products={filterProductsByTab(products, "all")}
               onProductClick={handleProductClick}
+              onDeleteProduct={handleDeleteProduct}
             />
           </TabsContent>
           
@@ -211,6 +212,7 @@ const SavedProducts = () => {
             <ProductGrid
               products={filterProductsByTab(products, "Active")}
               onProductClick={handleProductClick}
+              onDeleteProduct={handleDeleteProduct}
             />
           </TabsContent>
           
@@ -218,6 +220,7 @@ const SavedProducts = () => {
             <ProductGrid
               products={filterProductsByTab(products, "Paused")}
               onProductClick={handleProductClick}
+              onDeleteProduct={handleDeleteProduct}
             />
           </TabsContent>
           
@@ -225,6 +228,7 @@ const SavedProducts = () => {
             <ProductGrid
               products={filterProductsByTab(products, "Draft")}
               onProductClick={handleProductClick}
+              onDeleteProduct={handleDeleteProduct}
             />
           </TabsContent>
         </Tabs>

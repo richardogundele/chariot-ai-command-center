@@ -1,13 +1,16 @@
 import { Product } from "@/services/products/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
 
 interface ProductGridProps {
   products: Product[];
   onProductClick: (product: Product) => void;
+  onDeleteProduct: (id: number | string) => void;
 }
 
-const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
+const ProductGrid = ({ products, onProductClick, onDeleteProduct }: ProductGridProps) => {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active': return 'bg-green-500/10 text-green-700 dark:text-green-400';
@@ -30,9 +33,20 @@ const ProductGrid = ({ products, onProductClick }: ProductGridProps) => {
       {products.map((product) => (
         <Card 
           key={product.id} 
-          className="cursor-pointer hover:shadow-lg transition-shadow duration-200 group"
+          className="relative cursor-pointer hover:shadow-lg transition-shadow duration-200 group"
           onClick={() => onProductClick(product)}
         >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 z-10 h-8 w-8 rounded-full bg-background/80 hover:bg-destructive hover:text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteProduct(product.id);
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
           <CardContent className="p-4">
             <div className="aspect-square mb-4 overflow-hidden rounded-lg bg-muted">
               <img
