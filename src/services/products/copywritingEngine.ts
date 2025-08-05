@@ -1,7 +1,7 @@
 export interface CopywritingStyle {
-  id: 'hormozi' | 'busayo' | 'launchboom' | 'kenny';
+  id: 'hormozi' | 'busayo' | 'launchboom' | 'chatbot';
   name: string;
-  useFor: ('headlines' | 'carousel' | 'adcopy' | 'sales')[];
+  useFor: ('headlines' | 'carousel' | 'adcopy' | 'sales' | 'chatbot')[];
   traits: string[];
   systemPrompt: string;
   userPromptTemplate: string;
@@ -14,7 +14,7 @@ export interface CopywritingRequest {
   targetAudience?: string;
   niche?: string;
   style: CopywritingStyle['id'];
-  contentType: 'headlines' | 'carousel' | 'adcopy' | 'sales';
+  contentType: 'headlines' | 'carousel' | 'adcopy' | 'sales' | 'chatbot';
   tone?: 'casual' | 'professional' | 'urgent' | 'friendly';
 }
 
@@ -117,18 +117,34 @@ export const COPYWRITING_STYLES: Record<CopywritingStyle['id'], CopywritingStyle
     Make it urgent, validated, and conversion-focused.`
   },
   
-  kenny: {
-    id: 'kenny',
-    name: 'Kenny Nwokoye',
-    useFor: ['adcopy', 'sales'],
-    traits: ['Energetic', 'Conversational', 'No-fluff', 'Emotional triggers', 'Bold statements'],
-    systemPrompt: `You are Kenny Nwokoye, a Nigerian entrepreneur and digital marketing genius known for your persuasive, conversational, and no-fluff approach with consistency in making crazy sales.`,
-    userPromptTemplate: `Write high-converting {contentType} in Kenny Nwokoye's energetic style.
+  chatbot: {
+    id: 'chatbot',
+    name: 'My AI Prompt',
+    useFor: ['chatbot', 'sales'],
+    traits: ['Direct', 'Consultative', 'Doctor-like prescription', 'Authoritative', 'Problem-solver'],
+    systemPrompt: `You are a sales chatbot that prescribes solutions like a doctor. Your style is:
+    - Direct and consultative approach
+    - Ask probing questions to understand pain points
+    - Prescribe specific solutions with authority
+    - Use medical/consultation metaphors
+    - Build trust through expertise demonstration
+    - Guide customers to the right solution methodically
+    - Professional yet approachable tone`,
+    userPromptTemplate: `Write {contentType} responses for {productName} using a consultative, doctor-like approach.
     
     Product: {productName}
     Description: {productDescription}
+    Target: {targetAudience}
     
-    The tone should be energetic, engaging, and direct—using storytelling, bold statements, emotional triggers, and a clear call to action. Use short, punchy sentences, occasional capital letters, and relevant emojis to make the message pop. Focus on key pain points, and position the solution as a must-have. End with a strong sense of urgency and a compelling CTA.`
+    Focus on:
+    - Diagnosing customer pain points
+    - Prescribing specific solutions
+    - Building authority and trust
+    - Methodical problem-solving approach
+    - Professional consultation tone
+    - Clear next steps/recommendations
+    
+    Be direct, consultative, and prescriptive like a trusted advisor.`
   }
 };
 
@@ -142,7 +158,8 @@ export function selectOptimalStyle(
   if (contentType === 'headlines' && businessGoal === 'conversion') return 'hormozi';
   if (contentType === 'carousel' && businessGoal === 'engagement') return 'busayo';
   if (contentType === 'adcopy' && businessGoal === 'sales') return 'launchboom';
-  if (contentType === 'sales') return 'kenny';
+  if (contentType === 'sales') return 'chatbot';
+  if (contentType === 'chatbot') return 'chatbot';
   
   return 'hormozi'; // Default fallback
 }
@@ -302,12 +319,12 @@ export function getStyleRecommendations(
   contentType: CopywritingRequest['contentType']
 ): { primary: CopywritingStyle['id']; alternatives: CopywritingStyle['id'][] } {
   const recommendations: Record<string, { primary: CopywritingStyle['id']; alternatives: CopywritingStyle['id'][] }> = {
-    'health-fitness': { primary: 'hormozi', alternatives: ['kenny', 'launchboom'] },
-    'business-education': { primary: 'hormozi', alternatives: ['launchboom', 'kenny'] },
-    'beauty-lifestyle': { primary: 'busayo', alternatives: ['kenny', 'launchboom'] },
-    'technology': { primary: 'hormozi', alternatives: ['launchboom', 'kenny'] },
-    'fashion': { primary: 'busayo', alternatives: ['kenny', 'launchboom'] },
-    'general': { primary: 'hormozi', alternatives: ['kenny', 'launchboom'] }
+    'health-fitness': { primary: 'hormozi', alternatives: ['chatbot', 'launchboom'] },
+    'business-education': { primary: 'hormozi', alternatives: ['launchboom', 'chatbot'] },
+    'beauty-lifestyle': { primary: 'busayo', alternatives: ['chatbot', 'launchboom'] },
+    'technology': { primary: 'hormozi', alternatives: ['launchboom', 'chatbot'] },
+    'fashion': { primary: 'busayo', alternatives: ['chatbot', 'launchboom'] },
+    'general': { primary: 'hormozi', alternatives: ['chatbot', 'launchboom'] }
   };
   
   return recommendations[niche] || recommendations['general'];

@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Product } from "@/services/products/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import CopywritingEngine from "./CopywritingEngine";
 
 interface ProductDetailViewProps {
   product: Product;
@@ -321,6 +322,13 @@ const ProductDetailView = ({
           )}
         </CardContent>
       </Card>
+
+      {/* Copywriting Engine */}
+      <CopywritingEngine
+        productName={product.name}
+        productDescription={product.description}
+        productPrice={product.price}
+      />
     </div>
   );
 };
