@@ -91,7 +91,7 @@ const Dashboard = () => {
             variant="outline" 
             onClick={handleRefresh} 
             disabled={refreshing} 
-            className="premium-button bg-white border-2 border-chariot-purple/20 text-chariot-purple hover:bg-chariot-purple hover:text-white shadow-lg w-full sm:w-auto min-h-[44px] text-sm font-medium"
+            className="premium-button bg-background border-2 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground shadow-lg w-full sm:w-auto min-h-[44px] text-sm font-medium"
           >
             {refreshing ? (
               <>

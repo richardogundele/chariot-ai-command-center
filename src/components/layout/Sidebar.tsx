@@ -122,14 +122,14 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
       {/* Sidebar */}
       <div 
         className={cn(
-          "fixed inset-y-0 left-0 z-40 min-h-screen bg-gradient-to-b from-gray-900 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-gray-950 dark:to-gray-900 border-r border-gray-700/50 dark:border-gray-800/50 transition-all duration-300 flex flex-col backdrop-blur-xl",
+          "fixed inset-y-0 left-0 z-40 min-h-screen bg-sidebar-background border-r border-sidebar-border transition-all duration-300 flex flex-col backdrop-blur-xl",
           "transform lg:transform-none",
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           collapsed ? "w-20" : "w-72"
         )}
       >
         {/* Header */}
-        <div className="p-4 sm:p-6 flex items-center justify-between border-b border-gray-700/50 dark:border-gray-800/50">
+        <div className="p-4 sm:p-6 flex items-center justify-between border-b border-sidebar-border">
           {!collapsed && (
             <div className="flex items-center space-x-3">
               <div className="glow-effect">
@@ -138,10 +138,10 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 </div>
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl font-bold text-white">
+                <h1 className="text-lg sm:text-xl font-bold text-sidebar-foreground">
                   Chariot<span className="chariot-gradient-text">AI</span>
                 </h1>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Marketing Platform</p>
+                <p className="text-xs text-sidebar-foreground/70">Marketing Platform</p>
               </div>
             </div>
           )}
@@ -159,14 +159,14 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
               variant="ghost" 
               size="icon" 
               onClick={() => setCollapsed(!collapsed)}
-              className="hidden lg:flex text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50 transition-colors"
+              className="hidden lg:flex text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
             >
               {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden text-gray-400 dark:text-gray-500 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50 transition-colors"
+              className="lg:hidden text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
               onClick={() => setMobileOpen(false)}
             >
               <X className="h-4 w-4" />
@@ -186,25 +186,25 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                 onClick={() => setMobileOpen(false)}
                 className={cn(
                   "group flex items-center px-4 py-3.5 text-sm font-medium rounded-xl transition-all duration-300 relative overflow-hidden border border-transparent",
-                  "focus:outline-none focus:ring-2 focus:ring-chariot-purple/50 focus:border-chariot-purple/30 focus-visible:ring-2",
+                  "focus:outline-none focus:ring-2 focus:ring-sidebar-ring/50 focus:border-sidebar-ring/30 focus-visible:ring-2",
                   isActive
-                    ? "bg-gradient-to-r from-chariot-purple/20 to-chariot-accent/20 text-white border-chariot-purple/30 shadow-lg"
-                    : "text-gray-300 dark:text-gray-400 hover:text-white hover:bg-gray-800/50 dark:hover:bg-gray-900/50 hover:border-gray-700/50"
+                    ? "bg-sidebar-accent text-sidebar-accent-foreground border-sidebar-ring/30 shadow-lg"
+                    : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 hover:border-sidebar-border"
                 )}
                 aria-current={isActive ? "page" : undefined}
               >
                 {/* Icon with gradient background */}
-                <div className={cn(
-                  "flex items-center justify-center w-9 h-9 rounded-lg mr-4 transition-all duration-300 flex-shrink-0",
-                  isActive 
-                    ? `bg-gradient-to-br ${item.color} shadow-lg scale-105` 
-                    : "bg-gray-700/50 dark:bg-gray-800/50 group-hover:bg-gray-600/50 dark:group-hover:bg-gray-700/50 group-hover:scale-105"
-                )}>
-                  <item.icon className={cn(
-                    "h-4 w-4 transition-colors duration-300",
-                    isActive ? "text-white" : "text-gray-400 dark:text-gray-500 group-hover:text-white"
-                  )} />
-                </div>
+                  <div className={cn(
+                    "flex items-center justify-center w-9 h-9 rounded-lg mr-4 transition-all duration-300 flex-shrink-0",
+                    isActive 
+                      ? `bg-gradient-to-br ${item.color} shadow-lg scale-105` 
+                      : "bg-sidebar-accent/30 group-hover:bg-sidebar-accent/60 group-hover:scale-105"
+                  )}>
+                    <item.icon className={cn(
+                      "h-4 w-4 transition-colors duration-300",
+                      isActive ? "text-white" : "text-sidebar-foreground/70 group-hover:text-sidebar-foreground"
+                    )} />
+                  </div>
                 
                 {!collapsed && (
                   <span className="transition-all duration-300 flex-1 min-w-0 truncate">{item.label}</span>
@@ -227,16 +227,16 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
       </div>
 
       {/* User Section & Logout */}
-      <div className="p-4 border-t border-gray-700/50 dark:border-gray-800/50 space-y-4">
+      <div className="p-4 border-t border-sidebar-border space-y-4">
         {/* User Info (when expanded) */}
         {!collapsed && (
-          <div className="flex items-center gap-3 px-4 py-4 rounded-xl bg-gradient-to-r from-gray-800/60 to-gray-800/40 dark:from-gray-900/60 dark:to-gray-900/40 border border-gray-700/30 backdrop-blur-sm">
+          <div className="flex items-center gap-3 px-4 py-4 rounded-xl bg-sidebar-accent/50 border border-sidebar-border/30 backdrop-blur-sm">
             <div className="h-11 w-11 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-chariot-purple/20">
               <span className="text-white font-semibold text-sm">{userFirstName.charAt(0).toUpperCase()}</span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-medium text-sm truncate">Hi {userFirstName} 👋</p>
-              <p className="text-gray-400 dark:text-gray-500 text-xs truncate">Welcome back</p>
+              <p className="text-sidebar-foreground font-medium text-sm truncate">Hi {userFirstName} 👋</p>
+              <p className="text-sidebar-foreground/70 text-xs truncate">Welcome back</p>
             </div>
             <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse flex-shrink-0" title="Online"></div>
           </div>
@@ -254,7 +254,7 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         <Button 
           variant="ghost" 
           className={cn(
-            "w-full justify-start text-gray-300 dark:text-gray-400 hover:text-white hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-300 min-h-[44px] rounded-xl",
+            "w-full justify-start text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-red-500/10 border border-transparent hover:border-red-500/30 transition-all duration-300 min-h-[44px] rounded-xl",
             "focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/30",
             collapsed && "justify-center px-0"
           )}
