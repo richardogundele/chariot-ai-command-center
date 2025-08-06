@@ -75,43 +75,41 @@ const Dashboard = () => {
     }
   };
 
+  const headerActions = (
+    <div className="flex gap-2">
+      <Button 
+        variant="outline" 
+        onClick={handleRefresh} 
+        disabled={refreshing} 
+        className="bg-background border-2 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground shadow-lg"
+        size="sm"
+      >
+        {refreshing ? (
+          <RefreshCcw className="h-4 w-4 animate-spin" />
+        ) : (
+          <RefreshCcw className="h-4 w-4" />
+        )}
+      </Button>
+      <Button 
+        onClick={handleAddProduct} 
+        className="shadow-lg"
+        size="sm"
+      >
+        <Plus className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
   return (
-    <DashboardLayout>
+    <DashboardLayout headerActions={headerActions}>
       {/* Enhanced Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-8 relative z-10">
+      <div className="flex flex-col gap-4 mb-8">
         <div className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-bold chariot-gradient-text flex items-center gap-3">
             <Activity className="h-7 w-7 sm:h-8 sm:w-8 text-chariot-purple" />
             <span className="leading-tight">Campaign Dashboard</span>
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg">Real-time insights and performance analytics</p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3 relative z-50 w-full sm:w-auto">
-          <Button 
-            variant="outline" 
-            onClick={handleRefresh} 
-            disabled={refreshing} 
-            className="premium-button bg-background border-2 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground shadow-lg w-full sm:w-auto min-h-[44px] text-sm font-medium"
-          >
-            {refreshing ? (
-              <>
-                <RefreshCcw className="h-4 w-4 mr-2 animate-spin" />
-                Updating...
-              </>
-            ) : (
-              <>
-                <RefreshCcw className="h-4 w-4 mr-2" />
-                Refresh Data
-              </>
-            )}
-          </Button>
-          <Button 
-            onClick={handleAddProduct} 
-            className="premium-button shadow-lg w-full sm:w-auto min-h-[44px] text-sm font-medium"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Product
-          </Button>
         </div>
       </div>
 

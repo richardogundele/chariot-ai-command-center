@@ -9,9 +9,10 @@ import { ArrowUp } from "lucide-react";
 interface DashboardLayoutProps {
   children: ReactNode;
   className?: string;
+  headerActions?: ReactNode;
 }
 
-export const DashboardLayout = ({ children, className = "" }: DashboardLayoutProps) => {
+export const DashboardLayout = ({ children, className = "", headerActions }: DashboardLayoutProps) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -68,6 +69,7 @@ export const DashboardLayout = ({ children, className = "" }: DashboardLayoutPro
         {/* Fixed Header with dynamic positioning */}
         <header className={`fixed top-0 right-0 ${getHeaderLeftPosition()} z-40 bg-background/90 backdrop-blur-xl border-b border-border px-4 sm:px-6 py-3 sm:py-4 transition-all duration-300 shadow-sm pointer-events-none`}>
           <div className="flex items-center justify-end gap-2 sm:gap-4 pointer-events-auto">
+            {headerActions}
             <NotificationCenter />
             <ThemeToggle />
           </div>
