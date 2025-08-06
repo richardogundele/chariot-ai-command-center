@@ -26,14 +26,14 @@ export default {
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				chariot: {
-					blue: '#0F172A',
-					teal: '#06B6D4',
-					navy: '#1E293B',
-					light: '#F1F5F9',
-					accent: '#38BDF8',
-					purple: '#9B87F5',
-					lavender: '#D6BCFA',
-					indigo: '#7E69AB'
+					blue: 'hsl(var(--chariot-blue))',
+					teal: 'hsl(var(--chariot-teal))',
+					navy: 'hsl(var(--chariot-navy))',
+					light: 'hsl(var(--chariot-light))',
+					accent: 'hsl(var(--chariot-accent))',
+					purple: 'hsl(var(--chariot-purple))',
+					lavender: 'hsl(var(--chariot-lavender))',
+					indigo: 'hsl(var(--chariot-indigo))'
 				},
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',

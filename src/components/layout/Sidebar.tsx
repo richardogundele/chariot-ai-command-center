@@ -105,7 +105,7 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
           variant="outline"
           size="sm"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm"
+          className="bg-background/90 border-border backdrop-blur-sm"
         >
           <Menu className="h-4 w-4" />
         </Button>
@@ -133,8 +133,8 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
           {!collapsed && (
             <div className="flex items-center space-x-3">
               <div className="glow-effect">
-                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
-                  <Zap className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-primary to-chariot-accent flex items-center justify-center shadow-lg">
+                  <Zap className="h-4 w-4 sm:h-6 sm:w-6 text-primary-foreground" />
                 </div>
               </div>
               <div>
@@ -148,8 +148,8 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
           {collapsed && (
             <div className="mx-auto">
               <div className="glow-effect">
-                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center">
-                  <Zap className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-primary to-chariot-accent flex items-center justify-center shadow-lg">
+                  <Zap className="h-4 w-4 sm:h-6 sm:w-6 text-primary-foreground" />
                 </div>
               </div>
             </div>
@@ -210,14 +210,14 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
                   <span className="transition-all duration-300 flex-1 min-w-0 truncate">{item.label}</span>
                 )}
                 
-                {/* Active indicator */}
+                 {/* Active indicator */}
                 {isActive && !collapsed && (
-                  <div className="w-2 h-2 rounded-full bg-chariot-accent shadow-sm animate-pulse flex-shrink-0"></div>
+                  <div className="w-2 h-2 rounded-full bg-primary shadow-sm animate-pulse flex-shrink-0"></div>
                 )}
                 
                 {/* Hover effect */}
                 <div className={cn(
-                  "absolute inset-0 bg-gradient-to-r from-chariot-purple/10 to-chariot-accent/10 rounded-xl opacity-0 transition-opacity duration-300",
+                  "absolute inset-0 bg-gradient-to-r from-primary/10 to-chariot-accent/10 rounded-xl opacity-0 transition-opacity duration-300",
                   !isActive && "group-hover:opacity-100"
                 )}></div>
               </Link>
@@ -231,7 +231,7 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         {/* User Info (when expanded) */}
         {!collapsed && (
           <div className="flex items-center gap-3 px-4 py-4 rounded-xl bg-sidebar-accent/50 border border-sidebar-border/30 backdrop-blur-sm">
-            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-chariot-purple/20">
+            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-primary to-chariot-accent flex items-center justify-center shadow-lg flex-shrink-0 ring-2 ring-primary/20">
               <span className="text-white font-semibold text-sm">{userFirstName.charAt(0).toUpperCase()}</span>
             </div>
             <div className="flex-1 min-w-0">
@@ -245,7 +245,7 @@ export const Sidebar = ({ onCollapseChange }: SidebarProps) => {
         {/* Collapsed user avatar */}
         {collapsed && (
           <div className="flex justify-center">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-chariot-purple to-chariot-accent flex items-center justify-center shadow-lg ring-2 ring-chariot-purple/20">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-chariot-accent flex items-center justify-center shadow-lg ring-2 ring-primary/20">
               <span className="text-white font-semibold text-sm">{userFirstName.charAt(0).toUpperCase()}</span>
             </div>
           </div>

@@ -43,6 +43,16 @@
     --sidebar-accent-foreground: 222.2 84% 4.9%;
     --sidebar-border: 214.3 31.8% 91.4%;
     --sidebar-ring: 263 80% 75%;
+    
+    /* Chariot brand colors */
+    --chariot-blue: 222 84% 5%;
+    --chariot-teal: 188 85% 43%;
+    --chariot-navy: 215 25% 16%;
+    --chariot-light: 210 40% 96%;
+    --chariot-accent: 199 89% 65%;
+    --chariot-purple: 263 80% 75%;
+    --chariot-lavender: 274 87% 87%;
+    --chariot-indigo: 257 29% 54%;
   }
 
   .dark {
@@ -73,6 +83,25 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 263 80% 75%;
+    
+    --sidebar-background: 222 47% 11%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 263 80% 75%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 263 80% 75%;
+    
+    /* Chariot brand colors for dark mode */
+    --chariot-blue: 222 84% 15%;
+    --chariot-teal: 188 85% 53%;
+    --chariot-navy: 215 25% 26%;
+    --chariot-light: 210 40% 86%;
+    --chariot-accent: 199 89% 75%;
+    --chariot-purple: 263 80% 75%;
+    --chariot-lavender: 274 87% 77%;
+    --chariot-indigo: 257 29% 64%;
   }
 }
 
@@ -120,7 +149,12 @@
 
 @layer components {
   .chariot-gradient-text {
-    @apply bg-gradient-to-r from-purple-600 via-blue-500 to-teal-400 bg-clip-text text-transparent;
+    background: linear-gradient(135deg, hsl(var(--chariot-purple)) 0%, hsl(var(--chariot-accent)) 50%, hsl(var(--chariot-teal)) 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease-in-out infinite;
   }
   
   .chariot-card {

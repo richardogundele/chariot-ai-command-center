@@ -81,21 +81,23 @@ const Dashboard = () => {
         variant="outline" 
         onClick={handleRefresh} 
         disabled={refreshing} 
-        className="bg-background border-2 border-primary/30 text-primary hover:bg-primary hover:text-primary-foreground shadow-lg"
         size="sm"
+        className="font-medium"
       >
         {refreshing ? (
-          <RefreshCcw className="h-4 w-4 animate-spin" />
+          <RefreshCcw className="h-4 w-4 animate-spin mr-2" />
         ) : (
-          <RefreshCcw className="h-4 w-4" />
+          <RefreshCcw className="h-4 w-4 mr-2" />
         )}
+        Refresh
       </Button>
       <Button 
         onClick={handleAddProduct} 
-        className="shadow-lg"
         size="sm"
+        className="font-medium"
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="h-4 w-4 mr-2" />
+        Add Product
       </Button>
     </div>
   );
@@ -106,7 +108,7 @@ const Dashboard = () => {
       <div className="flex flex-col gap-4 mb-8">
         <div className="space-y-2">
           <h1 className="text-3xl sm:text-4xl font-bold chariot-gradient-text flex items-center gap-3">
-            <Activity className="h-7 w-7 sm:h-8 sm:w-8 text-chariot-purple" />
+            <Activity className="h-7 w-7 sm:h-8 sm:w-8 text-primary" />
             <span className="leading-tight">Campaign Dashboard</span>
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg">Real-time insights and performance analytics</p>
@@ -163,7 +165,7 @@ const Dashboard = () => {
                 </h2>
               </div>
               <div className="glow-effect">
-                <div className="p-3 bg-gradient-to-br from-chariot-purple to-chariot-accent rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <div className="p-3 bg-gradient-to-br from-primary to-chariot-accent rounded-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <TrendingUp className="h-6 w-6 text-white" />
                 </div>
               </div>
@@ -175,7 +177,7 @@ const Dashboard = () => {
               </div>
               <span className="text-xs text-muted-foreground">vs. last month</span>
             </div>
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-chariot-purple to-chariot-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
+            <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-chariot-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></div>
           </CardContent>
         </Card>
 
@@ -241,10 +243,10 @@ const Dashboard = () => {
       </div>
 
       <Tabs defaultValue="overview" className="mb-6" onValueChange={setActiveTab} role="tablist" aria-label="Dashboard views">
-        <TabsList className="bg-white/50 backdrop-blur-sm border border-gray-200/50 rounded-xl p-1">
+        <TabsList className="bg-muted/50 backdrop-blur-sm border border-border rounded-xl p-1">
           <TabsTrigger 
             value="overview" 
-            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-lg"
+            className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-lg"
             role="tab"
             aria-controls="overview-panel"
           >
@@ -252,7 +254,7 @@ const Dashboard = () => {
           </TabsTrigger>
           <TabsTrigger 
             value="performance" 
-            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-lg"
+            className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-lg"
             role="tab"
             aria-controls="performance-panel"
           >
@@ -260,7 +262,7 @@ const Dashboard = () => {
           </TabsTrigger>
           <TabsTrigger 
             value="audience" 
-            className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-lg"
+            className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-lg"
             role="tab"
             aria-controls="audience-panel"
           >
@@ -281,7 +283,7 @@ const Dashboard = () => {
               <CardHeader className="pb-4">
                 <CardTitle className="flex justify-between items-center text-xl">
                   <span className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-chariot-purple" />
+                    <TrendingUp className="h-5 w-5 text-primary" />
                     Weekly Profit
                   </span>
                   <Popover>
@@ -441,7 +443,7 @@ const Dashboard = () => {
             <Card className="neo-card hover:shadow-2xl transition-all duration-500 hover:-translate-y-1">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5 text-chariot-purple" />
+                  <BarChart3 className="h-5 w-5 text-primary" />
                   Advanced Performance Metrics
                 </CardTitle>
                 <CardDescription>Detailed analytics of your campaigns</CardDescription>
@@ -513,8 +515,8 @@ const Dashboard = () => {
                       <div className="bg-pink-500 w-[55%]"></div>
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                      <span>Male: 45%</span>
-                      <span>Female: 55%</span>
+                     <span>Male: 45%</span>
+                     <span>Female: 55%</span>
                     </div>
                   </div>
                 </div>
