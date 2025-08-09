@@ -71,17 +71,13 @@ export const CampaignListView = ({ onSelectCampaign }: CampaignListViewProps) =>
 
   return (
     <>
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-start items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Campaigns</h1>
           <p className="text-muted-foreground">
             Manage your Facebook marketing campaigns with advanced tools
           </p>
         </div>
-        <Button onClick={handleCreateCampaign}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Campaign
-        </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

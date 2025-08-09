@@ -22,8 +22,15 @@ const Campaign = () => {
     return <CampaignListView onSelectCampaign={selectCampaign} />;
   };
 
+  const headerActions = !campaignId ? (
+    <Button onClick={() => window.dispatchEvent(new Event('open-campaign-dialog'))} size="sm" className="font-medium">
+      <Plus className="h-4 w-4 mr-2" />
+      New Campaign
+    </Button>
+  ) : null;
+
   return (
-    <DashboardLayout>
+    <DashboardLayout headerActions={headerActions}>
       {renderContent()}
     </DashboardLayout>
   );
