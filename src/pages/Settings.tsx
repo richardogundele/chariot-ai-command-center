@@ -19,7 +19,7 @@ const Settings = () => {
   }, []);
 
   return (
-    <DashboardLayout>
+    <DashboardLayout headerLeftText="Configure your application settings">
       <div className="mb-8">
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground">Configure your application settings</p>

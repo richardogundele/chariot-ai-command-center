@@ -30,7 +30,7 @@ const Campaign = () => {
   ) : null;
 
   return (
-    <DashboardLayout headerActions={headerActions}>
+    <DashboardLayout headerActions={headerActions} headerLeftText="Manage your Facebook marketing campaigns with advanced tools">
       {renderContent()}
     </DashboardLayout>
   );

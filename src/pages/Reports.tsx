@@ -54,7 +54,7 @@ const Reports = () => {
   };
 
   return (
-    <DashboardLayout className="space-y-6">
+    <DashboardLayout className="space-y-6" headerLeftText="View your campaign performance and insight">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Reports & Analytics</h1>

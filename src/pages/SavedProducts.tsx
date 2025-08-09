@@ -183,7 +183,7 @@ const SavedProducts = () => {
   );
 
   return (
-    <DashboardLayout headerActions={headerActions}>
+    <DashboardLayout headerActions={headerActions} headerLeftText="View and manage your product library_">
       <ProductsHeader hideAddButton />
 
       {loading ? (

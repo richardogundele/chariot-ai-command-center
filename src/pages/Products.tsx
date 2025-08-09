@@ -107,7 +107,7 @@ const Products = () => {
   );
 
   return (
-    <DashboardLayout headerActions={headerActions}>
+    <DashboardLayout headerActions={headerActions} headerLeftText="View and manage your product library_">
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:justify-start sm:items-start gap-3">
           <div>

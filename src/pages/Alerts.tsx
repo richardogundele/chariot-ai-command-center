@@ -8,7 +8,7 @@ import { Alert } from "@/components/alerts/Alert";
 
 const Alerts = () => {
   return (
-    <DashboardLayout headerActions={(<Button variant="outline" size="sm" className="font-medium">Filter</Button>)}>
+    <DashboardLayout headerActions={(<Button variant="outline" size="sm" className="font-medium">Filter</Button>)} headerLeftText="Review and respond to AI-generated alerts">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold">Alerts & Intervention</h1>

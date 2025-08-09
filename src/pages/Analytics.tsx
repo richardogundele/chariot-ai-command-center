@@ -69,7 +69,7 @@ const Analytics = () => {
   const [dateRange, setDateRange] = useState("30d");
 
   return (
-    <DashboardLayout>
+    <DashboardLayout headerLeftText="View your campaign performance and insight">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold chariot-gradient-text">Analytics</h1>
