@@ -8,7 +8,7 @@ import { Alert } from "@/components/alerts/Alert";
 
 const Alerts = () => {
   return (
-    <DashboardLayout>
+    <DashboardLayout headerActions={(<Button variant="outline" size="sm" className="font-medium">Filter</Button>)}>
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold">Alerts & Intervention</h1>

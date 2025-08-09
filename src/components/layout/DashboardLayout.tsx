@@ -76,7 +76,7 @@ export const DashboardLayout = ({ children, className = "", headerActions }: Das
         </header>
         
         {/* Main Content with responsive padding */}
-        <main className={`flex-1 pt-16 sm:pt-20 p-4 lg:p-6 transition-all duration-300 ${className}`}>
+        <main className={`flex-1 pt-20 sm:pt-24 p-4 lg:p-6 transition-all duration-300 ${className}`}>
           {children}
         </main>
       </div>

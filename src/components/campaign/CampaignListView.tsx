@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CampaignList } from "@/components/campaign/CampaignList";
@@ -31,6 +31,12 @@ export const CampaignListView = ({ onSelectCampaign }: CampaignListViewProps) =>
     dateRange: 'all',
     budgetRange: 'all'
   });
+
+  useEffect(() => {
+    const open = () => setOpenDialog(true);
+    window.addEventListener('open-campaign-dialog', open);
+    return () => window.removeEventListener('open-campaign-dialog', open);
+  }, []);
 
   const handleCreateCampaign = () => {
     setOpenDialog(true);

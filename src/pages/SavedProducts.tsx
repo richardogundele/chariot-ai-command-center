@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 // Import refactored components
 import ProductsHeader from "@/components/products/ProductsHeader";
@@ -173,9 +175,16 @@ const SavedProducts = () => {
     return products.filter(p => p.status === tabValue);
   };
 
+  const headerActions = (
+    <Button onClick={() => navigate("/products")} size="sm" className="font-medium">
+      <Plus className="h-4 w-4 mr-2" />
+      Add New Product
+    </Button>
+  );
+
   return (
-    <DashboardLayout>
-      <ProductsHeader />
+    <DashboardLayout headerActions={headerActions}>
+      <ProductsHeader hideAddButton />
 
       {loading ? (
         <ProductsLoading />

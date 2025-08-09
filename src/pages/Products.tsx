@@ -99,8 +99,15 @@ const Products = () => {
     setViewDialog(true);
   };
 
+  const headerActions = (
+    <Button onClick={handleAddProduct} size="sm" className="font-medium">
+      <Plus className="h-4 w-4 mr-2" />
+      Add Product
+    </Button>
+  );
+
   return (
-    <DashboardLayout>
+    <DashboardLayout headerActions={headerActions}>
       <div className="flex flex-col gap-4 mb-6">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
           <div>
